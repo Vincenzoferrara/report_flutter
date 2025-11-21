@@ -1,5 +1,5 @@
-/// Report Designer - Sistema completo per creare e visualizzare report/etichette
-library report_designer;
+/// Report Flutter - Sistema completo per creare e visualizzare report/etichette
+library report_flutter;
 
 // Core - Modelli e utilità base
 export 'models/report_element.dart';

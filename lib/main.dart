@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'report_designer.dart';
+import 'report_flutter.dart';
 
 void main() {
-  runApp(const ReportDesignerDemoApp());
+  runApp(const ReportFlutterDemoApp());
 }
 
-class ReportDesignerDemoApp extends StatelessWidget {
-  const ReportDesignerDemoApp({super.key});
+class ReportFlutterDemoApp extends StatelessWidget {
+  const ReportFlutterDemoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Report Designer Library Demo',
+      title: 'Report Flutter Library Demo',
       theme: ThemeData.light(), // Tema standard temporaneo
       home: const DemoHomePage(),
       debugShowCheckedModeBanner: false,
@@ -99,7 +99,7 @@ class _DemoHomePageState extends State<DemoHomePage> with TickerProviderStateMix
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Report Designer Demo'),
+        title: const Text('Report Flutter Demo'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         bottom: TabBar(
           controller: _tabController,

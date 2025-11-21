@@ -1,4 +1,4 @@
-# Report Designer Flutter Library
+# Report Flutter Library
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev/)
@@ -41,12 +41,12 @@ Una libreria Flutter completa per creare e visualizzare report/etichette con int
 ### Installazione
 ```yaml
 dependencies:
-  report_designer: ^1.0.0
+  report_flutter: ^1.0.0
 ```
 
 ### Utilizzo Base - Report Builder
 ```dart
-import 'package:report_designer/report_designer.dart';
+import 'package:report_flutter/report_flutter.dart';
 
 class MyReportBuilder extends StatelessWidget {
   @override
