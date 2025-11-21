@@ -1,0 +1,216 @@
+{
+  "format": "rpt",
+  "version": "1.0",
+  "metadata": {
+    "name": "Etichetta Prodotto",
+    "description": "Template per etichette prodotti con barcode",
+    "author": "Report Designer",
+    "version": "1.0",
+    "createdAt": "2024-01-15T10:30:00Z",
+    "category": "product"
+  },
+  "template": {
+    "id": "product_label_001",
+    "name": "Etichetta Prodotto",
+    "description": "Etichetta standard per prodotti con barcode e informazioni",
+    "reportType": "label",
+    "pageFormat": "a4Portrait",
+    "pageWidth": 210,
+    "pageHeight": 297,
+    "marginTop": 10,
+    "marginBottom": 10,
+    "marginLeft": 10,
+    "marginRight": 10,
+    "itemsPerRow": 3,
+    "itemsPerColumn": 8,
+    "horizontalGap": 2,
+    "verticalGap": 2,
+    "itemWidth": 50,
+    "itemHeight": 30,
+    "dataSchemaName": "Product",
+    "elements": [
+      {
+        "id": "product_name",
+        "type": "dynamicField",
+        "x": 5,
+        "y": 3,
+        "width": 40,
+        "height": 6,
+        "rotation": 0,
+        "zIndex": 1,
+        "properties": {
+          "fieldName": "name",
+          "fontSize": 8,
+          "fontWeight": "bold",
+          "alignment": "center",
+          "color": "#000000",
+          "maxLines": 2
+        }
+      },
+      {
+        "id": "product_price",
+        "type": "dynamicField",
+        "x": 5,
+        "y": 9,
+        "width": 20,
+        "height": 4,
+        "rotation": 0,
+        "zIndex": 2,
+        "properties": {
+          "fieldName": "price",
+          "fontSize": 7,
+          "fontWeight": "bold",
+          "alignment": "left",
+          "color": "#FF0000",
+          "format": "currency"
+        }
+      },
+      {
+        "id": "product_sku",
+        "type": "dynamicField",
+        "x": 25,
+        "y": 9,
+        "width": 20,
+        "height": 4,
+        "rotation": 0,
+        "zIndex": 3,
+        "properties": {
+          "fieldName": "sku",
+          "fontSize": 6,
+          "fontWeight": "normal",
+          "alignment": "right",
+          "color": "#666666"
+        }
+      },
+      {
+        "id": "product_barcode",
+        "type": "barcode",
+        "x": 5,
+        "y": 13,
+        "width": 40,
+        "height": 10,
+        "rotation": 0,
+        "zIndex": 4,
+        "properties": {
+          "fieldName": "sku",
+          "barcodeType": "code128",
+          "showText": true,
+          "textSize": 6
+        }
+      },
+      {
+        "id": "category_label",
+        "type": "text",
+        "x": 5,
+        "y": 24,
+        "width": 40,
+        "height": 3,
+        "rotation": 0,
+        "zIndex": 5,
+        "properties": {
+          "text": "Categoria: {category}",
+          "fontSize": 5,
+          "fontWeight": "normal",
+          "alignment": "center",
+          "color": "#666666"
+        }
+      },
+      {
+        "id": "border_rectangle",
+        "type": "rectangle",
+        "x": 1,
+        "y": 1,
+        "width": 48,
+        "height": 28,
+        "rotation": 0,
+        "zIndex": 0,
+        "properties": {
+          "strokeWidth": 0.5,
+          "strokeColor": "#CCCCCC",
+          "fillColor": null,
+          "borderRadius": 2
+        }
+      }
+    ],
+    "createdAt": "2024-01-15T10:30:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z"
+  },
+  "dataSchema": {
+    "name": "Product",
+    "displayName": "Prodotto",
+    "description": "Schema per dati prodotto",
+    "fields": [
+      {
+        "name": "id",
+        "displayName": "ID Prodotto",
+        "type": "int",
+        "isRequired": true,
+        "validationRules": ["min:1"]
+      },
+      {
+        "name": "name",
+        "displayName": "Nome Prodotto",
+        "type": "String",
+        "isRequired": true,
+        "validationRules": ["minLength:2", "maxLength:100"]
+      },
+      {
+        "name": "description",
+        "displayName": "Descrizione",
+        "type": "String",
+        "isRequired": false,
+        "validationRules": ["maxLength:500"]
+      },
+      {
+        "name": "price",
+        "displayName": "Prezzo",
+        "type": "double",
+        "isRequired": true,
+        "defaultValue": 0.0,
+        "validationRules": ["min:0"]
+      },
+      {
+        "name": "category",
+        "displayName": "Categoria",
+        "type": "String",
+        "isRequired": false,
+        "validationRules": ["maxLength:50"]
+      },
+      {
+        "name": "sku",
+        "displayName": "Codice SKU",
+        "type": "String",
+        "isRequired": true,
+        "validationRules": ["minLength:3", "maxLength:20", "pattern:^[A-Z0-9-]+$"]
+      },
+      {
+        "name": "inStock",
+        "displayName": "Disponibile",
+        "type": "bool",
+        "isRequired": false,
+        "defaultValue": true
+      },
+      {
+        "name": "createdAt",
+        "displayName": "Data Creazione",
+        "type": "DateTime",
+        "isRequired": true
+      }
+    ],
+    "sampleData": {
+      "id": 1,
+      "name": "iPhone 15 Pro",
+      "description": "Smartphone Apple con chip A17 Pro",
+      "price": 1199.99,
+      "category": "Smartphone",
+      "sku": "IP15-PRO-128",
+      "inStock": true,
+      "createdAt": "2024-01-15T10:30:00Z"
+    },
+    "metadata": {
+      "version": "1.0",
+      "author": "Report Designer",
+      "category": "product"
+    }
+  }
+}
