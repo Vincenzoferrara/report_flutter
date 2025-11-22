@@ -59,6 +59,12 @@ dependencies:
 
   # CSV parsing for data import
   csv: ^6.0.0
+  
+  # Excel export
+  excel: ^4.0.1
+  
+  # File operations
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:

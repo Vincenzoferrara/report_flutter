@@ -5,6 +5,58 @@ import '../../models/report_element.dart';
 import '../../models/report_template.dart';
 import '../../schema/data_schema.dart';
 import '../../core/data_extractor.dart';
+import '../widgets/interactive_table.dart';
+import '../widgets/interactive_chart.dart';
+
+
+
+/// Modalità di visualizzazione del report
+enum ReportViewMode {
+  singlePage,
+  continuous,
+  twoPage,
+  dashboard,
+}
+
+/// Opzioni di filtro per i dati del report
+class ReportFilter {
+  final String field;
+  final dynamic value;
+  final String operator; // 'equals', 'contains', 'greater', 'less', 'between'
+  final bool enabled;
+
+  const ReportFilter({
+    required this.field,
+    required this.value,
+    this.operator = 'equals',
+    this.enabled = true,
+  });
+
+  ReportFilter copyWith({
+    String? field,
+    dynamic value,
+    String? operator,
+    bool? enabled,
+  }) {
+    return ReportFilter(
+      field: field ?? this.field,
+      value: value ?? this.value,
+      operator: operator ?? this.operator,
+      enabled: enabled ?? this.enabled,
+    );
+  }
+}
+
+/// Opzioni di ordinamento per le tabelle del report
+class ReportSort {
+  final String field;
+  final bool ascending;
+
+  const ReportSort({
+    required this.field,
+    this.ascending = true,
+  });
+}
 
 /// Opzioni per il visualizzatore report
 class ReportViewerOptions {
@@ -17,6 +69,22 @@ class ReportViewerOptions {
   final bool enableZoom;
   final bool enablePan;
   final EdgeInsets padding;
+  
+  // Funzionalità specifiche report
+  final ReportViewMode viewMode;
+  final bool showSidebar;
+  final bool enableFilters;
+  final bool enableParameters;
+  final bool enableDataInteraction;
+  final bool enableTableSorting;
+  final bool enableRowSelection;
+  final bool enableDrillDown;
+  final bool enableExport;
+  final bool enableAnnotations;
+  final bool enableDataRefresh;
+  final List<ReportFilter> filters;
+  final List<ReportSort> sorts;
+  final Map<String, dynamic> parameters;
 
   const ReportViewerOptions({
     this.scale = 1.0,
@@ -28,6 +96,22 @@ class ReportViewerOptions {
     this.enableZoom = true,
     this.enablePan = true,
     this.padding = const EdgeInsets.all(8.0),
+    
+    // Funzionalità report
+    this.viewMode = ReportViewMode.singlePage,
+    this.showSidebar = true,
+    this.enableFilters = true,
+    this.enableParameters = true,
+    this.enableDataInteraction = true,
+    this.enableTableSorting = true,
+    this.enableRowSelection = true,
+    this.enableDrillDown = true,
+    this.enableExport = true,
+    this.enableAnnotations = false,
+    this.enableDataRefresh = true,
+    this.filters = const [],
+    this.sorts = const [],
+    this.parameters = const {},
   });
 
   ReportViewerOptions copyWith({
@@ -40,6 +124,22 @@ class ReportViewerOptions {
     bool? enableZoom,
     bool? enablePan,
     EdgeInsets? padding,
+    
+    // Funzionalità report
+    ReportViewMode? viewMode,
+    bool? showSidebar,
+    bool? enableFilters,
+    bool? enableParameters,
+    bool? enableDataInteraction,
+    bool? enableTableSorting,
+    bool? enableRowSelection,
+    bool? enableDrillDown,
+    bool? enableExport,
+    bool? enableAnnotations,
+    bool? enableDataRefresh,
+    List<ReportFilter>? filters,
+    List<ReportSort>? sorts,
+    Map<String, dynamic>? parameters,
   }) {
     return ReportViewerOptions(
       scale: scale ?? this.scale,
@@ -51,6 +151,21 @@ class ReportViewerOptions {
       enableZoom: enableZoom ?? this.enableZoom,
       enablePan: enablePan ?? this.enablePan,
       padding: padding ?? this.padding,
+      
+      viewMode: viewMode ?? this.viewMode,
+      showSidebar: showSidebar ?? this.showSidebar,
+      enableFilters: enableFilters ?? this.enableFilters,
+      enableParameters: enableParameters ?? this.enableParameters,
+      enableDataInteraction: enableDataInteraction ?? this.enableDataInteraction,
+      enableTableSorting: enableTableSorting ?? this.enableTableSorting,
+      enableRowSelection: enableRowSelection ?? this.enableRowSelection,
+      enableDrillDown: enableDrillDown ?? this.enableDrillDown,
+      enableExport: enableExport ?? this.enableExport,
+      enableAnnotations: enableAnnotations ?? this.enableAnnotations,
+      enableDataRefresh: enableDataRefresh ?? this.enableDataRefresh,
+      filters: filters ?? this.filters,
+      sorts: sorts ?? this.sorts,
+      parameters: parameters ?? this.parameters,
     );
   }
 }
@@ -77,21 +192,36 @@ class ReportRenderer extends StatelessWidget {
         // Calcola le dimensioni disponibili
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
-        
+
         // Calcola le dimensioni base del template
         final templateWidth = template.itemWidth;
         final templateHeight = template.itemHeight;
-        
-        // Calcola la scala per riempire lo spazio disponibile
-        final horizontalScale = availableWidth / templateWidth;
-        final verticalScale = availableHeight / templateHeight;
-        
-        // Usa la scala più piccola per garantire che il template sia completamente visibile
-        final fillScale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
-        
-        // Applica la scala dell'utente se è diversa da 1.0, altrimenti usa la scala di riempimento
-        final finalScale = options.scale != 1.0 ? options.scale : fillScale;
-        
+
+        double finalScale;
+
+        // Se i constraints sono infiniti (es. dentro InteractiveViewer con constrained: false)
+        // usa una scala basata sulle dimensioni del template per una visualizzazione ragionevole
+        if (!availableWidth.isFinite || !availableHeight.isFinite) {
+          if (options.scale != 1.0) {
+            finalScale = options.scale;
+          } else {
+            // Calcola una scala ragionevole basata sulle dimensioni del template
+            // Target: etichetta piccola (50x30mm) -> scala ~10, A4 (210x297mm) -> scala ~3
+            final minDimension = templateWidth < templateHeight ? templateWidth : templateHeight;
+            finalScale = (300 / minDimension).clamp(2.0, 15.0);
+          }
+        } else {
+          // Calcola la scala per riempire lo spazio disponibile
+          final horizontalScale = availableWidth / templateWidth;
+          final verticalScale = availableHeight / templateHeight;
+
+          // Usa la scala più piccola per garantire che il template sia completamente visibile
+          final fillScale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
+
+          // Applica la scala dell'utente se è diversa da 1.0, altrimenti usa la scala di riempimento
+          finalScale = options.scale != 1.0 ? options.scale : fillScale;
+        }
+
         final width = templateWidth * finalScale;
         final height = templateHeight * finalScale;
 
@@ -129,7 +259,7 @@ class ReportRenderer extends StatelessWidget {
       size: Size(width, height),
       painter: _GridPainter(
         scale: scale,
-        color: options.borderColor.withOpacity(0.3),
+        color: options.borderColor.withValues(alpha: 0.3),
       ),
     );
   }
@@ -177,11 +307,11 @@ class ReportRenderer extends StatelessWidget {
       case ReportElementType.table:
         return _renderTable(element, scale);
       case ReportElementType.pieChart:
-        return _renderChartPlaceholder('Grafico Torta', Icons.pie_chart, scale);
+        return _renderInteractiveChart(element, scale, ChartType.pie);
       case ReportElementType.barChart:
-        return _renderChartPlaceholder('Grafico Barre', Icons.bar_chart, scale);
+        return _renderInteractiveChart(element, scale, ChartType.bar);
       case ReportElementType.lineChart:
-        return _renderChartPlaceholder('Grafico Linee', Icons.show_chart, scale);
+        return _renderInteractiveChart(element, scale, ChartType.line);
     }
   }
 
@@ -216,6 +346,9 @@ class ReportRenderer extends StatelessWidget {
     final color = _parseColor(element.properties['color'] ?? '#000000');
     final backgroundColor = element.properties['backgroundColor'];
 
+    // Scala 1:1 - fontSize in punti scalato direttamente
+    final scaledFontSize = fontSize * scale;
+
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -223,7 +356,7 @@ class ReportRenderer extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: fontSize * scale,
+          fontSize: scaledFontSize,
           fontWeight: fontWeight,
           color: color,
         ),
@@ -249,13 +382,16 @@ class ReportRenderer extends StatelessWidget {
     final formattedValue = DataExtractor.formatValue(value, format: format);
     final displayText = '$prefix$formattedValue$suffix';
 
+    // Scala 1:1 - fontSize in punti scalato direttamente
+    final scaledFontSize = fontSize * scale;
+
     return Container(
       width: double.infinity,
       height: double.infinity,
       child: Text(
         displayText,
         style: TextStyle(
-          fontSize: fontSize * scale,
+          fontSize: scaledFontSize,
           fontWeight: fontWeight,
           color: color,
         ),
@@ -366,7 +502,7 @@ class ReportRenderer extends StatelessWidget {
         if (imageData is String && imageData.startsWith('data:image')) {
           // Base64 image
           try {
-            final bytes = const Base64Decoder().convert(imageData.split(',')[1]);
+            final bytes = base64.decode(imageData.split(',')[1]);
             imageWidget = Image.memory(
               bytes,
               fit: fit,
@@ -534,7 +670,7 @@ class ReportRenderer extends StatelessWidget {
       child: Text(
         value.toString(),
         style: TextStyle(
-          fontSize: fontSize * scale,
+          fontSize: fontSize * scale / 3,
           color: Colors.black87,
         ),
         maxLines: maxLines,
@@ -557,7 +693,7 @@ class ReportRenderer extends StatelessWidget {
       child: Text(
         formattedDate,
         style: TextStyle(
-          fontSize: fontSize * scale,
+          fontSize: fontSize * scale / 3,
           color: color,
         ),
       ),
@@ -578,7 +714,7 @@ class ReportRenderer extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: fontSize * scale,
+          fontSize: fontSize * scale / 3,
           color: color,
         ),
       ),
@@ -609,6 +745,9 @@ class ReportRenderer extends StatelessWidget {
     final cellStyle = element.properties['cellStyle'] as Map? ?? {};
     final borderWidth = (element.properties['borderWidth'] as num?)?.toDouble() ?? 0.5;
     final borderColor = _parseColor(element.properties['borderColor'] ?? '#000000');
+    final enableSorting = options.enableTableSorting;
+    final enableSelection = options.enableRowSelection;
+    final enableDrillDown = options.enableDrillDown;
     
     // Get table data
     List<dynamic> tableData = [];
@@ -626,84 +765,47 @@ class ReportRenderer extends StatelessWidget {
           border: Border.all(color: Colors.grey.shade400),
         ),
         child: Center(
-          child: Text(
-            'Nessun dato tabella',
-            style: TextStyle(
-              fontSize: 8 * scale,
-              color: Colors.grey.shade600,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.table_chart_outlined,
+                size: 24 * scale,
+                color: Colors.grey.shade600,
+              ),
+              SizedBox(height: 8 * scale),
+              Text(
+                'Nessun dato tabella',
+                style: TextStyle(
+                  fontSize: 8 * scale,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
     
-    // Build table
+    // Build interactive table
     return Container(
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
         border: Border.all(color: borderColor, width: borderWidth),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: DataTable(
-            headingRowColor: MaterialStateProperty.all(
-              _parseColor(headerStyle['backgroundColor'] ?? '#EEEEEE'),
-            ),
-            dataRowColor: MaterialStateProperty.all(Colors.white),
-            border: TableBorder.all(
-              color: borderColor,
-              width: borderWidth,
-            ),
-            columnSpacing: 4 * scale,
-            horizontalMargin: 2 * scale,
-            headingTextStyle: TextStyle(
-              fontSize: (headerStyle['fontSize'] as num?)?.toDouble() ?? 10 * scale,
-              fontWeight: _getFontWeight(headerStyle['fontWeight']),
-              color: Colors.black87,
-            ),
-            dataTextStyle: TextStyle(
-              fontSize: (cellStyle['fontSize'] as num?)?.toDouble() ?? 9 * scale,
-              color: Colors.black87,
-            ),
-            columns: columns.map<DataColumn>((column) {
-              final columnDef = column as Map<String, dynamic>;
-              return DataColumn(
-                label: Text(
-                  columnDef['title'] ?? columnDef['field'] ?? '',
-                  style: TextStyle(
-                    fontSize: (headerStyle['fontSize'] as num?)?.toDouble() ?? 10 * scale,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              );
-            }).toList(),
-            rows: tableData.map<DataRow>((rowData) {
-              return DataRow(
-                cells: columns.map<DataCell>((column) {
-                  final columnDef = column as Map<String, dynamic>;
-                  final field = columnDef['field'] as String;
-                  final value = DataExtractor.getValue(rowData, field) ?? '';
-                  
-                  return DataCell(
-                    SizedBox(
-                      width: (columnDef['width'] as num?)?.toDouble() ?? 80 * scale,
-                      child: Text(
-                        value.toString(),
-                        style: TextStyle(
-                          fontSize: (cellStyle['fontSize'] as num?)?.toDouble() ?? 9 * scale,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              );
-            }).toList(),
-          ),
-        ),
+      child: InteractiveTable(
+        columns: columns.cast<Map<String, dynamic>>(),
+        tableData: tableData,
+        headerStyle: headerStyle.cast<String, dynamic>(),
+        cellStyle: cellStyle.cast<String, dynamic>(),
+        borderWidth: borderWidth,
+        borderColor: borderColor,
+        scale: scale,
+        enableSorting: enableSorting,
+        enableSelection: enableSelection,
+        enableDrillDown: enableDrillDown,
+        onRowClick: enableDrillDown ? (rowData) => _handleDrillDown(rowData, dataSource) : null,
       ),
     );
   }
@@ -713,7 +815,7 @@ class ReportRenderer extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: Colors.red.withValues(alpha: 0.1),
         border: Border.all(color: Colors.red),
       ),
       child: Center(
@@ -820,6 +922,93 @@ class ReportRenderer extends StatelessWidget {
         color: Colors.grey.shade500,
       ),
     );
+  }
+
+  Widget _renderInteractiveChart(ReportElement element, double scale, ChartType chartType) {
+    final dataSource = element.properties['dataSource'] ?? '';
+    final enableDrillDown = options.enableDrillDown;
+    
+    // Get chart data
+    List<dynamic> chartData = [];
+    if (dataSource.isNotEmpty) {
+      chartData = DataExtractor.getValue(data, dataSource) as List? ?? [];
+    }
+    
+    if (chartData.isEmpty) {
+      return _buildChartPlaceholder(chartType, scale);
+    }
+    
+    return InteractiveChart(
+      type: chartType,
+      data: chartData,
+      style: element.properties ?? {},
+      width: element.width ?? 300,
+      height: element.height ?? 200,
+      scale: scale,
+      enableZoom: false,
+      enablePan: false,
+      enableSelection: enableDrillDown,
+      onDataPointTap: enableDrillDown ? (itemData) => _handleChartDrillDown(itemData, chartType) : null,
+    );
+  }
+
+  Widget _buildChartPlaceholder(ChartType chartType, double scale) {
+    IconData icon;
+    String label;
+    
+    switch (chartType) {
+      case ChartType.pie:
+        icon = Icons.pie_chart;
+        label = 'Grafico Torta';
+        break;
+      case ChartType.bar:
+        icon = Icons.bar_chart;
+        label = 'Grafico Barre';
+        break;
+      case ChartType.line:
+        icon = Icons.show_chart;
+        label = 'Grafico Linee';
+        break;
+      case ChartType.area:
+        icon = Icons.area_chart;
+        label = 'Grafico Area';
+        break;
+      case ChartType.scatter:
+        icon = Icons.scatter_plot;
+        label = 'Grafico Dispersione';
+        break;
+    }
+    
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 24 * scale, color: Colors.grey.shade600),
+          SizedBox(height: 4 * scale),
+          Text(
+            label,
+            style: TextStyle(fontSize: 8 * scale, color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleChartDrillDown(dynamic itemData, ChartType chartType) {
+    // TODO: Implementare drill-down per grafici
+    // Questo verrà gestito dal ReportViewer principale
+  }
+
+  void _handleDrillDown(dynamic rowData, String dataSource) {
+    // TODO: Implementare drill-down per tabelle
+    // Questo verrà gestito dal ReportViewer principale
   }
 }
 

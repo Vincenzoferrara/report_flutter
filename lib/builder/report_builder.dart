@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:async';
 import '../models/report_element.dart';
 import '../models/report_template.dart';
 import '../schema/data_schema.dart';
@@ -49,6 +50,9 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   
   // Traccia se lo zoom è stato modificato manualmente
   bool _isManualZoom = false;
+  
+  // Debouncer per prevenire chiamate multiple
+  Timer? _changeTimer;
 
   // GlobalKey per il canvas per calcolare posizioni
   final GlobalKey _canvasKey = GlobalKey();
@@ -112,6 +116,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   void dispose() {
     _tabController.dispose();
     _focusNode.dispose();
+    _changeTimer?.cancel();
     super.dispose();
   }
 
@@ -328,41 +333,45 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       }
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Calcola scala per adattare al contenitore
-        final availableWidth = constraints.maxWidth - 32;
-        final availableHeight = constraints.maxHeight - 32;
-        final scaleX = availableWidth / _template.itemWidth;
-        final scaleY = availableHeight / _template.itemHeight;
-        final previewScale = (scaleX < scaleY ? scaleX : scaleY).clamp(1.0, 5.0);
-
-        return Container(
-          color: ReportTheme.canvasBackground,
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: Container(
-              width: _template.itemWidth * previewScale,
-              height: _template.itemHeight * previewScale,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+    // Se non ci sono elementi, mostra messaggio
+    if (_template.elements.isEmpty) {
+      return Container(
+        color: ReportTheme.canvasBackground,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.preview, size: 64, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              Text(
+                'Nessun elemento nel template',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
               ),
-              child: ReportViewer(
-                template: _template,
-                data: sampleData != null ? [sampleData] : [],
-                options: ReportViewerOptions(scale: previewScale),
+              const SizedBox(height: 8),
+              Text(
+                'Aggiungi elementi nel Designer per vedere l\'anteprima',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
               ),
-            ),
+            ],
           ),
-        );
-      },
+        ),
+      );
+    }
+
+    // Usa dati esempio vuoti se non forniti
+    final dataList = sampleData != null ? [sampleData] : [<String, dynamic>{}];
+
+    // Wrap in SizedBox.expand per dare constraints espliciti al Column interno di ReportViewer
+    return SizedBox.expand(
+      child: ReportViewer(
+        template: _template,
+        data: dataList,
+        options: const ReportViewerOptions(
+          enableZoom: true,
+          enablePan: true,
+        ),
+        enablePagination: false,
+      ),
     );
   }
 
@@ -2138,7 +2147,14 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     if (saveHistory) {
       _saveToHistory();
     }
-    widget.onTemplateChanged?.call(_template);
+    
+    // Cancella il timer precedente e ne imposta uno nuovo
+    _changeTimer?.cancel();
+    _changeTimer = Timer(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        widget.onTemplateChanged?.call(_template);
+      }
+    });
   }
 
   void _showSizeDialog() {
