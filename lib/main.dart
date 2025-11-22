@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'report_flutter.dart';
+import 'builder/builder.dart';
+import 'models/report_template.dart';
 import 'theme/theme.dart';
 
 void main() {
@@ -11,43 +12,23 @@ class ReportFlutterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Report Flutter Library',
-      theme: AppTheme.themeData,
-      home: const HomePage(),
-      debugShowCheckedModeBanner: false,
+    // Crea un template di default per il builder
+    final defaultTemplate = ReportTemplate(
+      id: 'default',
+      name: 'Nuovo Report',
+      description: 'Report di esempio',
+      itemWidth: 210.0, // A4
+      itemHeight: 297.0, // A4
+      elements: [],
     );
-  }
-}
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Report Flutter Library'),
-        backgroundColor: AppTheme.primary,
+    return MaterialApp(
+      title: 'Report Designer',
+      theme: AppTheme.themeData,
+      home: ReportBuilder(
+        template: defaultTemplate,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.description, size: 64, color: AppTheme.textSecondary),
-            SizedBox(height: 16),
-            Text(
-              'Report Flutter Library',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'A Flutter library for creating and viewing reports',
-              style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
-            ),
-          ],
-        ),
-      ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

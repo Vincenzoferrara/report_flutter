@@ -51,6 +51,12 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   // Traccia se lo zoom è stato modificato manualmente
   bool _isManualZoom = false;
   
+  // Traccia se un campo di testo ha il focus (per evitare cancellazione accidentale)
+  bool _isTextEditing = false;
+  
+  // Focus node per tracciare il focus sui campi di testo
+  final FocusNode _dialogFocusNode = FocusNode();
+  
   // Debouncer per prevenire chiamate multiple
   Timer? _changeTimer;
 
@@ -380,10 +386,12 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
     final isCtrl = HardwareKeyboard.instance.isControlPressed;
 
-    // Delete - elimina elemento selezionato
+    // Delete - elimina elemento selezionato (solo se non stiamo editando testo)
     if (event.logicalKey == LogicalKeyboardKey.delete ||
         event.logicalKey == LogicalKeyboardKey.backspace) {
-      if (_selectedElementId != null) {
+      // Controlla se il focus è su un campo di testo o sulla dialog
+      final hasTextFocus = _isTextEditing || _dialogFocusNode.hasFocus;
+      if (_selectedElementId != null && !hasTextFocus) {
         _deleteSelectedElement();
         return KeyEventResult.handled;
       }
@@ -549,38 +557,46 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     );
   }
 
-  /// Canvas principale del designer - occupa tutto lo spazio disponibile
+   /// Canvas principale del designer - occupa tutto lo spazio disponibile
   Widget _buildDesignerCanvas() {
-    return Container(
-      color: AppTheme.canvasBackground,
-      child: Column(
-        children: [
-          // Toolbar
-          _buildToolbar(),
+    return GestureDetector(
+      onTap: () {
+        // Resetta il flag di editing quando si clicca sul canvas
+        setState(() => _isTextEditing = false);
+        // Rimuove il focus da eventuali campi di testo
+        _dialogFocusNode.unfocus();
+      },
+      child: Container(
+        color: AppTheme.canvasBackground,
+        child: Column(
+          children: [
+            // Toolbar
+            _buildToolbar(),
 
-          // Canvas - occupa tutto lo spazio rimanente
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // Calcola scala di riempimento automatico
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _calculateFillScale(constraints);
-                });
+            // Canvas - occupa tutto lo spazio rimanente
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Calcola scala di riempimento automatico
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _calculateFillScale(constraints);
+                  });
 
-                return InteractiveViewer(
-                  constrained: false, // Permette zoom oltre i limiti del contenitore
-                  boundaryMargin: EdgeInsets.all(constraints.maxWidth * 0.5),
-                  minScale: 0.05,
-                  maxScale: 6.0,
-                  panEnabled: !_isDraggingElement,
-                  child: Center(
-                    child: _buildCanvasWithRulers(constraints),
-                  ),
-                );
-              },
+                  return InteractiveViewer(
+                    constrained: false, // Permette zoom oltre i limiti del contenitore
+                    boundaryMargin: EdgeInsets.all(constraints.maxWidth * 0.5),
+                    minScale: 0.05,
+                    maxScale: 6.0,
+                    panEnabled: !_isDraggingElement,
+                    child: Center(
+                      child: _buildCanvasWithRulers(constraints),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2394,6 +2410,10 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                       child: TextField(
                         controller: widthController,
                         keyboardType: TextInputType.number,
+                        focusNode: _dialogFocusNode,
+                        onTap: () => setState(() => _isTextEditing = true),
+                        onEditingComplete: () => setState(() => _isTextEditing = false),
+                        onSubmitted: (_) => setState(() => _isTextEditing = false),
                         decoration: const InputDecoration(
                           labelText: 'Larghezza (mm)',
                           border: OutlineInputBorder(),
@@ -2405,6 +2425,10 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                       child: TextField(
                         controller: heightController,
                         keyboardType: TextInputType.number,
+                        focusNode: _dialogFocusNode,
+                        onTap: () => setState(() => _isTextEditing = true),
+                        onEditingComplete: () => setState(() => _isTextEditing = false),
+                        onSubmitted: (_) => setState(() => _isTextEditing = false),
                         decoration: const InputDecoration(
                           labelText: 'Altezza (mm)',
                           border: OutlineInputBorder(),
