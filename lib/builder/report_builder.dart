@@ -10,6 +10,8 @@ import '../core/data_extractor.dart';
 import '../core/report_theme.dart';
 import '../export/pdf_exporter.dart';
 import '../formats/template_loader.dart';
+import '../viewer/report_viewer.dart';
+import '../viewer/renderers/report_renderer.dart';
 
 
 /// Widget principale per il designer drag-and-drop di report/etichette
@@ -33,7 +35,7 @@ class ReportBuilder extends StatefulWidget {
   State<ReportBuilder> createState() => _ReportBuilderState();
 }
 
-class _ReportBuilderState extends State<ReportBuilder> {
+class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProviderStateMixin {
   late ReportTemplate _template;
   String? _selectedElementId;
   List<FieldInfo> _availableFields = [];
@@ -82,6 +84,10 @@ class _ReportBuilderState extends State<ReportBuilder> {
   // Focus node per shortcut tastiera
   final FocusNode _focusNode = FocusNode();
 
+  // Tab controller per Designer/Anteprima
+  late TabController _tabController;
+  int _currentTabIndex = 0;
+
   // Getter per stato undo/redo
   bool get _canUndo => _undoStack.isNotEmpty;
   bool get _canRedo => _redoStack.isNotEmpty;
@@ -93,10 +99,18 @@ class _ReportBuilderState extends State<ReportBuilder> {
     _extractAllFields();
     // Salva stato iniziale
     _saveToHistory();
+    // Inizializza tab controller
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        setState(() => _currentTabIndex = _tabController.index);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -258,20 +272,97 @@ class _ReportBuilderState extends State<ReportBuilder> {
       focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: _handleKeyEvent,
-      child: Row(
+      child: Column(
         children: [
-          // Pannello sinistro - Elementi disponibili (larghezza fissa)
-          _buildElementsPanel(),
-
-          // Area centrale - Canvas del designer (occupa tutto lo spazio rimanente)
-          Expanded(
-            child: _buildDesignerCanvas(),
+          // Tab bar
+          Container(
+            color: ReportTheme.panelBackground,
+            child: TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(icon: Icon(Icons.edit), text: 'Designer'),
+                Tab(icon: Icon(Icons.preview), text: 'Anteprima'),
+              ],
+              labelColor: ReportTheme.primary,
+              unselectedLabelColor: ReportTheme.textSecondary,
+              indicatorColor: ReportTheme.primary,
+            ),
           ),
-
-          // Pannello destro - Proprietà elemento selezionato (larghezza fissa)
-          _buildPropertiesPanel(),
+          // Tab content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // Tab Designer
+                Row(
+                  children: [
+                    _buildElementsPanel(),
+                    Expanded(child: _buildDesignerCanvas()),
+                    _buildPropertiesPanel(),
+                  ],
+                ),
+                // Tab Anteprima
+                _buildPreviewTab(),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  /// Tab anteprima con ReportViewer
+  Widget _buildPreviewTab() {
+    // Prepara i dati di esempio
+    Map<String, dynamic>? sampleData;
+    if (widget.sampleData != null) {
+      if (widget.sampleData is Map<String, dynamic>) {
+        sampleData = widget.sampleData as Map<String, dynamic>;
+      } else {
+        try {
+          final dynamic obj = widget.sampleData;
+          if (obj.toMap != null) {
+            sampleData = obj.toMap() as Map<String, dynamic>;
+          }
+        } catch (_) {}
+      }
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calcola scala per adattare al contenitore
+        final availableWidth = constraints.maxWidth - 32;
+        final availableHeight = constraints.maxHeight - 32;
+        final scaleX = availableWidth / _template.itemWidth;
+        final scaleY = availableHeight / _template.itemHeight;
+        final previewScale = (scaleX < scaleY ? scaleX : scaleY).clamp(1.0, 5.0);
+
+        return Container(
+          color: ReportTheme.canvasBackground,
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Container(
+              width: _template.itemWidth * previewScale,
+              height: _template.itemHeight * previewScale,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ReportViewer(
+                template: _template,
+                data: sampleData != null ? [sampleData] : [],
+                options: ReportViewerOptions(scale: previewScale),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
