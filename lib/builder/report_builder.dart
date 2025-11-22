@@ -46,7 +46,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   Offset? _dragOffset;
 
   // Scala visualizzazione (mm -> pixel)
-  double _scale = 3.0;
+  double _scale = 1.0;
   
   // Traccia se lo zoom è stato modificato manualmente
   bool _isManualZoom = false;
@@ -668,7 +668,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           IconButton(
             icon: const Icon(Icons.zoom_out, size: AppTheme.iconSize),
             onPressed: () => setState(() {
-              _scale = (_scale - 0.5).clamp(1.0, 6.0);
+              _scale = (_scale - 0.25).clamp(0.25, 6.0);
               _isManualZoom = true;
             }),
             tooltip: 'Zoom -',
@@ -677,14 +677,14 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium),
             child: Text(
-              '${(_scale * 100 / 3).toInt()}%',
+              '${(_scale * 100).toInt()}%',
               style: AppTheme.bodyStyle,
             ),
           ),
           IconButton(
             icon: const Icon(Icons.zoom_in, size: AppTheme.iconSize),
             onPressed: () => setState(() {
-              _scale = (_scale + 0.5).clamp(1.0, 6.0);
+              _scale = (_scale + 0.25).clamp(0.25, 6.0);
               _isManualZoom = true;
             }),
             tooltip: 'Zoom +',
@@ -718,7 +718,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           IconButton(
             icon: const Icon(Icons.fullscreen, size: AppTheme.iconSize),
             onPressed: () => setState(() {
-              _scale = 3.0; // Scala default
+              _scale = 1.0; // Scala default
               _isManualZoom = true;
             }),
             tooltip: 'Dimensione reale',
@@ -1090,8 +1090,8 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   }
 
   Widget _buildElementPreview(ReportElement element) {
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
-    final scaledFontSize = fontSize * _scale / 3;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
+    final scaledFontSize = fontSize * _scale;
 
     switch (element.type) {
       case ReportElementType.text:

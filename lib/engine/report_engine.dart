@@ -140,7 +140,7 @@ class ReportEngine {
   // Metodi privati di rendering
   static Widget _renderTextElement(ReportElement element, double scale) {
     final text = element.properties['text'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
@@ -163,7 +163,7 @@ class ReportEngine {
     final prefix = element.properties['prefix'] ?? '';
     final suffix = element.properties['suffix'] ?? '';
     final format = element.properties['format'];
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
@@ -303,7 +303,7 @@ class ReportEngine {
   static Widget _renderTextboxElement(ReportElement element, dynamic data, double scale) {
     final fieldName = element.properties['fieldName'] ?? '';
     final placeholder = element.properties['placeholder'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
 
     final value = extractValue(data, fieldName) ?? placeholder;
 
@@ -325,7 +325,7 @@ class ReportEngine {
 
   static Widget _renderDateElement(ReportElement element, double scale) {
     final format = element.properties['format'] ?? 'dd/MM/yyyy';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     final now = DateTime.now();
@@ -383,7 +383,7 @@ class ReportEngine {
 
   static Widget _renderFormulaElement(ReportElement element, dynamic data, double scale) {
     final formula = element.properties['formula'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     return Container(
@@ -408,7 +408,7 @@ class ReportEngine {
 
   static Widget _renderMarkdownElement(ReportElement element, dynamic data, double scale) {
     final useMarkdown = element.properties['useMarkdown'] ?? false;
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     return Container(
