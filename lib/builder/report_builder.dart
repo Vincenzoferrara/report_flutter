@@ -68,6 +68,12 @@ class _ReportBuilderState extends State<ReportBuilder> {
   String? _draggingElementId;
   Offset? _lastPointerPosition;
 
+  // Resize handling
+  bool _isResizingElement = false;
+  String? _resizeHandle; // 'topLeft', 'topRight', 'bottomLeft', 'bottomRight', 'left', 'right', 'top', 'bottom'
+  static const double _handleSize = 8.0; // Size in pixels
+  static const double _minElementSize = 5.0; // Minimum size in mm
+
   // History per undo/redo
   final List<String> _undoStack = [];
   final List<String> _redoStack = [];
@@ -155,10 +161,43 @@ class _ReportBuilderState extends State<ReportBuilder> {
         type: field.type is Type ? field.type : String,
         isNested: false,
       )).toList();
-      
+
       final sourceName = _template.dataSchema!.displayName;
       _fieldsBySource[sourceName] = fields;
       _availableFields.addAll(fields);
+    }
+    // Se non c'è schema, estrai campi da sampleData
+    else if (widget.sampleData != null) {
+      Map<String, dynamic>? map;
+
+      // Se è già una Map
+      if (widget.sampleData is Map<String, dynamic>) {
+        map = widget.sampleData as Map<String, dynamic>;
+      }
+      // Se ha metodo toMap()
+      else {
+        try {
+          final dynamic obj = widget.sampleData;
+          if (obj.toMap != null) {
+            map = obj.toMap() as Map<String, dynamic>;
+          }
+        } catch (_) {
+          // Ignora se non ha toMap()
+        }
+      }
+
+      if (map != null) {
+        final fields = map.entries.map((entry) => FieldInfo(
+          name: entry.key,
+          displayName: _formatDisplayName(entry.key),
+          type: _inferType(entry.value),
+          isNested: entry.value is Map || entry.value is List,
+        )).toList();
+
+        const sourceName = 'Dati';
+        _fieldsBySource[sourceName] = fields;
+        _availableFields.addAll(fields);
+      }
     }
 
     // Estrai campi dalle sorgenti aggiuntive (solo se presenti)
@@ -179,6 +218,28 @@ class _ReportBuilderState extends State<ReportBuilder> {
         }
       }
     }
+  }
+
+  String _formatDisplayName(String name) {
+    return name
+        .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]} ${m[2]}')
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) => word.isNotEmpty
+            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+            : '')
+        .join(' ')
+        .trim();
+  }
+
+  Type _inferType(dynamic value) {
+    if (value == null) return String;
+    if (value is int) return int;
+    if (value is double) return double;
+    if (value is bool) return bool;
+    if (value is List) return List;
+    if (value is Map) return Map;
+    return String;
   }
 
   @override
@@ -690,6 +751,23 @@ class _ReportBuilderState extends State<ReportBuilder> {
             final xMm = localPos.dx / _scale;
             final yMm = localPos.dy / _scale;
 
+            // Prima controlla se siamo su un handle di resize dell'elemento selezionato
+            if (_selectedElementId != null) {
+              final selectedElement = _template.getElementById(_selectedElementId!);
+              if (selectedElement != null) {
+                final handle = _getResizeHandle(selectedElement, xMm, yMm);
+                if (handle != null) {
+                  _resizeHandle = handle;
+                  _lastPointerPosition = event.localPosition;
+                  setState(() {
+                    _isResizingElement = true;
+                    _isDraggingElement = true;
+                  });
+                  return;
+                }
+              }
+            }
+
             // Cerca elemento sotto il pointer (in ordine inverso per z-index)
             ReportElement? hitElement;
             for (final element in _template.sortedElements.reversed) {
@@ -712,16 +790,30 @@ class _ReportBuilderState extends State<ReportBuilder> {
             }
           },
           onPointerMove: (event) {
-            if (_draggingElementId == null || _lastPointerPosition == null) return;
-
-            final element = _template.getElementById(_draggingElementId!);
-            if (element == null) return;
+            if (_lastPointerPosition == null) return;
 
             final delta = event.localPosition - _lastPointerPosition!;
             _lastPointerPosition = event.localPosition;
 
             final deltaX = delta.dx / _scale;
             final deltaY = delta.dy / _scale;
+
+            // Gestione resize
+            if (_isResizingElement && _selectedElementId != null) {
+              final element = _template.getElementById(_selectedElementId!);
+              if (element != null) {
+                setState(() {
+                  _applyResize(element, deltaX, deltaY);
+                });
+              }
+              return;
+            }
+
+            // Gestione drag
+            if (_draggingElementId == null) return;
+
+            final element = _template.getElementById(_draggingElementId!);
+            if (element == null) return;
 
             double newX = element.x + deltaX;
             double newY = element.y + deltaY;
@@ -736,6 +828,18 @@ class _ReportBuilderState extends State<ReportBuilder> {
             });
           },
           onPointerUp: (event) {
+            // Reset resize state
+            if (_isResizingElement) {
+              setState(() {
+                _isResizingElement = false;
+                _isDraggingElement = false;
+              });
+              _resizeHandle = null;
+              _lastPointerPosition = null;
+              _notifyChange();
+              return;
+            }
+
             if (_draggingElementId == null) return;
 
             final element = _template.getElementById(_draggingElementId!);
@@ -807,26 +911,80 @@ class _ReportBuilderState extends State<ReportBuilder> {
 
   Widget _buildElementWidget(ReportElement element) {
     final isSelected = element.id == _selectedElementId;
+    final w = element.width * _scale;
+    final h = element.height * _scale;
 
     return Positioned(
       left: element.x * _scale,
       top: element.y * _scale,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.move,
-        child: Container(
-          width: element.width * _scale,
-          height: element.height * _scale,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: isSelected ? ReportTheme.elementSelected : ReportTheme.panelBorder,
-              width: isSelected ? 2 : 1,
+      child: SizedBox(
+        width: w,
+        height: h,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Elemento principale
+            MouseRegion(
+              cursor: SystemMouseCursors.move,
+              child: Container(
+                width: w,
+                height: h,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isSelected ? ReportTheme.elementSelected : ReportTheme.panelBorder,
+                    width: isSelected ? 2 : 1,
+                  ),
+                  color: isSelected ? ReportTheme.elementSelected.withValues(alpha: 0.1) : null,
+                ),
+                child: _buildElementPreview(element),
+              ),
             ),
-            color: isSelected ? ReportTheme.elementSelected.withValues(alpha: 0.1) : null,
-          ),
-          child: _buildElementPreview(element),
+            // Resize handles (solo se selezionato)
+            if (isSelected) ..._buildResizeHandles(w, h),
+          ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildResizeHandles(double w, double h) {
+    final handleColor = ReportTheme.elementSelected;
+    final half = _handleSize / 2;
+
+    Widget buildHandle(double left, double top, MouseCursor cursor) {
+      return Positioned(
+        left: left - half,
+        top: top - half,
+        child: MouseRegion(
+          cursor: cursor,
+          child: Container(
+            width: _handleSize,
+            height: _handleSize,
+            decoration: BoxDecoration(
+              color: handleColor,
+              border: Border.all(color: Colors.white, width: 1),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return [
+      // Angoli
+      buildHandle(0, 0, SystemMouseCursors.resizeUpLeftDownRight),
+      buildHandle(w, 0, SystemMouseCursors.resizeUpRightDownLeft),
+      buildHandle(0, h, SystemMouseCursors.resizeUpRightDownLeft),
+      buildHandle(w, h, SystemMouseCursors.resizeUpLeftDownRight),
+      // Bordi (solo se abbastanza grande)
+      if (w > _handleSize * 4) ...[
+        buildHandle(w / 2, 0, SystemMouseCursors.resizeUpDown),
+        buildHandle(w / 2, h, SystemMouseCursors.resizeUpDown),
+      ],
+      if (h > _handleSize * 4) ...[
+        buildHandle(0, h / 2, SystemMouseCursors.resizeLeftRight),
+        buildHandle(w, h / 2, SystemMouseCursors.resizeLeftRight),
+      ],
+    ];
   }
 
   Widget _buildElementPreview(ReportElement element) {
@@ -854,7 +1012,7 @@ class _ReportBuilderState extends State<ReportBuilder> {
           ),
         );
       case ReportElementType.barcode:
-        return Center(child: Icon(Icons.qr_code_2, color: ReportTheme.textSecondary));
+        return Center(child: Icon(Icons.barcode_reader, color: ReportTheme.textSecondary));
       case ReportElementType.qrCode:
         return Center(child: Icon(Icons.qr_code, color: ReportTheme.textSecondary));
       case ReportElementType.image:
@@ -1629,6 +1787,107 @@ class _ReportBuilderState extends State<ReportBuilder> {
       });
       _notifyChange();
     }
+  }
+
+  /// Determina quale handle di resize è sotto il cursore
+  String? _getResizeHandle(ReportElement element, double xMm, double yMm) {
+    if (element.id != _selectedElementId) return null;
+
+    final handleSizeMm = _handleSize / _scale;
+    final x = element.x;
+    final y = element.y;
+    final w = element.width;
+    final h = element.height;
+
+    // Angoli
+    if (_isInHandle(xMm, yMm, x, y, handleSizeMm)) return 'topLeft';
+    if (_isInHandle(xMm, yMm, x + w, y, handleSizeMm)) return 'topRight';
+    if (_isInHandle(xMm, yMm, x, y + h, handleSizeMm)) return 'bottomLeft';
+    if (_isInHandle(xMm, yMm, x + w, y + h, handleSizeMm)) return 'bottomRight';
+
+    // Bordi (solo se l'elemento è abbastanza grande)
+    if (w > handleSizeMm * 3) {
+      if (_isInHandle(xMm, yMm, x + w / 2, y, handleSizeMm)) return 'top';
+      if (_isInHandle(xMm, yMm, x + w / 2, y + h, handleSizeMm)) return 'bottom';
+    }
+    if (h > handleSizeMm * 3) {
+      if (_isInHandle(xMm, yMm, x, y + h / 2, handleSizeMm)) return 'left';
+      if (_isInHandle(xMm, yMm, x + w, y + h / 2, handleSizeMm)) return 'right';
+    }
+
+    return null;
+  }
+
+  bool _isInHandle(double xMm, double yMm, double hx, double hy, double size) {
+    return (xMm - hx).abs() <= size && (yMm - hy).abs() <= size;
+  }
+
+  /// Applica il resize basato sul delta e sull'handle attivo
+  void _applyResize(ReportElement element, double deltaX, double deltaY) {
+    double newX = element.x;
+    double newY = element.y;
+    double newW = element.width;
+    double newH = element.height;
+
+    switch (_resizeHandle) {
+      case 'topLeft':
+        newX += deltaX;
+        newY += deltaY;
+        newW -= deltaX;
+        newH -= deltaY;
+        break;
+      case 'topRight':
+        newY += deltaY;
+        newW += deltaX;
+        newH -= deltaY;
+        break;
+      case 'bottomLeft':
+        newX += deltaX;
+        newW -= deltaX;
+        newH += deltaY;
+        break;
+      case 'bottomRight':
+        newW += deltaX;
+        newH += deltaY;
+        break;
+      case 'top':
+        newY += deltaY;
+        newH -= deltaY;
+        break;
+      case 'bottom':
+        newH += deltaY;
+        break;
+      case 'left':
+        newX += deltaX;
+        newW -= deltaX;
+        break;
+      case 'right':
+        newW += deltaX;
+        break;
+    }
+
+    // Applica dimensioni minime
+    if (newW < _minElementSize) {
+      if (_resizeHandle!.contains('Left')) {
+        newX = element.x + element.width - _minElementSize;
+      }
+      newW = _minElementSize;
+    }
+    if (newH < _minElementSize) {
+      if (_resizeHandle!.contains('top') || _resizeHandle == 'top') {
+        newY = element.y + element.height - _minElementSize;
+      }
+      newH = _minElementSize;
+    }
+
+    // Mantieni dentro i limiti del canvas
+    newX = newX.clamp(0.0, _template.itemWidth - newW);
+    newY = newY.clamp(0.0, _template.itemHeight - newH);
+
+    element.x = newX;
+    element.y = newY;
+    element.width = newW;
+    element.height = newH;
   }
 
   /// Calcola le linee guida basate sugli altri elementi
