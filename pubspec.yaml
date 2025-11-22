@@ -65,6 +65,12 @@ dependencies:
   
   # File operations
   path: ^1.9.0
+  
+  # Formula parsing for Excel-like calculations
+  formula_parser: ^2.0.1
+  
+  # Markdown rendering
+  markdown_widget: ^2.3.2+8
 
 dev_dependencies:
   flutter_test:

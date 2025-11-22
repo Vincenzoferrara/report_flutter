@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 
 /// Tema personalizzato per il Report Designer
-class ReportTheme {
-  // Configurazione tema
+class AppTheme {
+  // Configurazione tema con valori predefiniti
   static Color _primaryColor = const Color(0xFF2196F3);
-  static bool _isDarkMode = false;
+  static bool? _isDarkMode;
+  
+  // Rileva automaticamente se il sistema è in modalità scura
+  static bool get _systemDarkMode => 
+      WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+  
+  /// Ottieni la modalità corrente (auto-rileva se non impostata manualmente)
+  static bool get isDarkMode => _isDarkMode ?? _systemDarkMode;
 
   /// Imposta il colore primario del tema
   static void setPrimaryColor(Color color) {
     _primaryColor = color;
   }
 
-  /// Imposta modalità scura
-  static void setDarkMode(bool isDark) {
+  /// Imposta modalità scura (null per auto-rilevamento)
+  static void setDarkMode(bool? isDark) {
     _isDarkMode = isDark;
   }
 
-  /// Verifica se è in modalità scura
-  static bool get isDarkMode => _isDarkMode;
+  /// Reimposta al rilevamento automatico della modalità del sistema
+  static void resetToSystemTheme() {
+    _isDarkMode = null;
+  }
 
   // Colori principali
   static Color get primary => _primaryColor;
@@ -26,24 +35,24 @@ class ReportTheme {
   static Color get accent => HSLColor.fromColor(_primaryColor).withLightness(0.55).toColor();
 
   // Colori di sfondo
-  static Color get background => _isDarkMode ? const Color(0xFF121212) : const Color(0xFFF5F5F5);
-  static Color get surface => _isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
-  static Color get canvasBackground => _isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
+  static Color get background => isDarkMode ? const Color(0xFF121212) : const Color(0xFFF5F5F5);
+  static Color get surface => isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFFFF);
+  static Color get canvasBackground => isDarkMode ? const Color(0xFF2C2C2C) : const Color(0xFFE0E0E0);
 
   // Colori pannelli
-  static Color get panelBackground => _isDarkMode ? const Color(0xFF252525) : const Color(0xFFFAFAFA);
-  static Color get panelHeader => _isDarkMode ? const Color(0xFF2D2D2D) : const Color(0xFFEEEEEE);
-  static Color get panelBorder => _isDarkMode ? const Color(0xFF3D3D3D) : const Color(0xFFE0E0E0);
+  static Color get panelBackground => isDarkMode ? const Color(0xFF252525) : const Color(0xFFFAFAFA);
+  static Color get panelHeader => isDarkMode ? const Color(0xFF2D2D2D) : const Color(0xFFEEEEEE);
+  static Color get panelBorder => isDarkMode ? const Color(0xFF3D3D3D) : const Color(0xFFE0E0E0);
 
   // Colori elementi
   static Color get elementSelected => primary;
-  static Color get elementHover => _isDarkMode ? primary.withValues(alpha: 0.3) : const Color(0xFFBBDEFB);
+  static Color get elementHover => isDarkMode ? primary.withValues(alpha: 0.3) : const Color(0xFFBBDEFB);
   static Color get elementHandle => primaryDark;
 
   // Colori testo
-  static Color get textPrimary => _isDarkMode ? const Color(0xFFE0E0E0) : const Color(0xFF212121);
-  static Color get textSecondary => _isDarkMode ? const Color(0xFFB0B0B0) : const Color(0xFF757575);
-  static Color get textHint => _isDarkMode ? const Color(0xFF808080) : const Color(0xFF9E9E9E);
+  static Color get textPrimary => isDarkMode ? const Color(0xFFE0E0E0) : const Color(0xFF212121);
+  static Color get textSecondary => isDarkMode ? const Color(0xFFB0B0B0) : const Color(0xFF757575);
+  static Color get textHint => isDarkMode ? const Color(0xFF808080) : const Color(0xFF9E9E9E);
 
   // Colori stato
   static const Color success = Color(0xFF4CAF50);
@@ -52,9 +61,9 @@ class ReportTheme {
   static Color get info => primary;
 
   // Colori righello
-  static Color get rulerBackground => _isDarkMode ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8);
-  static Color get rulerLine => _isDarkMode ? const Color(0xFF606060) : const Color(0xFF9E9E9E);
-  static Color get rulerText => _isDarkMode ? const Color(0xFFB0B0B0) : const Color(0xFF616161);
+  static Color get rulerBackground => isDarkMode ? const Color(0xFF2A2A2A) : const Color(0xFFE8E8E8);
+  static Color get rulerLine => isDarkMode ? const Color(0xFF606060) : const Color(0xFF9E9E9E);
+  static Color get rulerText => isDarkMode ? const Color(0xFFB0B0B0) : const Color(0xFF616161);
 
   // Dimensioni
   static const double panelWidth = 220.0;
@@ -78,7 +87,7 @@ class ReportTheme {
   // Shadows
   static List<BoxShadow> get cardShadow => [
     BoxShadow(
-      color: _isDarkMode
+      color: isDarkMode
           ? Colors.black.withValues(alpha: 0.3)
           : Colors.black.withValues(alpha: 0.1),
       blurRadius: 4,
@@ -88,7 +97,7 @@ class ReportTheme {
 
   static List<BoxShadow> get elevatedShadow => [
     BoxShadow(
-      color: _isDarkMode
+      color: isDarkMode
           ? Colors.black.withValues(alpha: 0.4)
           : Colors.black.withValues(alpha: 0.15),
       blurRadius: 8,
@@ -167,10 +176,10 @@ class ReportTheme {
   /// Tema completo per MaterialApp
   static ThemeData get themeData => ThemeData(
     useMaterial3: true,
-    brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+    brightness: isDarkMode ? Brightness.dark : Brightness.light,
     colorScheme: ColorScheme.fromSeed(
       seedColor: primary,
-      brightness: _isDarkMode ? Brightness.dark : Brightness.light,
+      brightness: isDarkMode ? Brightness.dark : Brightness.light,
     ),
     scaffoldBackgroundColor: background,
     appBarTheme: AppBarTheme(

@@ -7,6 +7,10 @@ import '../../schema/data_schema.dart';
 import '../../core/data_extractor.dart';
 import '../widgets/interactive_table.dart';
 import '../widgets/interactive_chart.dart';
+import '../../core/formula_engine.dart';
+import '../../core/conditional_formatter.dart';
+import '../../core/markdown_renderer.dart';
+import '../../core/conditional_image_loader.dart';
 
 
 
@@ -312,6 +316,10 @@ class ReportRenderer extends StatelessWidget {
         return _renderInteractiveChart(element, scale, ChartType.bar);
       case ReportElementType.lineChart:
         return _renderInteractiveChart(element, scale, ChartType.line);
+      case ReportElementType.formula:
+        return _renderFormula(element, scale);
+      case ReportElementType.markdown:
+        return _renderMarkdown(element, scale);
     }
   }
 
@@ -382,19 +390,35 @@ class ReportRenderer extends StatelessWidget {
     final formattedValue = DataExtractor.formatValue(value, format: format);
     final displayText = '$prefix$formattedValue$suffix';
 
+    // 🆕 Se il Markdown è abilitato, renderizza come Markdown
+    if (MarkdownRenderer.isMarkdownEnabled(element)) {
+      return _renderMarkdown(element, scale);
+    }
+
     // Scala 1:1 - fontSize in punti scalato direttamente
     final scaledFontSize = fontSize * scale;
+
+    // 🆕 Applica formattazione condizionale se abilitata
+    TextStyle textStyle = TextStyle(
+      fontSize: scaledFontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+
+    if (ConditionalFormatter.isConditionalFormattingEnabled(element)) {
+      final rules = ConditionalFormatter.getConditionalRules(element);
+      final conditionalStyle = ConditionalFormatter.applyTextStyle(value, rules, textStyle);
+      if (conditionalStyle != null) {
+        textStyle = conditionalStyle;
+      }
+    }
 
     return Container(
       width: double.infinity,
       height: double.infinity,
       child: Text(
         displayText,
-        style: TextStyle(
-          fontSize: scaledFontSize,
-          fontWeight: fontWeight,
-          color: color,
-        ),
+        style: textStyle,
         textAlign: alignment,
         overflow: TextOverflow.ellipsis,
         maxLines: (element.properties['maxLines'] as num?)?.toInt() ?? 1,
@@ -491,76 +515,13 @@ class ReportRenderer extends StatelessWidget {
     final source = element.properties['source'] ?? 'field';
     final fit = _getBoxFit(element.properties['fit']);
 
-    Widget imageWidget;
-    
-    if (source == 'field') {
-      final fieldName = element.properties['fieldName'] ?? '';
-      final imageData = DataExtractor.getValue(data, fieldName);
-      
-      if (imageData != null) {
-        // Try to load image from data
-        if (imageData is String && imageData.startsWith('data:image')) {
-          // Base64 image
-          try {
-            final bytes = base64.decode(imageData.split(',')[1]);
-            imageWidget = Image.memory(
-              bytes,
-              fit: fit,
-              width: double.infinity,
-              height: double.infinity,
-              errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
-            );
-          } catch (e) {
-            imageWidget = _buildImagePlaceholder();
-          }
-        } else if (imageData is String && (imageData.startsWith('http') || imageData.startsWith('asset'))) {
-          // URL or asset path
-          imageWidget = Image.network(
-            imageData,
-            fit: fit,
-            width: double.infinity,
-            height: double.infinity,
-            errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
-          );
-        } else {
-          imageWidget = _buildImagePlaceholder();
-        }
-      } else {
-        imageWidget = _buildImagePlaceholder();
-      }
-    } else if (source == 'asset') {
-      final assetPath = element.properties['assetPath'] ?? '';
-      if (assetPath.isNotEmpty) {
-        imageWidget = Image.asset(
-          assetPath,
-          fit: fit,
-          width: double.infinity,
-          height: double.infinity,
-          errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
-        );
-      } else {
-        imageWidget = _buildImagePlaceholder();
-      }
-    } else {
-      // URL
-      final url = element.properties['url'] ?? '';
-      if (url.isNotEmpty) {
-        imageWidget = Image.network(
-          url,
-          fit: fit,
-          width: double.infinity,
-          height: double.infinity,
-          errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(),
-        );
-      } else {
-        imageWidget = _buildImagePlaceholder();
-      }
-    }
-    
-    return Container(
+    // 🆕 Usa il ConditionalImageLoader per tutte le sorgenti
+    return ConditionalImageLoader.loadImage(
+      data,
+      element,
       width: double.infinity,
       height: double.infinity,
-      child: imageWidget,
+      fit: fit,
     );
   }
 
@@ -854,6 +815,18 @@ class ReportRenderer extends StatelessWidget {
     }
   }
 
+  AlignmentGeometry _getAlignmentGeometry(TextAlign alignment) {
+    switch (alignment) {
+      case TextAlign.center:
+        return Alignment.center;
+      case TextAlign.right:
+        return Alignment.centerRight;
+      case TextAlign.left:
+      default:
+        return Alignment.centerLeft;
+    }
+  }
+
   BoxFit _getBoxFit(String? fit) {
     switch (fit) {
       case 'cover':
@@ -997,6 +970,101 @@ class ReportRenderer extends StatelessWidget {
             style: TextStyle(fontSize: 8 * scale, color: Colors.grey.shade600),
           ),
         ],
+      ),
+    );
+  }
+
+  /// 🆕 Renderizza un elemento Formula
+  Widget _renderFormula(ReportElement element, double scale) {
+    final formula = element.properties['formula'] ?? '';
+    final variables = Map<String, String>.from(element.properties['variables'] ?? {});
+    final format = element.properties['format'] ?? 'number';
+    final errorValue = element.properties['errorValue'] ?? '0';
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontWeight = _getFontWeight(element.properties['fontWeight']);
+    final alignment = _getAlignment(element.properties['alignment']);
+    final color = _parseColor(element.properties['color'] ?? '#000000');
+
+    try {
+      // Valuta la formula
+      final result = FormulaEngine.evaluate(formula, data, variables);
+      final formattedResult = FormulaEngine.formatResult(result, format);
+      
+      // Applica formattazione condizionale se abilitata
+      TextStyle textStyle = TextStyle(
+        fontSize: fontSize * scale,
+        fontWeight: fontWeight,
+        color: color,
+      );
+      
+      if (ConditionalFormatter.isConditionalFormattingEnabled(element)) {
+        final rules = ConditionalFormatter.getConditionalRules(element);
+        final conditionalStyle = ConditionalFormatter.applyTextStyle(result, rules, textStyle);
+        if (conditionalStyle != null) {
+          textStyle = conditionalStyle;
+        }
+      }
+
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: Text(
+          formattedResult,
+          style: textStyle,
+          textAlign: alignment,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      );
+    } catch (e) {
+      // Mostra valore di errore
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: Text(
+          errorValue,
+          style: TextStyle(
+            fontSize: fontSize * scale,
+            fontWeight: fontWeight,
+            color: Colors.red,
+          ),
+          textAlign: alignment,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      );
+    }
+  }
+
+  /// 🆕 Renderizza un elemento Markdown
+  Widget _renderMarkdown(ReportElement element, double scale) {
+    // Se il Markdown non è abilitato, fallback a testo normale
+    if (!MarkdownRenderer.isMarkdownEnabled(element)) {
+      return _renderText(element, scale);
+    }
+
+    final markdownData = MarkdownRenderer.getMarkdownData(element);
+    final markdownConfig = MarkdownRenderer.getMarkdownConfig(element);
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final alignment = _getAlignment(element.properties['alignment']);
+    final color = _parseColor(element.properties['color'] ?? '#000000');
+
+    // Crea uno stile base per il Markdown
+    final baseStyle = TextStyle(
+      fontSize: fontSize * scale,
+      color: color,
+    );
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      child: Align(
+        alignment: _getAlignmentGeometry(alignment),
+        child: MarkdownRenderer.render(
+          markdownData,
+          markdownConfig,
+          baseStyle: baseStyle,
+        ),
       ),
     );
   }

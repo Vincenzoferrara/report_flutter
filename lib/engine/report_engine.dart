@@ -4,6 +4,9 @@ import '../models/report_template.dart';
 import '../schema/data_schema.dart';
 import '../schema/field_definition.dart';
 import '../core/data_extractor.dart';
+import '../core/formula_engine.dart';
+import '../core/conditional_formatter.dart';
+import '../core/markdown_renderer.dart';
 
 /// Motore principale per il rendering e processing dei report
 class ReportEngine {
@@ -49,6 +52,10 @@ class ReportEngine {
         return _renderChartPlaceholder(element, 'Grafico Barre', Icons.bar_chart, scale);
       case ReportElementType.lineChart:
         return _renderChartPlaceholder(element, 'Grafico Linee', Icons.show_chart, scale);
+      case ReportElementType.formula:
+        return _renderFormulaElement(element, data, scale);
+      case ReportElementType.markdown:
+        return _renderMarkdownElement(element, data, scale);
     }
   }
 
@@ -369,6 +376,65 @@ class ReportEngine {
             fontSize: 10 * scale,
             color: Colors.grey,
           ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _renderFormulaElement(ReportElement element, dynamic data, double scale) {
+    final formula = element.properties['formula'] ?? '';
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final color = _parseColor(element.properties['color'] ?? '#000000');
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.1),
+        border: Border.all(color: Colors.blue),
+        borderRadius: BorderRadius.circular(2),
+      ),
+      child: Center(
+        child: Text(
+          formula.isEmpty ? 'Formula' : '=$formula',
+          style: TextStyle(
+            fontSize: fontSize * scale,
+            color: color,
+            fontFamily: 'monospace',
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  static Widget _renderMarkdownElement(ReportElement element, dynamic data, double scale) {
+    final useMarkdown = element.properties['useMarkdown'] ?? false;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final color = _parseColor(element.properties['color'] ?? '#000000');
+
+    return Container(
+      decoration: BoxDecoration(
+        color: useMarkdown ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+        border: Border.all(color: useMarkdown ? Colors.green : Colors.grey),
+        borderRadius: BorderRadius.circular(2),
+      ),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              useMarkdown ? Icons.code : Icons.text_fields,
+              size: fontSize * scale,
+              color: useMarkdown ? Colors.green : Colors.grey,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              useMarkdown ? 'Markdown' : 'Testo',
+              style: TextStyle(
+                fontSize: fontSize * scale * 0.8,
+                color: color,
+              ),
+            ),
+          ],
         ),
       ),
     );

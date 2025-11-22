@@ -32,6 +32,10 @@ enum ReportElementType {
   pageNumber,
   date,
   logo,
+  
+  // 🆕 Nuovi elementi
+  formula,     // Calcoli Excel-like
+  markdown,    // Testo Markdown
 }
 
 /// Elemento singolo nel template del report
@@ -69,6 +73,11 @@ class ReportElement {
           'alignment': 'left',
           'color': '#000000',
           'backgroundColor': null,
+          // 🆕 Formattazione Condizionale
+          'conditionalFormatting': {
+            'enabled': false,
+            'rules': [],
+          },
         };
       case ReportElementType.dynamicField:
         return {
@@ -81,6 +90,18 @@ class ReportElement {
           'suffix': '',
           'format': null, // formato opzionale (es: 'currency', 'date', 'number')
           'maxLines': 1,
+          // 🆕 Formattazione Condizionale
+          'conditionalFormatting': {
+            'enabled': false,
+            'rules': [],
+          },
+          // 🆕 Supporto Markdown
+          'useMarkdown': false,
+          'markdownConfig': {
+            'enableToc': false,
+            'enableCodeHighlighting': true,
+            'theme': 'light',
+          },
         };
       case ReportElementType.barcode:
         return {
@@ -96,11 +117,15 @@ class ReportElement {
         };
       case ReportElementType.image:
         return {
-          'source': 'field', // 'field', 'asset', 'url'
+          'source': 'field', // 'field', 'asset', 'url', 'conditional'
           'fieldName': 'image', // se source è 'field'
           'assetPath': '', // se source è 'asset'
           'url': '', // se source è 'url'
           'fit': 'contain', // contain, cover, fill, fitWidth, fitHeight
+          // 🆕 Immagini Condizionali
+          'conditionalImages': [],
+          'classImageField': 'image', // campo che contiene immagine dalla classe
+          'classImageMethod': 'getImage()', // metodo che restituisce immagine
         };
       case ReportElementType.line:
         return {
@@ -214,6 +239,35 @@ class ReportElement {
           'borderWidth': 1.0,
           'maxLines': 1,
         };
+      case ReportElementType.formula:
+        return {
+          'formula': '', // formula Excel-like
+          'variables': {}, // mappatura variabili -> campi dati
+          'format': 'number', // 'number', 'currency', 'percentage', 'date'
+          'errorValue': '0', // valore in caso di errore
+          'fontSize': 10.0,
+          'fontWeight': 'normal',
+          'alignment': 'right',
+          'color': '#000000',
+          // 🆕 Formattazione Condizionale
+          'conditionalFormatting': {
+            'enabled': false,
+            'rules': [],
+          },
+        };
+      case ReportElementType.markdown:
+        return {
+          'markdownData': '# Titolo\n\nTesto **grassetto**',
+          'useMarkdown': true,
+          'markdownConfig': {
+            'enableToc': false,
+            'enableCodeHighlighting': true,
+            'theme': 'light',
+          },
+          'fontSize': 10.0,
+          'alignment': 'left',
+          'color': '#000000',
+        };
     }
   }
 
@@ -254,6 +308,10 @@ class ReportElement {
         return 'Checkbox';
       case ReportElementType.textbox:
         return 'Casella Testo';
+      case ReportElementType.formula:
+        return 'Formula';
+      case ReportElementType.markdown:
+        return 'Markdown';
     }
   }
 
@@ -294,6 +352,10 @@ class ReportElement {
         return Icons.check_box;
       case ReportElementType.textbox:
         return Icons.text_snippet;
+      case ReportElementType.formula:
+        return Icons.functions;
+      case ReportElementType.markdown:
+        return Icons.code;
     }
   }
 

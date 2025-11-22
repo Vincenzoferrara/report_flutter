@@ -11,13 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:report_flutter/main.dart';
 
 void main() {
-  testWidgets('Report Designer app smoke test', (WidgetTester tester) async {
+  testWidgets('Report Flutter app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const ReportFlutterDemoApp());
+    await tester.pumpWidget(const ReportFlutterApp());
 
-    // Verify that the app loads with tabs
-    expect(find.text('Viewer'), findsOneWidget);
-    expect(find.text('Builder'), findsOneWidget);
-    expect(find.text('Info'), findsOneWidget);
+    // Verify that the app loads
+    expect(find.text('Report Flutter Library'), findsAtLeastNWidgets(1));
+    expect(find.text('A Flutter library for creating and viewing reports'), findsOneWidget);
   });
 }

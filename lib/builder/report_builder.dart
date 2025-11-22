@@ -8,7 +8,7 @@ import '../models/report_element.dart';
 import '../models/report_template.dart';
 import '../schema/data_schema.dart';
 import '../core/data_extractor.dart';
-import '../core/report_theme.dart';
+import '../theme/theme.dart';
 import '../export/pdf_exporter.dart';
 import '../formats/template_loader.dart';
 import '../viewer/report_viewer.dart';
@@ -266,9 +266,9 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     super.didChangeDependencies();
     // Adatta automaticamente al tema dell'app
     final brightness = Theme.of(context).brightness;
-    final primaryColor = Theme.of(context).primaryColor;
-    ReportTheme.setDarkMode(brightness == Brightness.dark);
-    ReportTheme.setPrimaryColor(primaryColor);
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    AppTheme.setDarkMode(brightness == Brightness.dark);
+    AppTheme.setPrimaryColor(primaryColor);
   }
 
   @override
@@ -281,16 +281,16 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         children: [
           // Tab bar
           Container(
-            color: ReportTheme.panelBackground,
+            color: AppTheme.panelBackground,
             child: TabBar(
               controller: _tabController,
               tabs: const [
                 Tab(icon: Icon(Icons.edit), text: 'Designer'),
                 Tab(icon: Icon(Icons.preview), text: 'Anteprima'),
               ],
-              labelColor: ReportTheme.primary,
-              unselectedLabelColor: ReportTheme.textSecondary,
-              indicatorColor: ReportTheme.primary,
+              labelColor: AppTheme.primary,
+              unselectedLabelColor: AppTheme.textSecondary,
+              indicatorColor: AppTheme.primary,
             ),
           ),
           // Tab content
@@ -336,7 +336,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     // Se non ci sono elementi, mostra messaggio
     if (_template.elements.isEmpty) {
       return Container(
-        color: ReportTheme.canvasBackground,
+        color: AppTheme.canvasBackground,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -414,20 +414,20 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   /// Pannello con gli elementi trascinabili
   Widget _buildElementsPanel() {
     return Container(
-      width: ReportTheme.panelWidth,
-      decoration: ReportTheme.panelDecoration,
+      width: AppTheme.panelWidth,
+      decoration: AppTheme.panelDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(ReportTheme.paddingLarge),
-            decoration: ReportTheme.panelHeaderDecoration,
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            decoration: AppTheme.panelHeaderDecoration,
             child: Row(
               children: [
-                Icon(Icons.widgets, size: ReportTheme.iconSize, color: ReportTheme.primary),
-                const SizedBox(width: ReportTheme.paddingMedium),
-                Text('Elementi', style: ReportTheme.titleStyle),
+                Icon(Icons.widgets, size: AppTheme.iconSize, color: AppTheme.primary),
+                const SizedBox(width: AppTheme.paddingMedium),
+                Text('Elementi', style: AppTheme.titleStyle),
               ],
             ),
           ),
@@ -435,10 +435,12 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           // Lista elementi base
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(ReportTheme.paddingMedium),
+              padding: const EdgeInsets.all(AppTheme.paddingMedium),
               children: [
                 _buildSectionHeader('Testo'),
                 _buildDraggableElement(ReportElementType.text, 'Testo Statico'),
+                _buildDraggableElement(ReportElementType.formula, 'Formula'),
+                _buildDraggableElement(ReportElementType.markdown, 'Markdown'),
 
                 _buildSectionHeader('Codici'),
                 _buildDraggableElement(ReportElementType.barcode, 'Barcode'),
@@ -475,8 +477,8 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(top: ReportTheme.paddingLarge, bottom: ReportTheme.paddingSmall),
-      child: Text(title, style: ReportTheme.sectionHeaderStyle),
+      padding: const EdgeInsets.only(top: AppTheme.paddingLarge, bottom: AppTheme.paddingSmall),
+      child: Text(title, style: AppTheme.sectionHeaderStyle),
     );
   }
 
@@ -485,27 +487,27 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       data: type,
       feedback: Material(
         elevation: 4,
-        borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: ReportTheme.paddingLarge,
-            vertical: ReportTheme.paddingMedium,
+            horizontal: AppTheme.paddingLarge,
+            vertical: AppTheme.paddingMedium,
           ),
           decoration: BoxDecoration(
-            color: ReportTheme.primaryLight,
-            borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
+            color: AppTheme.primaryLight,
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
           ),
-          child: Text(label, style: ReportTheme.bodyStyle),
+          child: Text(label, style: AppTheme.bodyStyle),
         ),
       ),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 2),
-        decoration: ReportTheme.draggableElementDecoration(),
+        decoration: AppTheme.draggableElementDecoration(),
         child: ListTile(
           dense: true,
-          leading: Icon(_getIconForType(type), size: ReportTheme.smallIconSize, color: ReportTheme.primary),
-          title: Text(label, style: ReportTheme.labelStyle),
-          contentPadding: const EdgeInsets.symmetric(horizontal: ReportTheme.paddingMedium),
+          leading: Icon(_getIconForType(type), size: AppTheme.smallIconSize, color: AppTheme.primary),
+          title: Text(label, style: AppTheme.labelStyle),
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium),
         ),
       ),
     );
@@ -516,32 +518,32 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       data: field,
       feedback: Material(
         elevation: 4,
-        borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
+        borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: ReportTheme.paddingLarge,
-            vertical: ReportTheme.paddingMedium,
+            horizontal: AppTheme.paddingLarge,
+            vertical: AppTheme.paddingMedium,
           ),
           decoration: BoxDecoration(
-            color: ReportTheme.success.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
+            color: AppTheme.success.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
           ),
-          child: Text(field.displayName, style: ReportTheme.bodyStyle),
+          child: Text(field.displayName, style: AppTheme.bodyStyle),
         ),
       ),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 2),
         decoration: BoxDecoration(
-          color: ReportTheme.success.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
-          border: Border.all(color: ReportTheme.success.withValues(alpha: 0.3)),
+          color: AppTheme.success.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+          border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
         ),
         child: ListTile(
           dense: true,
-          leading: const Icon(Icons.data_object, size: ReportTheme.smallIconSize, color: ReportTheme.success),
-          title: Text(field.displayName, style: ReportTheme.labelStyle),
-          subtitle: Text(field.name, style: TextStyle(fontSize: 9, color: ReportTheme.textHint)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: ReportTheme.paddingMedium),
+          leading: const Icon(Icons.data_object, size: AppTheme.smallIconSize, color: AppTheme.success),
+          title: Text(field.displayName, style: AppTheme.labelStyle),
+          subtitle: Text(field.name, style: TextStyle(fontSize: 9, color: AppTheme.textHint)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium),
         ),
       ),
     );
@@ -550,7 +552,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   /// Canvas principale del designer - occupa tutto lo spazio disponibile
   Widget _buildDesignerCanvas() {
     return Container(
-      color: ReportTheme.canvasBackground,
+      color: AppTheme.canvasBackground,
       child: Column(
         children: [
           // Toolbar
@@ -607,7 +609,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     // Calcola dimensioni canvas
     final canvasWidth = _template.itemWidth * _scale;
     final canvasHeight = _template.itemHeight * _scale;
-    const rulerSize = ReportTheme.rulerSize;
+    const rulerSize = AppTheme.rulerSize;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -620,7 +622,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
             Container(
               width: rulerSize,
               height: rulerSize,
-              color: ReportTheme.rulerBackground,
+              color: AppTheme.rulerBackground,
             ),
             // Righello orizzontale
             CustomPaint(
@@ -656,44 +658,44 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   Widget _buildToolbar() {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: ReportTheme.paddingLarge,
-        vertical: ReportTheme.paddingMedium,
+        horizontal: AppTheme.paddingLarge,
+        vertical: AppTheme.paddingMedium,
       ),
-      decoration: ReportTheme.panelHeaderDecoration,
+      decoration: AppTheme.panelHeaderDecoration,
       child: Row(
         children: [
           // Zoom
           IconButton(
-            icon: const Icon(Icons.zoom_out, size: ReportTheme.iconSize),
+            icon: const Icon(Icons.zoom_out, size: AppTheme.iconSize),
             onPressed: () => setState(() {
               _scale = (_scale - 0.5).clamp(1.0, 6.0);
               _isManualZoom = true;
             }),
             tooltip: 'Zoom -',
-            color: ReportTheme.textSecondary,
+            color: AppTheme.textSecondary,
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: ReportTheme.paddingMedium),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium),
             child: Text(
               '${(_scale * 100 / 3).toInt()}%',
-              style: ReportTheme.bodyStyle,
+              style: AppTheme.bodyStyle,
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.zoom_in, size: ReportTheme.iconSize),
+            icon: const Icon(Icons.zoom_in, size: AppTheme.iconSize),
             onPressed: () => setState(() {
               _scale = (_scale + 0.5).clamp(1.0, 6.0);
               _isManualZoom = true;
             }),
             tooltip: 'Zoom +',
-            color: ReportTheme.textSecondary,
+            color: AppTheme.textSecondary,
           ),
 
-          const SizedBox(width: ReportTheme.paddingSmall),
+          const SizedBox(width: AppTheme.paddingSmall),
 
           // Fit to Screen
           IconButton(
-            icon: const Icon(Icons.fit_screen, size: ReportTheme.iconSize),
+            icon: const Icon(Icons.fit_screen, size: AppTheme.iconSize),
             onPressed: () {
               setState(() {
                 _isManualZoom = false; // Resetta per auto-fit
@@ -709,47 +711,47 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               });
             },
             tooltip: 'Adatta allo schermo',
-            color: ReportTheme.textSecondary,
+            color: AppTheme.textSecondary,
           ),
 
           // Actual Size
           IconButton(
-            icon: const Icon(Icons.fullscreen, size: ReportTheme.iconSize),
+            icon: const Icon(Icons.fullscreen, size: AppTheme.iconSize),
             onPressed: () => setState(() {
               _scale = 3.0; // Scala default
               _isManualZoom = true;
             }),
             tooltip: 'Dimensione reale',
-            color: ReportTheme.textSecondary,
+            color: AppTheme.textSecondary,
           ),
 
-          const SizedBox(width: ReportTheme.paddingXLarge),
+          const SizedBox(width: AppTheme.paddingXLarge),
 
           // Dimensioni - cliccabile per modificare
           InkWell(
             onTap: _showSizeDialog,
-            borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
+            borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
             child: Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: ReportTheme.paddingMedium,
-                vertical: ReportTheme.paddingSmall,
+                horizontal: AppTheme.paddingMedium,
+                vertical: AppTheme.paddingSmall,
               ),
               decoration: BoxDecoration(
-                color: ReportTheme.surface,
-                borderRadius: BorderRadius.circular(ReportTheme.borderRadiusSmall),
-                border: Border.all(color: ReportTheme.panelBorder),
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(AppTheme.borderRadiusSmall),
+                border: Border.all(color: AppTheme.panelBorder),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.aspect_ratio, size: 14, color: ReportTheme.textSecondary),
+                  Icon(Icons.aspect_ratio, size: 14, color: AppTheme.textSecondary),
                   const SizedBox(width: 4),
                   Text(
                     '${_template.itemWidth.toInt()}x${_template.itemHeight.toInt()} mm',
-                    style: ReportTheme.labelStyle,
+                    style: AppTheme.labelStyle,
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.edit, size: 12, color: ReportTheme.textHint),
+                  Icon(Icons.edit, size: 12, color: AppTheme.textHint),
                 ],
               ),
             ),
@@ -762,56 +764,56 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.undo, size: ReportTheme.iconSize),
+                icon: const Icon(Icons.undo, size: AppTheme.iconSize),
                 onPressed: _canUndo ? _undo : null,
                 tooltip: 'Undo (Ctrl+Z)',
-                color: _canUndo ? ReportTheme.textSecondary : ReportTheme.textHint,
+                color: _canUndo ? AppTheme.textSecondary : AppTheme.textHint,
               ),
               IconButton(
-                icon: const Icon(Icons.redo, size: ReportTheme.iconSize),
+                icon: const Icon(Icons.redo, size: AppTheme.iconSize),
                 onPressed: _canRedo ? _redo : null,
                 tooltip: 'Redo (Ctrl+Y)',
-                color: _canRedo ? ReportTheme.textSecondary : ReportTheme.textHint,
+                color: _canRedo ? AppTheme.textSecondary : AppTheme.textHint,
               ),
             ],
           ),
 
-          const SizedBox(width: ReportTheme.paddingMedium),
+          const SizedBox(width: AppTheme.paddingMedium),
 
           // Template Management
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                icon: const Icon(Icons.folder_open, size: ReportTheme.iconSize),
+                icon: const Icon(Icons.folder_open, size: AppTheme.iconSize),
                 onPressed: _loadTemplate,
                 tooltip: 'Carica Template',
-                color: ReportTheme.textSecondary,
+                color: AppTheme.textSecondary,
               ),
               IconButton(
-                icon: const Icon(Icons.save, size: ReportTheme.iconSize),
+                icon: const Icon(Icons.save, size: AppTheme.iconSize),
                 onPressed: () => widget.onSave?.call(_template),
                 tooltip: 'Salva Template',
-                color: ReportTheme.primary,
+                color: AppTheme.primary,
               ),
               IconButton(
-                icon: const Icon(Icons.picture_as_pdf, size: ReportTheme.iconSize),
+                icon: const Icon(Icons.picture_as_pdf, size: AppTheme.iconSize),
                 onPressed: _exportToPdf,
                 tooltip: 'Esporta PDF',
-                color: ReportTheme.error,
+                color: AppTheme.error,
               ),
             ],
           ),
 
-          const SizedBox(width: ReportTheme.paddingMedium),
+          const SizedBox(width: AppTheme.paddingMedium),
 
           // Azioni elemento
           if (_selectedElementId != null)
             IconButton(
-              icon: const Icon(Icons.delete, size: ReportTheme.iconSize),
+              icon: const Icon(Icons.delete, size: AppTheme.iconSize),
               onPressed: _deleteSelectedElement,
               tooltip: 'Elimina',
-              color: ReportTheme.error,
+              color: AppTheme.error,
             ),
         ],
       ),
@@ -963,9 +965,9 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               width: canvasWidth,
               height: canvasHeight,
               decoration: BoxDecoration(
-                color: ReportTheme.surface,
-                border: Border.all(color: ReportTheme.panelBorder),
-                boxShadow: ReportTheme.elevatedShadow,
+                color: AppTheme.surface,
+                border: Border.all(color: AppTheme.panelBorder),
+                boxShadow: AppTheme.elevatedShadow,
               ),
               child: Stack(
                 children: [
@@ -984,7 +986,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                       child: Container(
                         width: 1,
                         height: canvasHeight,
-                        color: ReportTheme.primary.withValues(alpha: 0.7),
+                        color: AppTheme.primary.withValues(alpha: 0.7),
                       ),
                     )),
                     // Linee orizzontali attive
@@ -994,7 +996,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                       child: Container(
                         width: canvasWidth,
                         height: 1,
-                        color: ReportTheme.primary.withValues(alpha: 0.7),
+                        color: AppTheme.primary.withValues(alpha: 0.7),
                       ),
                     )),
                   ],
@@ -1031,10 +1033,10 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 height: h,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: isSelected ? ReportTheme.elementSelected : ReportTheme.panelBorder,
+                    color: isSelected ? AppTheme.elementSelected : AppTheme.panelBorder,
                     width: isSelected ? 2 : 1,
                   ),
-                  color: isSelected ? ReportTheme.elementSelected.withValues(alpha: 0.1) : null,
+                  color: isSelected ? AppTheme.elementSelected.withValues(alpha: 0.1) : null,
                 ),
                 child: _buildElementPreview(element),
               ),
@@ -1048,7 +1050,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   }
 
   List<Widget> _buildResizeHandles(double w, double h) {
-    final handleColor = ReportTheme.elementSelected;
+    final handleColor = AppTheme.elementSelected;
     final half = _handleSize / 2;
 
     Widget buildHandle(double left, double top, MouseCursor cursor) {
@@ -1096,7 +1098,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         return Center(
           child: Text(
             element.properties['text'] ?? 'Testo',
-            style: TextStyle(fontSize: scaledFontSize, color: ReportTheme.textPrimary),
+            style: TextStyle(fontSize: scaledFontSize, color: AppTheme.textPrimary),
             overflow: TextOverflow.ellipsis,
           ),
         );
@@ -1107,36 +1109,36 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         return Center(
           child: Text(
             '$prefix{$fieldName}$suffix',
-            style: TextStyle(fontSize: scaledFontSize, color: ReportTheme.primary),
+            style: TextStyle(fontSize: scaledFontSize, color: AppTheme.primary),
             overflow: TextOverflow.ellipsis,
           ),
         );
       case ReportElementType.barcode:
-        return Center(child: Icon(Icons.barcode_reader, color: ReportTheme.textSecondary));
+        return Center(child: Icon(Icons.barcode_reader, color: AppTheme.textSecondary));
       case ReportElementType.qrCode:
-        return Center(child: Icon(Icons.qr_code, color: ReportTheme.textSecondary));
+        return Center(child: Icon(Icons.qr_code, color: AppTheme.textSecondary));
       case ReportElementType.image:
-        return Center(child: Icon(Icons.image, color: ReportTheme.textSecondary));
+        return Center(child: Icon(Icons.image, color: AppTheme.textSecondary));
       case ReportElementType.line:
-        return Divider(thickness: 1, color: ReportTheme.textPrimary);
+        return Divider(thickness: 1, color: AppTheme.textPrimary);
       case ReportElementType.rectangle:
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: ReportTheme.textPrimary),
+            border: Border.all(color: AppTheme.textPrimary),
           ),
         );
       case ReportElementType.circle:
         return Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: ReportTheme.textPrimary),
+            border: Border.all(color: AppTheme.textPrimary),
           ),
         );
       case ReportElementType.checkbox:
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_box_outline_blank, size: scaledFontSize, color: ReportTheme.textPrimary),
+            Icon(Icons.check_box_outline_blank, size: scaledFontSize, color: AppTheme.textPrimary),
             if ((element.properties['label'] ?? '').isNotEmpty)
               Expanded(
                 child: Text(
@@ -1150,14 +1152,47 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       case ReportElementType.textbox:
         return Container(
           decoration: BoxDecoration(
-            border: Border.all(color: ReportTheme.textSecondary),
+            border: Border.all(color: AppTheme.textSecondary),
             borderRadius: BorderRadius.circular(2),
           ),
           padding: const EdgeInsets.all(2),
           child: Text(
             element.properties['placeholder'] ?? 'Casella testo',
-            style: TextStyle(fontSize: scaledFontSize * 0.8, color: ReportTheme.textHint),
+            style: TextStyle(fontSize: scaledFontSize * 0.8, color: AppTheme.textHint),
             overflow: TextOverflow.ellipsis,
+          ),
+        );
+      case ReportElementType.formula:
+        final formula = element.properties['formula'] ?? '';
+        return Center(
+          child: Text(
+            formula.isEmpty ? 'Formula' : '=$formula',
+            style: TextStyle(
+              fontSize: scaledFontSize, 
+              color: AppTheme.primary,
+              fontFamily: 'monospace',
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      case ReportElementType.markdown:
+        final useMarkdown = element.properties['useMarkdown'] ?? false;
+        return Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                useMarkdown ? Icons.code : Icons.text_fields,
+                size: scaledFontSize,
+                color: useMarkdown ? AppTheme.primary : AppTheme.textSecondary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                useMarkdown ? 'Markdown' : 'Testo',
+                style: TextStyle(fontSize: scaledFontSize * 0.8),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         );
       default:
@@ -1172,20 +1207,20 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         : null;
 
     return Container(
-      width: ReportTheme.propertiesPanelWidth,
-      decoration: ReportTheme.rightPanelDecoration,
+      width: AppTheme.propertiesPanelWidth,
+      decoration: AppTheme.rightPanelDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.all(ReportTheme.paddingLarge),
-            decoration: ReportTheme.panelHeaderDecoration,
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            decoration: AppTheme.panelHeaderDecoration,
             child: Row(
               children: [
-                Icon(Icons.tune, size: ReportTheme.iconSize, color: ReportTheme.primary),
-                const SizedBox(width: ReportTheme.paddingMedium),
-                Text('Proprietà', style: ReportTheme.titleStyle),
+                Icon(Icons.tune, size: AppTheme.iconSize, color: AppTheme.primary),
+                const SizedBox(width: AppTheme.paddingMedium),
+                Text('Proprietà', style: AppTheme.titleStyle),
               ],
             ),
           ),
@@ -1196,7 +1231,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 ? Center(
                     child: Text(
                       'Seleziona un elemento',
-                      style: TextStyle(color: ReportTheme.textHint),
+                      style: TextStyle(color: AppTheme.textHint),
                     ),
                   )
                 : _buildPropertiesEditor(selectedElement),
@@ -1208,11 +1243,11 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
   Widget _buildPropertiesEditor(ReportElement element) {
     return ListView(
-      padding: const EdgeInsets.all(ReportTheme.paddingLarge),
+      padding: const EdgeInsets.all(AppTheme.paddingLarge),
       children: [
         // Info elemento
-        Text(element.displayName, style: ReportTheme.titleStyle),
-        const SizedBox(height: ReportTheme.paddingLarge),
+        Text(element.displayName, style: AppTheme.titleStyle),
+        const SizedBox(height: AppTheme.paddingLarge),
 
         // ID modificabile
         _buildPropertySection('Identificativo', [
@@ -1273,34 +1308,34 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: ReportTheme.sectionHeaderStyle),
-        const SizedBox(height: ReportTheme.paddingMedium),
+        Text(title, style: AppTheme.sectionHeaderStyle),
+        const SizedBox(height: AppTheme.paddingMedium),
         ...children,
-        const SizedBox(height: ReportTheme.paddingXLarge),
+        const SizedBox(height: AppTheme.paddingXLarge),
       ],
     );
   }
 
   Widget _buildNumberField(String label, double value, Function(double) onChanged) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: ReportTheme.paddingMedium),
+      padding: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
       child: Row(
         children: [
           Expanded(
             flex: 2,
-            child: Text(label, style: ReportTheme.labelStyle),
+            child: Text(label, style: AppTheme.labelStyle),
           ),
           Expanded(
             flex: 3,
             child: TextFormField(
               initialValue: value.toStringAsFixed(1),
               keyboardType: TextInputType.number,
-              style: ReportTheme.bodyStyle,
+              style: AppTheme.bodyStyle,
               decoration: const InputDecoration(
                 isDense: true,
                 contentPadding: EdgeInsets.symmetric(
-                  horizontal: ReportTheme.paddingMedium,
-                  vertical: ReportTheme.paddingMedium,
+                  horizontal: AppTheme.paddingMedium,
+                  vertical: AppTheme.paddingMedium,
                 ),
               ),
               onChanged: (v) {
@@ -1396,6 +1431,13 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       ),
     ]));
 
+    // 🆕 Sezione Formattazione Condizionale
+    if (element.type == ReportElementType.text || 
+        element.type == ReportElementType.dynamicField ||
+        element.type == ReportElementType.formula) {
+      widgets.add(_buildConditionalFormattingSection(element));
+    }
+
     // Proprietà specifiche per tipo
     switch (element.type) {
       case ReportElementType.text:
@@ -1450,7 +1492,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 _notifyChange();
               },
             ),
-          const SizedBox(height: ReportTheme.paddingMedium),
+          const SizedBox(height: AppTheme.paddingMedium),
           TextFormField(
             initialValue: element.properties['prefix'] ?? '',
             decoration: const InputDecoration(labelText: 'Prefisso'),
@@ -1459,7 +1501,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               _notifyChange();
             },
           ),
-          const SizedBox(height: ReportTheme.paddingMedium),
+          const SizedBox(height: AppTheme.paddingMedium),
           TextFormField(
             initialValue: element.properties['suffix'] ?? '',
             decoration: const InputDecoration(labelText: 'Suffisso'),
@@ -1469,6 +1511,12 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
             },
           ),
         ]));
+        
+        // 🆕 Sezione Markdown per dynamicField
+        if (element.type == ReportElementType.dynamicField) {
+          widgets.add(_buildMarkdownSection(element));
+        }
+        
         break;
 
       case ReportElementType.barcode:
@@ -1538,6 +1586,87 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         ]));
         break;
 
+      case ReportElementType.image:
+        widgets.insert(0, _buildPropertySection('Immagine', [
+          _buildDropdownField(
+            'Sorgente',
+            element.properties['source'] ?? 'field',
+            ['field', 'asset', 'url', 'conditional'],
+            (v) {
+              element.properties['source'] = v;
+              _notifyChange();
+            },
+          ),
+          if (element.properties['source'] == 'field') ...[
+            if (_availableFields.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  border: Border.all(color: Colors.orange),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning, color: Colors.orange, size: 16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Nessun campo dati disponibile.',
+                        style: TextStyle(fontSize: 12, color: Colors.orange.shade800),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              DropdownButtonFormField<String>(
+                initialValue: element.properties['fieldName']?.toString().isEmpty ?? true
+                    ? null
+                    : element.properties['fieldName'],
+                decoration: const InputDecoration(labelText: 'Campo Immagine'),
+                items: _availableFields
+                    .where((f) => !f.isNested)
+                    .map((f) => DropdownMenuItem(value: f.name, child: Text(f.displayName)))
+                    .toList(),
+                onChanged: (v) {
+                  element.properties['fieldName'] = v;
+                  _notifyChange();
+                },
+              ),
+          ],
+          if (element.properties['source'] == 'asset')
+            TextFormField(
+              initialValue: element.properties['assetPath'] ?? '',
+              decoration: const InputDecoration(labelText: 'Percorso Asset'),
+              onChanged: (v) {
+                element.properties['assetPath'] = v;
+                _notifyChange();
+              },
+            ),
+          if (element.properties['source'] == 'url')
+            TextFormField(
+              initialValue: element.properties['url'] ?? '',
+              decoration: const InputDecoration(labelText: 'URL Immagine'),
+              onChanged: (v) {
+                element.properties['url'] = v;
+                _notifyChange();
+              },
+            ),
+          if (element.properties['source'] == 'conditional')
+            _buildConditionalImageSection(element),
+          _buildDropdownField(
+            'Adattamento',
+            element.properties['fit'] ?? 'contain',
+            ['contain', 'cover', 'fill', 'fitWidth', 'fitHeight'],
+            (v) {
+              element.properties['fit'] = v;
+              _notifyChange();
+            },
+          ),
+        ]));
+        break;
+
       case ReportElementType.checkbox:
         widgets.insert(0, _buildPropertySection('Checkbox', [
           if (_availableFields.isEmpty)
@@ -1576,7 +1705,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 _notifyChange();
               },
             ),
-          const SizedBox(height: ReportTheme.paddingMedium),
+          const SizedBox(height: AppTheme.paddingMedium),
           TextFormField(
             initialValue: element.properties['label'] ?? '',
             decoration: const InputDecoration(labelText: 'Etichetta'),
@@ -1585,7 +1714,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               _notifyChange();
             },
           ),
-          const SizedBox(height: ReportTheme.paddingMedium),
+          const SizedBox(height: AppTheme.paddingMedium),
           _buildNumberField(
             'Dimensione',
             (element.properties['size'] as num?)?.toDouble() ?? 12,
@@ -1635,7 +1764,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 _notifyChange();
               },
             ),
-          const SizedBox(height: ReportTheme.paddingMedium),
+          const SizedBox(height: AppTheme.paddingMedium),
           TextFormField(
             initialValue: element.properties['placeholder'] ?? '',
             decoration: const InputDecoration(labelText: 'Placeholder'),
@@ -1644,7 +1773,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               _notifyChange();
             },
           ),
-          const SizedBox(height: ReportTheme.paddingMedium),
+          const SizedBox(height: AppTheme.paddingMedium),
           _buildNumberField(
             'Righe Max',
             (element.properties['maxLines'] as num?)?.toDouble() ?? 1,
@@ -1656,6 +1785,14 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         ]));
         break;
 
+      case ReportElementType.formula:
+        widgets.insert(0, _buildFormulaSection(element));
+        break;
+
+      case ReportElementType.markdown:
+        widgets.insert(0, _buildMarkdownSection(element));
+        break;
+
       default:
         break;
     }
@@ -1665,7 +1802,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
   Widget _buildDropdownField(String label, String value, List<String> options, Function(String?) onChanged) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: ReportTheme.paddingMedium),
+      padding: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
       child: DropdownButtonFormField<String>(
         value: options.contains(value) ? value : options.first,
         decoration: InputDecoration(labelText: label),
@@ -1677,12 +1814,12 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
   Widget _buildColorField(String label, String? value, Function(String?) onChanged, {bool allowNull = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: ReportTheme.paddingMedium),
+      padding: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
       child: Row(
         children: [
           Expanded(
             flex: 2,
-            child: Text(label, style: ReportTheme.labelStyle),
+            child: Text(label, style: AppTheme.labelStyle),
           ),
           Expanded(
             flex: 3,
@@ -1696,7 +1833,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                     height: 24,
                     decoration: BoxDecoration(
                       color: value != null ? _parseColor(value) : Colors.transparent,
-                      border: Border.all(color: ReportTheme.panelBorder),
+                      border: Border.all(color: AppTheme.panelBorder),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: value == null ? const Icon(Icons.block, size: 16, color: Colors.grey) : null,
@@ -1706,7 +1843,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 Expanded(
                   child: Text(
                     value ?? 'Nessuno',
-                    style: ReportTheme.labelStyle,
+                    style: AppTheme.labelStyle,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -1745,7 +1882,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 decoration: BoxDecoration(
                   color: color != null ? _parseColor(color) : Colors.transparent,
                   border: Border.all(
-                    color: currentValue == color ? ReportTheme.primary : ReportTheme.panelBorder,
+                    color: currentValue == color ? AppTheme.primary : AppTheme.panelBorder,
                     width: currentValue == color ? 2 : 1,
                   ),
                   borderRadius: BorderRadius.circular(4),
@@ -1790,6 +1927,10 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
         return Icons.check_box;
       case ReportElementType.textbox:
         return Icons.text_snippet;
+      case ReportElementType.formula:
+        return Icons.functions;
+      case ReportElementType.markdown:
+        return Icons.code;
       default:
         return Icons.widgets;
     }
@@ -2414,7 +2555,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = ReportTheme.panelBorder
+      ..color = AppTheme.panelBorder
       ..strokeWidth = 0.5;
 
     // Griglia ogni 5mm
@@ -2443,7 +2584,7 @@ class _HorizontalRulerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = ReportTheme.rulerLine
+      ..color = AppTheme.rulerLine
       ..strokeWidth = 1;
 
     final textPainter = TextPainter(
@@ -2453,7 +2594,7 @@ class _HorizontalRulerPainter extends CustomPainter {
     // Sfondo righello
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = ReportTheme.rulerBackground,
+      Paint()..color = AppTheme.rulerBackground,
     );
 
     // Tacche e numeri
@@ -2471,7 +2612,7 @@ class _HorizontalRulerPainter extends CustomPainter {
         textPainter.text = TextSpan(
           text: '${mm ~/ 10}',
           style: TextStyle(
-            color: ReportTheme.rulerText,
+            color: AppTheme.rulerText,
             fontSize: 8,
           ),
         );
@@ -2519,7 +2660,7 @@ class _VerticalRulerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = ReportTheme.rulerLine
+      ..color = AppTheme.rulerLine
       ..strokeWidth = 1;
 
     final textPainter = TextPainter(
@@ -2529,7 +2670,7 @@ class _VerticalRulerPainter extends CustomPainter {
     // Sfondo righello
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = ReportTheme.rulerBackground,
+      Paint()..color = AppTheme.rulerBackground,
     );
 
     // Tacche e numeri
@@ -2547,7 +2688,7 @@ class _VerticalRulerPainter extends CustomPainter {
         textPainter.text = TextSpan(
           text: '${mm ~/ 10}',
           style: TextStyle(
-            color: ReportTheme.rulerText,
+            color: AppTheme.rulerText,
             fontSize: 8,
           ),
         );
@@ -2583,4 +2724,460 @@ class _VerticalRulerPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// 🆕 Metodi helper per le nuove funzionalità
+
+extension ReportBuilderExtensions on _ReportBuilderState {
+  /// Costruisce la sezione per le formule
+  Widget _buildFormulaSection(ReportElement element) {
+    return _buildPropertySection('Formula', [
+      TextFormField(
+        initialValue: element.properties['formula'] ?? '',
+        decoration: const InputDecoration(
+          labelText: 'Formula',
+          hintText: 'Es: SUM({price}, {tax}) * 0.22',
+          helperText: 'Usa sintassi Excel-like con {campo} per i dati',
+        ),
+        maxLines: 3,
+        onChanged: (v) {
+          element.properties['formula'] = v;
+          _notifyChange();
+        },
+      ),
+      const SizedBox(height: AppTheme.paddingMedium),
+      Text(
+        'Variabili:',
+        style: AppTheme.labelStyle,
+      ),
+      const SizedBox(height: AppTheme.paddingSmall),
+      _buildVariablesMapper(element),
+      const SizedBox(height: AppTheme.paddingMedium),
+      _buildDropdownField(
+        'Formato Output',
+        element.properties['format'] ?? 'number',
+        ['number', 'currency', 'percentage', 'date'],
+        (v) {
+          element.properties['format'] = v;
+          _notifyChange();
+        },
+      ),
+      const SizedBox(height: AppTheme.paddingMedium),
+      TextFormField(
+        initialValue: element.properties['errorValue'] ?? '0',
+        decoration: const InputDecoration(
+          labelText: 'Valore Errore',
+          hintText: 'Valore da mostrare in caso di errore',
+        ),
+        onChanged: (v) {
+          element.properties['errorValue'] = v;
+          _notifyChange();
+        },
+      ),
+    ]);
+  }
+
+  /// Costruisce il mappatore di variabili per le formule
+  Widget _buildVariablesMapper(ReportElement element) {
+    final variables = Map<String, String>.from(element.properties['variables'] ?? {});
+    final variableNames = variables.keys.toList();
+    
+    return Column(
+      children: [
+        ...variableNames.map((varName) => Padding(
+          padding: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Text(
+                  '{$varName}',
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                ),
+              ),
+              const SizedBox(width: AppTheme.paddingSmall),
+              Expanded(
+                flex: 2,
+                child: _availableFields.isEmpty
+                    ? const Text('Nessun campo disponibile', style: TextStyle(color: Colors.orange))
+                    : DropdownButtonFormField<String>(
+                        value: variables[varName]?.isEmpty ?? true ? null : variables[varName],
+                        decoration: const InputDecoration(labelText: 'Campo Dati'),
+                        items: _availableFields
+                            .where((f) => !f.isNested)
+                            .map((f) => DropdownMenuItem(value: f.name, child: Text(f.displayName)))
+                            .toList(),
+                        onChanged: (v) {
+                          variables[varName] = v ?? '';
+                          element.properties['variables'] = variables;
+                          _notifyChange();
+                        },
+                      ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () {
+                  variables.remove(varName);
+                  element.properties['variables'] = variables;
+                  _notifyChange();
+                },
+              ),
+            ],
+          ),
+        )),
+        TextButton.icon(
+          onPressed: () {
+            final newVar = 'var${variables.length + 1}';
+            variables[newVar] = '';
+            element.properties['variables'] = variables;
+            _notifyChange();
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Aggiungi Variabile'),
+        ),
+      ],
+    );
+  }
+
+  /// Costruisce la sezione per il Markdown
+  Widget _buildMarkdownSection(ReportElement element) {
+    return _buildPropertySection('Markdown', [
+      SwitchListTile(
+        title: const Text('Usa Markdown'),
+        subtitle: const Text('Abilita il rendering Markdown'),
+        value: element.properties['useMarkdown'] ?? false,
+        onChanged: (v) {
+          setState(() {
+            element.properties['useMarkdown'] = v;
+            _notifyChange();
+          });
+        },
+      ),
+      if (element.properties['useMarkdown'] ?? false) ...[
+        TextFormField(
+          initialValue: element.properties['markdownData'] ?? '',
+          decoration: const InputDecoration(
+            labelText: 'Contenuto Markdown',
+            hintText: '# Titolo\n\nTesto **grassetto**',
+          ),
+          maxLines: 8,
+          onChanged: (v) {
+            element.properties['markdownData'] = v;
+            _notifyChange();
+          },
+        ),
+        const SizedBox(height: AppTheme.paddingMedium),
+        SwitchListTile(
+          title: const Text('Indice Automatico'),
+          subtitle: const Text('Genera indice dai headers'),
+          value: element.properties['markdownConfig']?['enableToc'] ?? false,
+          onChanged: (v) {
+            final config = Map<String, dynamic>.from(element.properties['markdownConfig'] ?? {});
+            config['enableToc'] = v;
+            element.properties['markdownConfig'] = config;
+            _notifyChange();
+          },
+        ),
+        SwitchListTile(
+          title: const Text('Syntax Highlighting'),
+          subtitle: const Text('Evidenziazione codice'),
+          value: element.properties['markdownConfig']?['enableCodeHighlighting'] ?? true,
+          onChanged: (v) {
+            final config = Map<String, dynamic>.from(element.properties['markdownConfig'] ?? {});
+            config['enableCodeHighlighting'] = v;
+            element.properties['markdownConfig'] = config;
+            _notifyChange();
+          },
+        ),
+        _buildDropdownField(
+          'Tema',
+          element.properties['markdownConfig']?['theme'] ?? 'light',
+          ['light', 'dark'],
+          (v) {
+            final config = Map<String, dynamic>.from(element.properties['markdownConfig'] ?? {});
+            config['theme'] = v;
+            element.properties['markdownConfig'] = config;
+            _notifyChange();
+          },
+        ),
+      ],
+    ]);
+  }
+
+  /// Costruisce la sezione per la formattazione condizionale
+  Widget _buildConditionalFormattingSection(ReportElement element) {
+    final conditionalFormatting = Map<String, dynamic>.from(
+      element.properties['conditionalFormatting'] ?? {'enabled': false, 'rules': []}
+    );
+    final rules = List<Map<String, dynamic>>.from(conditionalFormatting['rules'] ?? []);
+    
+    return _buildPropertySection('Formattazione Condizionale', [
+      SwitchListTile(
+        title: const Text('Abilita Formattazione Condizionale'),
+        subtitle: const Text('Cambia stile in base al valore'),
+        value: conditionalFormatting['enabled'] ?? false,
+        onChanged: (v) {
+          setState(() {
+            conditionalFormatting['enabled'] = v;
+            element.properties['conditionalFormatting'] = conditionalFormatting;
+            _notifyChange();
+          });
+        },
+      ),
+      if (conditionalFormatting['enabled'] ?? false) ...[
+        ...rules.asMap().entries.map((entry) {
+          final index = entry.key;
+          final rule = entry.value;
+          return _buildConditionalRule(element, rule, index);
+        }),
+        TextButton.icon(
+          onPressed: () {
+            rules.add({
+              'type': 'threshold',
+              'condition': 'greater',
+              'value': 100,
+              'foregroundColor': '#FF0000',
+              'backgroundColor': '#FFFF00',
+              'fontWeight': 'bold',
+              'fontSize': 12.0,
+            });
+            conditionalFormatting['rules'] = rules;
+            element.properties['conditionalFormatting'] = conditionalFormatting;
+            _notifyChange();
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Aggiungi Regola'),
+        ),
+      ],
+    ]);
+  }
+
+  /// Costruisce una singola regola di formattazione condizionale
+  Widget _buildConditionalRule(ReportElement element, Map<String, dynamic> rule, int index) {
+    final conditionalFormatting = Map<String, dynamic>.from(
+      element.properties['conditionalFormatting'] ?? {'enabled': false, 'rules': []}
+    );
+    final rules = List<Map<String, dynamic>>.from(conditionalFormatting['rules'] ?? []);
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Regola ${index + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    rules.removeAt(index);
+                    conditionalFormatting['rules'] = rules;
+                    element.properties['conditionalFormatting'] = conditionalFormatting;
+                    _notifyChange();
+                  },
+                ),
+              ],
+            ),
+            _buildDropdownField(
+              'Tipo',
+              rule['type'] ?? 'threshold',
+              ['threshold', 'contains', 'range', 'expression'],
+              (v) {
+                rule['type'] = v;
+                conditionalFormatting['rules'] = rules;
+                element.properties['conditionalFormatting'] = conditionalFormatting;
+                _notifyChange();
+              },
+            ),
+            if (rule['type'] == 'threshold') ...[
+              _buildDropdownField(
+                'Condizione',
+                rule['condition'] ?? 'greater',
+                ['greater', 'less', 'equal', 'greater_equal', 'less_equal'],
+                (v) {
+                  rule['condition'] = v;
+                  conditionalFormatting['rules'] = rules;
+                  element.properties['conditionalFormatting'] = conditionalFormatting;
+                  _notifyChange();
+                },
+              ),
+              TextFormField(
+                initialValue: rule['value']?.toString() ?? '100',
+                decoration: const InputDecoration(labelText: 'Valore'),
+                keyboardType: TextInputType.number,
+                onChanged: (v) {
+                  rule['value'] = num.tryParse(v) ?? 100;
+                  conditionalFormatting['rules'] = rules;
+                  element.properties['conditionalFormatting'] = conditionalFormatting;
+                  _notifyChange();
+                },
+              ),
+            ],
+            if (rule['type'] == 'contains') ...[
+              TextFormField(
+                initialValue: rule['text'] ?? '',
+                decoration: const InputDecoration(labelText: 'Testo da cercare'),
+                onChanged: (v) {
+                  rule['text'] = v;
+                  conditionalFormatting['rules'] = rules;
+                  element.properties['conditionalFormatting'] = conditionalFormatting;
+                  _notifyChange();
+                },
+              ),
+            ],
+            _buildColorField(
+              'Colore Testo',
+              rule['foregroundColor'] ?? '#000000',
+              (v) {
+                rule['foregroundColor'] = v;
+                conditionalFormatting['rules'] = rules;
+                element.properties['conditionalFormatting'] = conditionalFormatting;
+                _notifyChange();
+              },
+            ),
+            _buildColorField(
+              'Colore Sfondo',
+              rule['backgroundColor'],
+              (v) {
+                rule['backgroundColor'] = v;
+                conditionalFormatting['rules'] = rules;
+                element.properties['conditionalFormatting'] = conditionalFormatting;
+                _notifyChange();
+              },
+              allowNull: true,
+            ),
+            _buildDropdownField(
+              'Peso Font',
+              rule['fontWeight'] ?? 'normal',
+              ['normal', 'bold'],
+              (v) {
+                rule['fontWeight'] = v;
+                conditionalFormatting['rules'] = rules;
+                element.properties['conditionalFormatting'] = conditionalFormatting;
+                _notifyChange();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Costruisce la sezione per immagini condizionali
+  Widget _buildConditionalImageSection(ReportElement element) {
+    final conditionalImages = List<Map<String, dynamic>>.from(
+      element.properties['conditionalImages'] ?? []
+    );
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Immagini Condizionali:',
+          style: AppTheme.labelStyle,
+        ),
+        const SizedBox(height: AppTheme.paddingSmall),
+        ...conditionalImages.asMap().entries.map((entry) {
+          final index = entry.key;
+          final imageRule = entry.value;
+          return _buildConditionalImageRule(element, imageRule, index);
+        }),
+        TextButton.icon(
+          onPressed: () {
+            conditionalImages.add({
+              'condition': 'status == "active"',
+              'imageField': 'activeImage',
+              'fallbackAsset': 'assets/inactive.png',
+            });
+            element.properties['conditionalImages'] = conditionalImages;
+            _notifyChange();
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Aggiungi Regola Immagine'),
+        ),
+      ],
+    );
+  }
+
+  /// Costruisce una singola regola di immagine condizionale
+  Widget _buildConditionalImageRule(ReportElement element, Map<String, dynamic> rule, int index) {
+    final conditionalImages = List<Map<String, dynamic>>.from(
+      element.properties['conditionalImages'] ?? []
+    );
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.paddingSmall),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Regola Immagine ${index + 1}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    conditionalImages.removeAt(index);
+                    element.properties['conditionalImages'] = conditionalImages;
+                    _notifyChange();
+                  },
+                ),
+              ],
+            ),
+            TextFormField(
+              initialValue: rule['condition'] ?? '',
+              decoration: const InputDecoration(
+                labelText: 'Condizione',
+                hintText: 'Es: status == "active"',
+              ),
+              onChanged: (v) {
+                rule['condition'] = v;
+                element.properties['conditionalImages'] = conditionalImages;
+                _notifyChange();
+              },
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            TextFormField(
+              initialValue: rule['imageField'] ?? '',
+              decoration: const InputDecoration(
+                labelText: 'Campo Immagine (se vero)',
+                hintText: 'Campo dati contenente l\'immagine',
+              ),
+              onChanged: (v) {
+                rule['imageField'] = v;
+                element.properties['conditionalImages'] = conditionalImages;
+                _notifyChange();
+              },
+            ),
+            const SizedBox(height: AppTheme.paddingMedium),
+            TextFormField(
+              initialValue: rule['fallbackAsset'] ?? '',
+              decoration: const InputDecoration(
+                labelText: 'Immagine Fallback (se falso)',
+                hintText: 'Percorso asset di default',
+              ),
+              onChanged: (v) {
+                rule['fallbackAsset'] = v;
+                element.properties['conditionalImages'] = conditionalImages;
+                _notifyChange();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

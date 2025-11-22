@@ -5,7 +5,7 @@ library report_flutter;
 export 'models/report_element.dart';
 export 'models/report_template.dart';
 export 'core/data_extractor.dart';
-export 'core/report_theme.dart';
+export 'theme/theme.dart';
 
 // Schema - Definizione e validazione dati
 export 'schema/schema.dart';
