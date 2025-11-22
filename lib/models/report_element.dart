@@ -10,7 +10,7 @@ enum ReportElementType {
   barcode,
   qrCode,
 
-  // Grafici
+  // Forme
   image,
   line,
   rectangle,
@@ -18,6 +18,11 @@ enum ReportElementType {
 
   // Tabelle
   table,
+
+  // Grafici
+  pieChart,
+  barChart,
+  lineChart,
 
   // Controlli form
   checkbox,
@@ -132,6 +137,44 @@ class ReportElement {
           'borderWidth': 0.5,
           'borderColor': '#000000',
         };
+      case ReportElementType.pieChart:
+        return {
+          'dataSource': '', // nome della lista dati
+          'valueField': '', // campo numerico per i valori
+          'labelField': '', // campo per le etichette
+          'showLabels': true,
+          'showPercentage': true,
+          'showLegend': true,
+          'colors': ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+          'title': '',
+        };
+      case ReportElementType.barChart:
+        return {
+          'dataSource': '', // nome della lista dati
+          'valueField': '', // campo numerico per i valori
+          'labelField': '', // campo per le etichette delle barre
+          'showValues': true,
+          'showGrid': true,
+          'horizontal': false, // true per barre orizzontali
+          'barColor': '#36A2EB',
+          'title': '',
+          'axisLabelX': '',
+          'axisLabelY': '',
+        };
+      case ReportElementType.lineChart:
+        return {
+          'dataSource': '', // nome della lista dati
+          'valueField': '', // campo numerico per i valori Y
+          'labelField': '', // campo per le etichette X
+          'showPoints': true,
+          'showGrid': true,
+          'showArea': false, // riempimento sotto la linea
+          'lineColor': '#FF6384',
+          'lineWidth': 2.0,
+          'title': '',
+          'axisLabelX': '',
+          'axisLabelY': '',
+        };
       case ReportElementType.pageNumber:
         return {
           'format': 'Pagina {current} di {total}',
@@ -195,6 +238,12 @@ class ReportElement {
         return 'Cerchio';
       case ReportElementType.table:
         return 'Tabella';
+      case ReportElementType.pieChart:
+        return 'Grafico Torta';
+      case ReportElementType.barChart:
+        return 'Grafico Barre';
+      case ReportElementType.lineChart:
+        return 'Grafico Linee';
       case ReportElementType.pageNumber:
         return 'Numero Pagina';
       case ReportElementType.date:
@@ -229,6 +278,12 @@ class ReportElement {
         return Icons.circle_outlined;
       case ReportElementType.table:
         return Icons.table_chart;
+      case ReportElementType.pieChart:
+        return Icons.pie_chart;
+      case ReportElementType.barChart:
+        return Icons.bar_chart;
+      case ReportElementType.lineChart:
+        return Icons.show_chart;
       case ReportElementType.pageNumber:
         return Icons.numbers;
       case ReportElementType.date:

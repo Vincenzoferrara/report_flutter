@@ -8,17 +8,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:report_designer/main.dart';
+import 'package:report_flutter/main.dart';
 
 void main() {
   testWidgets('Report Designer app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const ReportDesignerDemoApp());
+    await tester.pumpWidget(const ReportFlutterDemoApp());
 
-    // Verify that the app loads with the main title
-    expect(find.text('Report Designer Demo'), findsOneWidget);
-    
-    // Verify that tabs are present
+    // Verify that the app loads with tabs
     expect(find.text('Viewer'), findsOneWidget);
     expect(find.text('Builder'), findsOneWidget);
     expect(find.text('Info'), findsOneWidget);

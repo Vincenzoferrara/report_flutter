@@ -21,3 +21,9 @@ export 'engine/engine.dart';
 
 // Formats - Gestione file .rpt
 export 'formats/formats.dart';
+
+// Import - Import dati da CSV/JSON
+export 'import/import.dart';
+
+// Export - Esportazione PDF
+export 'export/pdf_exporter.dart';

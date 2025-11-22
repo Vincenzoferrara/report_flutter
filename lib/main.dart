@@ -209,7 +209,7 @@ class _DemoHomePageState extends State<DemoHomePage> with TickerProviderStateMix
       description: 'Template di esempio per il builder',
       itemWidth: 50,  // Verticale: larghezza minore
       itemHeight: 80, // Verticale: altezza maggiore
-      dataSchema: ProductSchema(),
+      // dataSchema viene impostato importando dati da CSV/JSON
     );
 
     return Column(
@@ -447,7 +447,7 @@ class _DemoHomePageState extends State<DemoHomePage> with TickerProviderStateMix
       description: 'Template creato dinamicamente',
       itemWidth: 50,  // Verticale
       itemHeight: 70, // Verticale
-      dataSchema: ProductSchema(),
+      // dataSchema viene impostato importando dati
       elements: [
         ReportElement(
           id: 'title',

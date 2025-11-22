@@ -43,7 +43,34 @@ class ReportEngine {
         return _renderLogoElement(element, scale);
       case ReportElementType.table:
         return _renderTableElement(element, data, scale);
+      case ReportElementType.pieChart:
+        return _renderChartPlaceholder(element, 'Grafico Torta', Icons.pie_chart, scale);
+      case ReportElementType.barChart:
+        return _renderChartPlaceholder(element, 'Grafico Barre', Icons.bar_chart, scale);
+      case ReportElementType.lineChart:
+        return _renderChartPlaceholder(element, 'Grafico Linee', Icons.show_chart, scale);
     }
+  }
+
+  static Widget _renderChartPlaceholder(ReportElement element, String label, IconData icon, double scale) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(4 * scale),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 24 * scale, color: Colors.grey.shade600),
+          SizedBox(height: 4 * scale),
+          Text(
+            label,
+            style: TextStyle(fontSize: 8 * scale, color: Colors.grey.shade600),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Processa un template con dati e restituisce una lista di widget

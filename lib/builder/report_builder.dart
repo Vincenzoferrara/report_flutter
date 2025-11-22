@@ -1,10 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import '../models/report_element.dart';
 import '../models/report_template.dart';
+import '../schema/data_schema.dart';
 import '../core/data_extractor.dart';
 import '../core/report_theme.dart';
+import '../export/pdf_exporter.dart';
+import '../formats/template_loader.dart';
 
 
 /// Widget principale per il designer drag-and-drop di report/etichette
@@ -39,6 +44,9 @@ class _ReportBuilderState extends State<ReportBuilder> {
 
   // Scala visualizzazione (mm -> pixel)
   double _scale = 3.0;
+  
+  // Traccia se lo zoom è stato modificato manualmente
+  bool _isManualZoom = false;
 
   // GlobalKey per il canvas per calcolare posizioni
   final GlobalKey _canvasKey = GlobalKey();
@@ -57,6 +65,8 @@ class _ReportBuilderState extends State<ReportBuilder> {
 
   // Traccia se stiamo trascinando un elemento (per bloccare InteractiveViewer)
   bool _isDraggingElement = false;
+  String? _draggingElementId;
+  Offset? _lastPointerPosition;
 
   // History per undo/redo
   final List<String> _undoStack = [];
@@ -65,6 +75,10 @@ class _ReportBuilderState extends State<ReportBuilder> {
 
   // Focus node per shortcut tastiera
   final FocusNode _focusNode = FocusNode();
+
+  // Getter per stato undo/redo
+  bool get _canUndo => _undoStack.isNotEmpty;
+  bool get _canRedo => _redoStack.isNotEmpty;
 
   @override
   void initState() {
@@ -264,7 +278,6 @@ class _ReportBuilderState extends State<ReportBuilder> {
               children: [
                 _buildSectionHeader('Testo'),
                 _buildDraggableElement(ReportElementType.text, 'Testo Statico'),
-                _buildDraggableElement(ReportElementType.dynamicField, 'Campo Dati'),
 
                 _buildSectionHeader('Codici'),
                 _buildDraggableElement(ReportElementType.barcode, 'Barcode'),
@@ -283,9 +296,10 @@ class _ReportBuilderState extends State<ReportBuilder> {
                 _buildDraggableElement(ReportElementType.image, 'Immagine'),
                 _buildDraggableElement(ReportElementType.date, 'Data'),
 
-                // Campi disponibili dallo schema dati
+                // Campi disponibili dallo schema dati (solo se schema associato)
                 if (_availableFields.isNotEmpty) ...[
                   _buildSectionHeader('Campi Dati'),
+                  _buildDraggableElement(ReportElementType.dynamicField, 'Campo Generico'),
                   ..._availableFields
                       .where((f) => !f.isNested)
                       .map((f) => _buildFieldDraggable(f)),
@@ -385,13 +399,20 @@ class _ReportBuilderState extends State<ReportBuilder> {
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                // Calcola scala di riempimento automatico
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _calculateFillScale(constraints);
+                });
+
                 return InteractiveViewer(
-                  constrained: true,
-                  boundaryMargin: const EdgeInsets.all(20),
+                  constrained: false, // Permette zoom oltre i limiti del contenitore
+                  boundaryMargin: EdgeInsets.all(constraints.maxWidth * 0.5),
                   minScale: 0.05,
                   maxScale: 6.0,
                   panEnabled: !_isDraggingElement,
-                  child: _buildCanvasWithRulers(),
+                  child: Center(
+                    child: _buildCanvasWithRulers(constraints),
+                  ),
                 );
               },
             ),
@@ -401,59 +422,73 @@ class _ReportBuilderState extends State<ReportBuilder> {
     );
   }
 
+  /// Calcola la scala per riempire lo schermo
+  void _calculateFillScale(BoxConstraints constraints) {
+    if (_isManualZoom) return;
+    
+    final availableWidth = constraints.maxWidth - 100; // Margin per righelli e padding
+    final availableHeight = constraints.maxHeight - 100;
+    
+    final horizontalScale = availableWidth / _template.itemWidth;
+    final verticalScale = availableHeight / _template.itemHeight;
+    final fillScale = (horizontalScale < verticalScale ? horizontalScale : verticalScale) * 0.85; // 85% per margine
+    
+    final newScale = fillScale.clamp(0.5, 6.0);
+    if ((newScale - _scale).abs() > 0.1) { // Aggiorna solo se la differenza è significativa
+      setState(() {
+        _scale = newScale;
+      });
+    }
+  }
+
   /// Canvas con righelli millimetrati
-  Widget _buildCanvasWithRulers() {
+  Widget _buildCanvasWithRulers(BoxConstraints constraints) {
+    // Calcola dimensioni canvas
     final canvasWidth = _template.itemWidth * _scale;
     final canvasHeight = _template.itemHeight * _scale;
     const rulerSize = ReportTheme.rulerSize;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Righello orizzontale superiore
+        Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Righello orizzontale superiore
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Angolo vuoto
-                Container(
-                  width: rulerSize,
-                  height: rulerSize,
-                  color: ReportTheme.rulerBackground,
-                ),
-                // Righello orizzontale
-                CustomPaint(
-                  size: Size(canvasWidth, rulerSize),
-                  painter: _HorizontalRulerPainter(
-                    scale: _scale,
-                    maxValue: _template.itemWidth,
-                  ),
-                ),
-              ],
+            // Angolo vuoto
+            Container(
+              width: rulerSize,
+              height: rulerSize,
+              color: ReportTheme.rulerBackground,
             ),
-            // Righello verticale + Canvas
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Righello verticale
-                CustomPaint(
-                  size: Size(rulerSize, canvasHeight),
-                  painter: _VerticalRulerPainter(
-                    scale: _scale,
-                    maxValue: _template.itemHeight,
-                  ),
-                ),
-                // Canvas
-                _buildCanvas(),
-              ],
+            // Righello orizzontale
+            CustomPaint(
+              size: Size(canvasWidth, rulerSize),
+              painter: _HorizontalRulerPainter(
+                scale: _scale,
+                maxValue: _template.itemWidth,
+              ),
             ),
           ],
         ),
-      ),
+        // Righello verticale + Canvas
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Righello verticale
+            CustomPaint(
+              size: Size(rulerSize, canvasHeight),
+              painter: _VerticalRulerPainter(
+                scale: _scale,
+                maxValue: _template.itemHeight,
+              ),
+            ),
+            // Canvas
+            _buildCanvas(),
+          ],
+        ),
+      ],
     );
   }
 
@@ -469,7 +504,10 @@ class _ReportBuilderState extends State<ReportBuilder> {
           // Zoom
           IconButton(
             icon: const Icon(Icons.zoom_out, size: ReportTheme.iconSize),
-            onPressed: () => setState(() => _scale = (_scale - 0.5).clamp(1.0, 6.0)),
+            onPressed: () => setState(() {
+              _scale = (_scale - 0.5).clamp(1.0, 6.0);
+              _isManualZoom = true;
+            }),
             tooltip: 'Zoom -',
             color: ReportTheme.textSecondary,
           ),
@@ -482,8 +520,45 @@ class _ReportBuilderState extends State<ReportBuilder> {
           ),
           IconButton(
             icon: const Icon(Icons.zoom_in, size: ReportTheme.iconSize),
-            onPressed: () => setState(() => _scale = (_scale + 0.5).clamp(1.0, 6.0)),
+            onPressed: () => setState(() {
+              _scale = (_scale + 0.5).clamp(1.0, 6.0);
+              _isManualZoom = true;
+            }),
             tooltip: 'Zoom +',
+            color: ReportTheme.textSecondary,
+          ),
+
+          const SizedBox(width: ReportTheme.paddingSmall),
+
+          // Fit to Screen
+          IconButton(
+            icon: const Icon(Icons.fit_screen, size: ReportTheme.iconSize),
+            onPressed: () {
+              setState(() {
+                _isManualZoom = false; // Resetta per auto-fit
+              });
+              // Forza ricalcolo immediato
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  final renderBox = context.findRenderObject() as RenderBox?;
+                  if (renderBox != null) {
+                    _calculateFillScale(renderBox.constraints! as BoxConstraints);
+                  }
+                }
+              });
+            },
+            tooltip: 'Adatta allo schermo',
+            color: ReportTheme.textSecondary,
+          ),
+
+          // Actual Size
+          IconButton(
+            icon: const Icon(Icons.fullscreen, size: ReportTheme.iconSize),
+            onPressed: () => setState(() {
+              _scale = 3.0; // Scala default
+              _isManualZoom = true;
+            }),
+            tooltip: 'Dimensione reale',
             color: ReportTheme.textSecondary,
           ),
 
@@ -521,7 +596,55 @@ class _ReportBuilderState extends State<ReportBuilder> {
 
           const Spacer(),
 
-          // Azioni
+          // Undo/Redo
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.undo, size: ReportTheme.iconSize),
+                onPressed: _canUndo ? _undo : null,
+                tooltip: 'Undo (Ctrl+Z)',
+                color: _canUndo ? ReportTheme.textSecondary : ReportTheme.textHint,
+              ),
+              IconButton(
+                icon: const Icon(Icons.redo, size: ReportTheme.iconSize),
+                onPressed: _canRedo ? _redo : null,
+                tooltip: 'Redo (Ctrl+Y)',
+                color: _canRedo ? ReportTheme.textSecondary : ReportTheme.textHint,
+              ),
+            ],
+          ),
+
+          const SizedBox(width: ReportTheme.paddingMedium),
+
+          // Template Management
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.folder_open, size: ReportTheme.iconSize),
+                onPressed: _loadTemplate,
+                tooltip: 'Carica Template',
+                color: ReportTheme.textSecondary,
+              ),
+              IconButton(
+                icon: const Icon(Icons.save, size: ReportTheme.iconSize),
+                onPressed: () => widget.onSave?.call(_template),
+                tooltip: 'Salva Template',
+                color: ReportTheme.primary,
+              ),
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf, size: ReportTheme.iconSize),
+                onPressed: _exportToPdf,
+                tooltip: 'Esporta PDF',
+                color: ReportTheme.error,
+              ),
+            ],
+          ),
+
+          const SizedBox(width: ReportTheme.paddingMedium),
+
+          // Azioni elemento
           if (_selectedElementId != null)
             IconButton(
               icon: const Icon(Icons.delete, size: ReportTheme.iconSize),
@@ -529,13 +652,6 @@ class _ReportBuilderState extends State<ReportBuilder> {
               tooltip: 'Elimina',
               color: ReportTheme.error,
             ),
-
-          IconButton(
-            icon: const Icon(Icons.save, size: ReportTheme.iconSize),
-            onPressed: () => widget.onSave?.call(_template),
-            tooltip: 'Salva Template',
-            color: ReportTheme.primary,
-          ),
         ],
       ),
     );
@@ -567,49 +683,122 @@ class _ReportBuilderState extends State<ReportBuilder> {
         }
       },
       builder: (context, candidateData, rejectedData) {
-        return Container(
-          width: canvasWidth,
-          height: canvasHeight,
-          decoration: BoxDecoration(
-            color: ReportTheme.surface,
-            border: Border.all(color: ReportTheme.panelBorder),
-            boxShadow: ReportTheme.elevatedShadow,
-          ),
-          child: Stack(
-            children: [
-              // Griglia di sfondo
-              CustomPaint(
-                size: Size(canvasWidth, canvasHeight),
-                painter: _GridPainter(scale: _scale),
+        return Listener(
+          onPointerDown: (event) {
+            // Trova quale elemento è sotto il pointer
+            final localPos = event.localPosition;
+            final xMm = localPos.dx / _scale;
+            final yMm = localPos.dy / _scale;
+
+            // Cerca elemento sotto il pointer (in ordine inverso per z-index)
+            ReportElement? hitElement;
+            for (final element in _template.sortedElements.reversed) {
+              if (xMm >= element.x && xMm <= element.x + element.width &&
+                  yMm >= element.y && yMm <= element.y + element.height) {
+                hitElement = element;
+                break;
+              }
+            }
+
+            if (hitElement != null) {
+              _draggingElementId = hitElement.id;
+              _lastPointerPosition = event.localPosition;
+              setState(() {
+                _selectedElementId = hitElement!.id;
+                _updateSnapLines(hitElement.id);
+                _showSnapLines = true;
+                _isDraggingElement = true;
+              });
+            }
+          },
+          onPointerMove: (event) {
+            if (_draggingElementId == null || _lastPointerPosition == null) return;
+
+            final element = _template.getElementById(_draggingElementId!);
+            if (element == null) return;
+
+            final delta = event.localPosition - _lastPointerPosition!;
+            _lastPointerPosition = event.localPosition;
+
+            final deltaX = delta.dx / _scale;
+            final deltaY = delta.dy / _scale;
+
+            double newX = element.x + deltaX;
+            double newY = element.y + deltaY;
+
+            newX = newX.clamp(0, _template.itemWidth - element.width);
+            newY = newY.clamp(0, _template.itemHeight - element.height);
+
+            setState(() {
+              element.x = newX;
+              element.y = newY;
+              _updateActiveSnapLines(newX, newY, element.width, element.height);
+            });
+          },
+          onPointerUp: (event) {
+            if (_draggingElementId == null) return;
+
+            final element = _template.getElementById(_draggingElementId!);
+            if (element != null) {
+              final snapped = _applySnapOnRelease(element.x, element.y, element.width, element.height);
+              setState(() {
+                element.x = snapped.dx;
+                element.y = snapped.dy;
+                _showSnapLines = false;
+                _isDraggingElement = false;
+                _activeSnapLinesX = [];
+                _activeSnapLinesY = [];
+              });
+              _pushOverlappingElements(element);
+              _notifyChange();
+            }
+            _draggingElementId = null;
+            _lastPointerPosition = null;
+          },
+          child: Container(
+              width: canvasWidth,
+              height: canvasHeight,
+              decoration: BoxDecoration(
+                color: ReportTheme.surface,
+                border: Border.all(color: ReportTheme.panelBorder),
+                boxShadow: ReportTheme.elevatedShadow,
               ),
-
-              // Linee guida di allineamento (solo quelle attive/vicine)
-              if (_showSnapLines) ...[
-                // Linee verticali attive
-                ..._activeSnapLinesX.map((x) => Positioned(
-                  left: x * _scale,
-                  top: 0,
-                  child: Container(
-                    width: 1,
-                    height: canvasHeight,
-                    color: ReportTheme.primary.withValues(alpha: 0.7),
+              child: Stack(
+                children: [
+                  // Griglia di sfondo
+                  CustomPaint(
+                    size: Size(canvasWidth, canvasHeight),
+                    painter: _GridPainter(scale: _scale),
                   ),
-                )),
-                // Linee orizzontali attive
-                ..._activeSnapLinesY.map((y) => Positioned(
-                  left: 0,
-                  top: y * _scale,
-                  child: Container(
-                    width: canvasWidth,
-                    height: 1,
-                    color: ReportTheme.primary.withValues(alpha: 0.7),
-                  ),
-                )),
-              ],
 
-              // Elementi
-              ..._template.sortedElements.map((element) => _buildElementWidget(element)),
-            ],
+                  // Linee guida di allineamento (solo quelle attive/vicine)
+                  if (_showSnapLines) ...[
+                    // Linee verticali attive
+                    ..._activeSnapLinesX.map((x) => Positioned(
+                      left: x * _scale,
+                      top: 0,
+                      child: Container(
+                        width: 1,
+                        height: canvasHeight,
+                        color: ReportTheme.primary.withValues(alpha: 0.7),
+                      ),
+                    )),
+                    // Linee orizzontali attive
+                    ..._activeSnapLinesY.map((y) => Positioned(
+                      left: 0,
+                      top: y * _scale,
+                      child: Container(
+                        width: canvasWidth,
+                        height: 1,
+                        color: ReportTheme.primary.withValues(alpha: 0.7),
+                      ),
+                    )),
+                  ],
+
+                  // Elementi
+                  ..._template.sortedElements.map((element) => _buildElementWidget(element)),
+                ],
+              ),
           ),
         );
       },
@@ -622,57 +811,8 @@ class _ReportBuilderState extends State<ReportBuilder> {
     return Positioned(
       left: element.x * _scale,
       top: element.y * _scale,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onPanStart: (_) {
-          // Inizializza senza setState per non interrompere il gesture
-          _updateSnapLines(element.id);
-          _selectedElementId = element.id;
-          _showSnapLines = true;
-          _isDraggingElement = true;
-        },
-        onPanUpdate: (details) {
-          // Calcola nuova posizione direttamente dal delta
-          final deltaX = details.delta.dx / _scale;
-          final deltaY = details.delta.dy / _scale;
-
-          double newX = element.x + deltaX;
-          double newY = element.y + deltaY;
-
-          // Clamp ai limiti
-          newX = newX.clamp(0, _template.itemWidth - element.width);
-          newY = newY.clamp(0, _template.itemHeight - element.height);
-
-          // Aggiorna posizione immediatamente
-          element.x = newX;
-          element.y = newY;
-
-          // Aggiorna UI e linee guida in modo asincrono per non bloccare
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              setState(() {
-                _updateActiveSnapLines(newX, newY, element.width, element.height);
-              });
-            }
-          });
-        },
-        onPanEnd: (_) {
-          // Applica snap solo al rilascio se ci sono linee attive
-          final snapped = _applySnapOnRelease(element.x, element.y, element.width, element.height);
-
-          setState(() {
-            element.x = snapped.dx;
-            element.y = snapped.dy;
-            _showSnapLines = false;
-            _isDraggingElement = false;
-            _activeSnapLinesX = [];
-            _activeSnapLinesY = [];
-          });
-          // Risolvi eventuali sovrapposizioni
-          _pushOverlappingElements(element);
-          _notifyChange();
-        },
-        onTap: () => setState(() => _selectedElementId = element.id),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.move,
         child: Container(
           width: element.width * _scale,
           height: element.height * _scale,
@@ -1807,6 +1947,95 @@ class _ReportBuilderState extends State<ReportBuilder> {
         heightCtrl.text = height.toString();
       },
     );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Metodi aggiuntivi per _ReportBuilderState
+extension ReportBuilderMethods on _ReportBuilderState {
+  /// Carica un template da file
+  Future<void> _loadTemplate() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['rpt'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final templateWithSchema = await TemplateLoader.fromFile(result.files.single.path!);
+        
+        if (mounted) {
+          setState(() {
+            _template = templateWithSchema.template;
+            _selectedElementId = null;
+            _extractAllFields();
+            _saveToHistory();
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Template caricato con successo'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Errore nel caricare il template: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Esporta il template in PDF
+  Future<void> _exportToPdf() async {
+    try {
+      // Mostra dialog per salvare
+      final result = await FilePicker.platform.saveFile(
+        dialogTitle: 'Esporta PDF',
+        fileName: '${_template.name}_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null) {
+        // Usa dati di esempio se disponibili
+        final sampleData = _template.getSampleData();
+        final dataList = sampleData.isNotEmpty ? [sampleData] : [{}];
+        
+        await PdfExporter.exportToPdf(
+          template: _template,
+          data: dataList,
+          filePath: result,
+        );
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('PDF esportato con successo'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Errore nell\'esportare PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 

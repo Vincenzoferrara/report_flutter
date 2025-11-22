@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import '../models/report_template.dart';
 import '../schema/data_schema.dart';
 import '../formats/template_loader.dart';
@@ -41,10 +42,13 @@ class _ReportViewerState extends State<ReportViewer> {
   String? _error;
   int _currentPage = 0;
   int _totalPages = 0;
+  late ReportViewerOptions _currentOptions;
+  bool _isManualZoom = false; // Traccia se lo zoom è stato modificato manualmente
 
   @override
   void initState() {
     super.initState();
+    _currentOptions = widget.options;
     _loadTemplate();
   }
 
@@ -98,6 +102,16 @@ class _ReportViewerState extends State<ReportViewer> {
 
       _updatePagination();
       _validateData();
+      
+      // Auto-adatta lo zoom allo schermo dopo il caricamento
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Piccolo ritardo per assicurarsi che il layout sia completo
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            _fitToScreen();
+          }
+        });
+      });
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -292,17 +306,42 @@ class _ReportViewerState extends State<ReportViewer> {
 
           // Controlli zoom
           if (widget.options.enableZoom) ...[
+            // Fit to Screen
             IconButton(
-              onPressed: () => _updateZoom(widget.options.scale - 0.25),
+              onPressed: _fitToScreen,
+              icon: const Icon(Icons.fit_screen),
+              tooltip: 'Adatta allo schermo',
+            ),
+            // Actual Size
+            IconButton(
+              onPressed: _actualSize,
+              icon: const Icon(Icons.fullscreen),
+              tooltip: 'Dimensione reale (100%)',
+            ),
+            const SizedBox(width: 4),
+            // Zoom Out
+            IconButton(
+              onPressed: () => _updateZoom(_currentOptions.scale - 0.25),
               icon: const Icon(Icons.zoom_out),
               tooltip: 'Zoom indietro',
             ),
-            Text(
-              '${(widget.options.scale * 100).toInt()}%',
-              style: Theme.of(context).textTheme.bodySmall,
+            // Zoom percentage
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '${(_currentOptions.scale * 100).toInt()}%',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
+            // Zoom In
             IconButton(
-              onPressed: () => _updateZoom(widget.options.scale + 0.25),
+              onPressed: () => _updateZoom(_currentOptions.scale + 0.25),
               icon: const Icon(Icons.zoom_in),
               tooltip: 'Zoom avanti',
             ),
@@ -325,20 +364,47 @@ class _ReportViewerState extends State<ReportViewer> {
     
     return Container(
       color: Theme.of(context).colorScheme.surfaceVariant,
-      padding: widget.options.padding,
-      child: Center(
-        child: InteractiveViewer(
-          minScale: 0.5,
-          maxScale: 4.0,
-          panEnabled: widget.options.enablePan,
-          boundaryMargin: const EdgeInsets.all(100),
-          child: ReportRenderer(
-            template: _template!,
-            data: currentData,
-            schema: _schema,
-            options: widget.options,
-          ),
-        ),
+      padding: _currentOptions.padding,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Auto-adatta quando le dimensioni cambiano (solo se non è zoom manuale)
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_template != null && !_isManualZoom) {
+              _fitToScreen();
+            }
+          });
+          
+          return Center(
+            child: Listener(
+              onPointerSignal: (pointerSignal) {
+                if (pointerSignal is PointerScrollEvent && _currentOptions.enableZoom) {
+                  // Gestisce zoom con mouse wheel
+                  final delta = pointerSignal.scrollDelta.dy;
+                  final zoomFactor = delta > 0 ? 0.9 : 1.1; // Zoom out/in
+                  final newScale = _currentOptions.scale * zoomFactor;
+                  _updateZoom(newScale);
+                }
+              },
+              child: InteractiveViewer(
+                minScale: 0.1,
+                maxScale: 5.0,
+                panEnabled: _currentOptions.enablePan,
+                boundaryMargin: EdgeInsets.all(
+                  constraints.maxWidth * 0.1, // Margine dinamico basato sulla larghezza
+                ),
+                constrained: false, // Permette zoom oltre i limiti del contenitore
+                alignment: Alignment.center, // Centra il contenuto durante lo zoom
+                transformationController: null, // Usa il controller di default
+                child: ReportRenderer(
+                  template: _template!,
+                  data: currentData,
+                  schema: _schema,
+                  options: _currentOptions,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -407,10 +473,49 @@ class _ReportViewerState extends State<ReportViewer> {
   }
 
   void _updateZoom(double newScale) {
-    // Questo metodo richiede che le opzioni siano modificabili
-    // Per ora è solo placeholder per futura implementazione
     setState(() {
-      // TODO: Implementare aggiornamento zoom
+      _currentOptions = _currentOptions.copyWith(scale: newScale.clamp(0.1, 5.0));
+      _isManualZoom = true; // Marca come zoom manuale
+    });
+  }
+
+  void _fitToScreen() {
+    if (_template == null) return;
+    
+    // Calcola la scala per adattare il template allo schermo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final renderBox = context.findRenderObject() as RenderBox?;
+      if (renderBox == null) return;
+      
+      final screenSize = renderBox.size;
+      final templateWidth = _template!.itemWidth;
+      final templateHeight = _template!.itemHeight;
+      
+      // Calcola lo spazio disponibile (escludendo padding e margini)
+      final availableWidth = screenSize.width - (_currentOptions.padding.horizontal + 40); // 40px margine extra
+      final availableHeight = screenSize.height - (_currentOptions.padding.vertical + 120); // 120px per UI elements
+      
+      // Calcola la scala orizzontale e verticale
+      final horizontalScale = availableWidth / templateWidth;
+      final verticalScale = availableHeight / templateHeight;
+      
+      // Usa la scala più piccola per garantire che il template sia completamente visibile
+      final optimalScale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
+      
+      // Applica un fattore di sicurezza (95%) per garantire un piccolo margine
+      final finalScale = (optimalScale * 0.95).clamp(0.1, 5.0);
+      
+      setState(() {
+        _currentOptions = _currentOptions.copyWith(scale: finalScale);
+        _isManualZoom = false; // Resetta il flag dopo fit-to-screen
+      });
+    });
+  }
+
+  void _actualSize() {
+    setState(() {
+      _currentOptions = _currentOptions.copyWith(scale: 1.0);
+      _isManualZoom = true; // Marca come zoom manuale
     });
   }
 }
@@ -458,19 +563,38 @@ class SingleReportViewer extends StatelessWidget {
         return Container(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           padding: options.padding,
-          child: Center(
-            child: InteractiveViewer(
-              minScale: 0.5,
-              maxScale: 4.0,
-              panEnabled: options.enablePan,
-              boundaryMargin: const EdgeInsets.all(100),
-              child: ReportRenderer(
-                template: templateWithSchema.template,
-                data: data,
-                schema: templateWithSchema.schema,
-                options: options,
-              ),
-            ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Center(
+                child: Listener(
+                  onPointerSignal: (pointerSignal) {
+                    if (pointerSignal is PointerScrollEvent && options.enableZoom) {
+                      // Gestisce zoom con mouse wheel
+                      final delta = pointerSignal.scrollDelta.dy;
+                      final zoomFactor = delta > 0 ? 0.9 : 1.1; // Zoom out/in
+                      // Nota: SingleReportViewer è StatelessWidget, quindi non può aggiornare lo stato
+                      // Questo è solo per mostrare che il supporto mouse wheel è disponibile
+                    }
+                  },
+                  child: InteractiveViewer(
+                    minScale: 0.1,
+                    maxScale: 5.0,
+                    panEnabled: options.enablePan,
+                    boundaryMargin: EdgeInsets.all(
+                      constraints.maxWidth * 0.1,
+                    ),
+                    constrained: false,
+                    alignment: Alignment.center,
+                    child: ReportRenderer(
+                      template: templateWithSchema.template,
+                      data: data,
+                      schema: templateWithSchema.schema,
+                      options: options,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         );
       },

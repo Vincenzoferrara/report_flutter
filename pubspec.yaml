@@ -34,6 +34,31 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  
+  # PDF generation
+  pdf: ^3.11.1
+  printing: ^5.13.0
+  
+  # QR Code generation
+  qr_flutter: ^4.1.0
+  
+  # Barcode generation
+  barcode: ^2.2.8
+  
+  # Image handling
+  image: ^4.2.0
+  
+  # File picker for template management
+  file_picker: ^10.3.3
+  
+  # Path provider for file operations
+  path_provider: ^2.1.3
+  
+  # Shared preferences for settings
+  shared_preferences: ^2.3.2
+
+  # CSV parsing for data import
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
