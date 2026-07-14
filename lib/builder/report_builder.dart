@@ -2324,7 +2324,7 @@ extension ReportBuilderMethods on _ReportBuilderState {
   /// Carica un template da file
   Future<void> _loadTemplate() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['rpt'],
         allowMultiple: false,
@@ -2365,7 +2365,7 @@ extension ReportBuilderMethods on _ReportBuilderState {
   Future<void> _exportToPdf() async {
     try {
       // Mostra dialog per salvare
-      final result = await FilePicker.platform.saveFile(
+      final result = await FilePicker.saveFile(
         dialogTitle: 'Esporta PDF',
         fileName: '${_template.name}_${DateTime.now().millisecondsSinceEpoch}.pdf',
         type: FileType.custom,
