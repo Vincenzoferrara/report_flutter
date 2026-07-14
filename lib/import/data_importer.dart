@@ -64,12 +64,13 @@ class DataImporter {
     bool hasHeader = true,
   }) {
     try {
-      final converter = CsvToListConverter(
+      final converter = Csv(
         fieldDelimiter: delimiter,
-        shouldParseNumbers: true,
+        autoDetect: false,
+        dynamicTyping: true,
       );
 
-      final rows = converter.convert(csvContent);
+      final rows = converter.decode(csvContent);
       if (rows.isEmpty) {
         return ImportResult(
           schema: _createEmptySchema(schemaName),
