@@ -51,9 +51,6 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   // Traccia se lo zoom è stato modificato manualmente
   bool _isManualZoom = false;
   
-  // Traccia se un campo di testo ha il focus (per evitare cancellazione accidentale)
-  bool _isTextEditing = false;
-  
   // Focus node per tracciare il focus sui campi di testo
   final FocusNode _dialogFocusNode = FocusNode();
   
@@ -283,41 +280,43 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       focusNode: _focusNode,
       autofocus: true,
       onKeyEvent: _handleKeyEvent,
-      child: Column(
-        children: [
-          // Tab bar
-          Container(
-            color: AppTheme.panelBackground,
-            child: TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(icon: Icon(Icons.edit), text: 'Designer'),
-                Tab(icon: Icon(Icons.preview), text: 'Anteprima'),
-              ],
-              labelColor: AppTheme.primary,
-              unselectedLabelColor: AppTheme.textSecondary,
-              indicatorColor: AppTheme.primary,
+      child: Material(
+        child: Column(
+          children: [
+            // Tab bar
+            Container(
+              color: AppTheme.panelBackground,
+              child: TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(icon: Icon(Icons.edit), text: 'Designer'),
+                  Tab(icon: Icon(Icons.preview), text: 'Anteprima'),
+                ],
+                labelColor: AppTheme.primary,
+                unselectedLabelColor: AppTheme.textSecondary,
+                indicatorColor: AppTheme.primary,
+              ),
             ),
-          ),
-          // Tab content
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Tab Designer
-                Row(
-                  children: [
-                    _buildElementsPanel(),
-                    Expanded(child: _buildDesignerCanvas()),
-                    _buildPropertiesPanel(),
-                  ],
-                ),
-                // Tab Anteprima
-                _buildPreviewTab(),
-              ],
+            // Tab content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Tab Designer
+                  Row(
+                    children: [
+                      _buildElementsPanel(),
+                      Expanded(child: _buildDesignerCanvas()),
+                      _buildPropertiesPanel(),
+                    ],
+                  ),
+                  // Tab Anteprima
+                  _buildPreviewTab(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -386,12 +385,25 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
     final isCtrl = HardwareKeyboard.instance.isControlPressed;
 
-    // Delete - elimina elemento selezionato (solo se non stiamo editando testo)
+    // Delete - elimina elemento selezionato (solo se non stiamo editando testo in un campo)
     if (event.logicalKey == LogicalKeyboardKey.delete ||
         event.logicalKey == LogicalKeyboardKey.backspace) {
-      // Controlla se il focus è su un campo di testo o sulla dialog
-      final hasTextFocus = _isTextEditing || _dialogFocusNode.hasFocus;
-      if (_selectedElementId != null && !hasTextFocus) {
+      // Controlla se il focus è su un campo di testo (inclusi i campi nelle proprietà)
+      final currentFocus = FocusManager.instance.primaryFocus;
+
+      // Verifica se il focus è su un EditableText (il widget interno usato da TextField/TextFormField)
+      bool isTextFocused = false;
+      if (currentFocus != null) {
+        final context = currentFocus.context;
+        if (context != null) {
+          // Cerca se siamo dentro un EditableText (usato internamente da TextField e TextFormField)
+          final editableText = context.findAncestorWidgetOfExactType<EditableText>();
+          isTextFocused = editableText != null || _dialogFocusNode.hasFocus;
+        }
+      }
+
+      // Disabilita la cancellazione di elementi solo quando NON stiamo editando testo
+      if (_selectedElementId != null && !isTextFocused) {
         _deleteSelectedElement();
         return KeyEventResult.handled;
       }
@@ -561,8 +573,6 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   Widget _buildDesignerCanvas() {
     return GestureDetector(
       onTap: () {
-        // Resetta il flag di editing quando si clicca sul canvas
-        setState(() => _isTextEditing = false);
         // Rimuove il focus da eventuali campi di testo
         _dialogFocusNode.unfocus();
       },
@@ -830,7 +840,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               onPressed: _deleteSelectedElement,
               tooltip: 'Elimina',
               color: AppTheme.error,
-            ),
+          ),
         ],
       ),
     );
@@ -1106,27 +1116,72 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   }
 
   Widget _buildElementPreview(ReportElement element) {
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 6;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5;
     final scaledFontSize = fontSize * _scale;
+
+    // Helper per ottenere l'allineamento
+    Alignment getAlignment(String? hAlign, String? vAlign) {
+      double x = 0.0; // center
+      double y = 0.0; // center
+
+      switch (hAlign) {
+        case 'left':
+          x = -1.0;
+          break;
+        case 'right':
+          x = 1.0;
+          break;
+        default:
+          x = 0.0;
+      }
+
+      switch (vAlign) {
+        case 'top':
+          y = -1.0;
+          break;
+        case 'bottom':
+          y = 1.0;
+          break;
+        default:
+          y = 0.0;
+      }
+
+      return Alignment(x, y);
+    }
+
+    TextAlign getTextAlign(String? align) {
+      switch (align) {
+        case 'left':
+          return TextAlign.left;
+        case 'right':
+          return TextAlign.right;
+        default:
+          return TextAlign.center;
+      }
+    }
 
     switch (element.type) {
       case ReportElementType.text:
-        return Center(
+        return Align(
+          alignment: getAlignment(element.properties['alignment'], element.properties['verticalAlignment']),
           child: Text(
             element.properties['text'] ?? 'Testo',
             style: TextStyle(fontSize: scaledFontSize, color: AppTheme.textPrimary),
             overflow: TextOverflow.ellipsis,
+            textAlign: getTextAlign(element.properties['alignment']),
           ),
         );
       case ReportElementType.dynamicField:
         final fieldName = element.properties['fieldName'] ?? '';
         final prefix = element.properties['prefix'] ?? '';
         final suffix = element.properties['suffix'] ?? '';
-        return Center(
+        return Align(
+          alignment: getAlignment(element.properties['alignment'], element.properties['verticalAlignment']),
           child: Text(
             '$prefix{$fieldName}$suffix',
             style: TextStyle(fontSize: scaledFontSize, color: AppTheme.primary),
             overflow: TextOverflow.ellipsis,
+            textAlign: getTextAlign(element.properties['alignment']),
           ),
         );
       case ReportElementType.barcode:
@@ -1378,8 +1433,8 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       widgets.add(_buildPropertySection('Formattazione', [
         // Font Size
         _buildNumberField(
-          'Dimensione Font',
-          (element.properties['fontSize'] as num?)?.toDouble() ?? 10,
+          'Dimensione Font (mm)',
+          (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0,
           (v) {
             element.properties['fontSize'] = v;
             _notifyChange();
@@ -1395,13 +1450,23 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
             _notifyChange();
           },
         ),
-        // Alignment
+        // Alignment orizzontale
         _buildDropdownField(
-          'Allineamento',
-          element.properties['alignment'] ?? 'left',
+          'Allineamento Orizzontale',
+          element.properties['alignment'] ?? 'center',
           ['left', 'center', 'right'],
           (v) {
             element.properties['alignment'] = v;
+            _notifyChange();
+          },
+        ),
+        // Alignment verticale
+        _buildDropdownField(
+          'Allineamento Verticale',
+          element.properties['verticalAlignment'] ?? 'center',
+          ['top', 'center', 'bottom'],
+          (v) {
+            element.properties['verticalAlignment'] = v;
             _notifyChange();
           },
         ),
@@ -1424,13 +1489,25 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           },
           allowNull: true,
         ),
+        // Markdown
+        CheckboxListTile(
+          title: Text('Usa Markdown', style: AppTheme.labelStyle),
+          value: element.properties['useMarkdown'] ?? false,
+          onChanged: (v) {
+            element.properties['useMarkdown'] = v ?? false;
+            _notifyChange();
+          },
+          controlAffinity: ListTileControlAffinity.leading,
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+        ),
       ]));
     }
 
     // Proprietà bordo per tutti gli elementi
     widgets.add(_buildPropertySection('Bordo', [
       _buildNumberField(
-        'Spessore Bordo',
+        'Spessore Bordo (mm)',
         (element.properties['borderWidth'] as num?)?.toDouble() ?? 0,
         (v) {
           element.properties['borderWidth'] = v;
@@ -1562,7 +1639,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       case ReportElementType.rectangle:
         widgets.insert(0, _buildPropertySection('Rettangolo', [
           _buildNumberField(
-            'Raggio Bordo',
+            'Raggio Bordo (mm)',
             (element.properties['borderRadius'] as num?)?.toDouble() ?? 0,
             (v) {
               element.properties['borderRadius'] = v;
@@ -1584,7 +1661,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       case ReportElementType.line:
         widgets.insert(0, _buildPropertySection('Linea', [
           _buildNumberField(
-            'Spessore',
+            'Spessore (mm)',
             (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1,
             (v) {
               element.properties['strokeWidth'] = v;
@@ -1732,7 +1809,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           ),
           const SizedBox(height: AppTheme.paddingMedium),
           _buildNumberField(
-            'Dimensione',
+            'Dimensione (mm)',
             (element.properties['size'] as num?)?.toDouble() ?? 12,
             (v) {
               element.properties['size'] = v;
@@ -1954,6 +2031,13 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
   void _addElement(ReportElementType type, double x, double y) {
     final id = '${type.name}_${DateTime.now().millisecondsSinceEpoch}';
+
+    // Clamp posizione iniziale dentro i limiti
+    final defaultWidth = 30.0;
+    final defaultHeight = 10.0;
+    x = x.clamp(0, _template.itemWidth - defaultWidth);
+    y = y.clamp(0, _template.itemHeight - defaultHeight);
+
     final element = ReportElement(
       id: id,
       type: type,
@@ -1973,6 +2057,13 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
 
   void _addFieldElement(FieldInfo field, double x, double y) {
     final id = 'field_${DateTime.now().millisecondsSinceEpoch}';
+
+    // Clamp posizione iniziale dentro i limiti
+    final defaultWidth = 30.0;
+    final defaultHeight = 10.0;
+    x = x.clamp(0, _template.itemWidth - defaultWidth);
+    y = y.clamp(0, _template.itemHeight - defaultHeight);
+
     final element = ReportElement(
       id: id,
       type: ReportElementType.dynamicField,
@@ -1980,7 +2071,9 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       y: y,
       properties: {
         'fieldName': field.name,
-        'fontSize': 10.0,
+        'fontSize': 5.0,
+        'alignment': 'center',
+        'verticalAlignment': 'center',
         'prefix': '',
         'suffix': '',
       },
@@ -2138,8 +2231,24 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     }
 
     // Mantieni dentro i limiti del canvas
-    newX = newX.clamp(0.0, _template.itemWidth - newW);
-    newY = newY.clamp(0.0, _template.itemHeight - newH);
+    if (newX < 0) {
+      newW += newX;
+      newX = 0;
+    }
+    if (newY < 0) {
+      newH += newY;
+      newY = 0;
+    }
+    if (newX + newW > _template.itemWidth) {
+      newW = _template.itemWidth - newX;
+    }
+    if (newY + newH > _template.itemHeight) {
+      newH = _template.itemHeight - newY;
+    }
+
+    // Riapplica dimensioni minime dopo il clamp
+    newW = newW.clamp(_minElementSize, _template.itemWidth);
+    newH = newH.clamp(_minElementSize, _template.itemHeight);
 
     element.x = newX;
     element.y = newY;
@@ -2411,9 +2520,6 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                         controller: widthController,
                         keyboardType: TextInputType.number,
                         focusNode: _dialogFocusNode,
-                        onTap: () => setState(() => _isTextEditing = true),
-                        onEditingComplete: () => setState(() => _isTextEditing = false),
-                        onSubmitted: (_) => setState(() => _isTextEditing = false),
                         decoration: const InputDecoration(
                           labelText: 'Larghezza (mm)',
                           border: OutlineInputBorder(),
@@ -2426,9 +2532,6 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                         controller: heightController,
                         keyboardType: TextInputType.number,
                         focusNode: _dialogFocusNode,
-                        onTap: () => setState(() => _isTextEditing = true),
-                        onEditingComplete: () => setState(() => _isTextEditing = false),
-                        onSubmitted: (_) => setState(() => _isTextEditing = false),
                         decoration: const InputDecoration(
                           labelText: 'Altezza (mm)',
                           border: OutlineInputBorder(),
@@ -2489,14 +2592,13 @@ extension ReportBuilderMethods on _ReportBuilderState {
   /// Carica un template da file
   Future<void> _loadTemplate() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['rpt'],
-        allowMultiple: false,
       );
 
-      if (result != null && result.files.single.path != null) {
-        final templateWithSchema = await TemplateLoader.fromFile(result.files.single.path!);
+      if (result != null && result.path != null) {
+        final templateWithSchema = await TemplateLoader.fromFile(result.path!);
         
         if (mounted) {
           setState(() {
@@ -2529,25 +2631,24 @@ extension ReportBuilderMethods on _ReportBuilderState {
   /// Esporta il template in PDF
   Future<void> _exportToPdf() async {
     try {
-      // Mostra dialog per salvare
-      final result = await FilePicker.platform.saveFile(
+      // Genera e salva il PDF tramite il dialog nativo del file picker.
+      final sampleData = _template.getSampleData();
+      final dataList = sampleData.isNotEmpty ? [sampleData] : [{}];
+      final bytes = await PdfExporter.exportToPdfBytes(
+        template: _template,
+        data: dataList,
+      );
+
+      final result = await FilePicker.saveFile(
         dialogTitle: 'Esporta PDF',
         fileName: '${_template.name}_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        bytes: bytes,
+        mimeType: 'application/pdf',
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
 
       if (result != null) {
-        // Usa dati di esempio se disponibili
-        final sampleData = _template.getSampleData();
-        final dataList = sampleData.isNotEmpty ? [sampleData] : [{}];
-        
-        await PdfExporter.exportToPdf(
-          template: _template,
-          data: dataList,
-          filePath: result,
-        );
-        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

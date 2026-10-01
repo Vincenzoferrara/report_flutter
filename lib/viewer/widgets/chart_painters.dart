@@ -115,7 +115,7 @@ class PieChartPainter extends CustomPainter {
         text: '$label\n${percentage.toStringAsFixed(1)}%',
         style: TextStyle(
           color: Colors.white,
-          fontSize: 8 * scale,
+          fontSize: 5.0 * scale,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -237,7 +237,7 @@ class BarChartPainter extends CustomPainter {
         text: value.toStringAsFixed(1),
         style: TextStyle(
           color: Colors.black87,
-          fontSize: 8 * scale,
+          fontSize: 5.0 * scale,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -396,7 +396,7 @@ class LineChartPainter extends CustomPainter {
         text: value.toStringAsFixed(2),
         style: TextStyle(
           color: Colors.black87,
-          fontSize: 8 * scale,
+          fontSize: 5.0 * scale,
           fontWeight: FontWeight.bold,
           backgroundColor: Colors.white.withOpacity(0.8),
         ),

@@ -347,8 +347,8 @@ class ReportRenderer extends StatelessWidget {
   }
 
   Widget _renderText(ReportElement element, double scale) {
-    final text = element.properties['text'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final text = element.properties['text'] ?? 'Testo';
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
@@ -380,7 +380,7 @@ class ReportRenderer extends StatelessWidget {
     final prefix = element.properties['prefix'] ?? '';
     final suffix = element.properties['suffix'] ?? '';
     final format = element.properties['format'];
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
@@ -615,7 +615,7 @@ class ReportRenderer extends StatelessWidget {
   Widget _renderTextbox(ReportElement element, double scale) {
     final fieldName = element.properties['fieldName'] ?? '';
     final placeholder = element.properties['placeholder'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final maxLines = (element.properties['maxLines'] as num?)?.toInt() ?? 1;
 
     final value = DataExtractor.getValue(data, fieldName) ?? placeholder;
@@ -642,7 +642,7 @@ class ReportRenderer extends StatelessWidget {
 
   Widget _renderDate(ReportElement element, double scale) {
     final format = element.properties['format'] ?? 'dd/MM/yyyy';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     final now = DateTime.now();
@@ -805,25 +805,25 @@ class ReportRenderer extends StatelessWidget {
 
   TextAlign _getAlignment(String? alignment) {
     switch (alignment) {
-      case 'center':
-        return TextAlign.center;
+      case 'left':
+        return TextAlign.left;
       case 'right':
         return TextAlign.right;
-      case 'left':
+      case 'center':
       default:
-        return TextAlign.left;
+        return TextAlign.center;
     }
   }
 
   AlignmentGeometry _getAlignmentGeometry(TextAlign alignment) {
     switch (alignment) {
-      case TextAlign.center:
-        return Alignment.center;
+      case TextAlign.left:
+        return Alignment.centerLeft;
       case TextAlign.right:
         return Alignment.centerRight;
-      case TextAlign.left:
+      case TextAlign.center:
       default:
-        return Alignment.centerLeft;
+        return Alignment.center;
     }
   }
 
@@ -980,7 +980,7 @@ class ReportRenderer extends StatelessWidget {
     final variables = Map<String, String>.from(element.properties['variables'] ?? {});
     final format = element.properties['format'] ?? 'number';
     final errorValue = element.properties['errorValue'] ?? '0';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
@@ -1045,7 +1045,7 @@ class ReportRenderer extends StatelessWidget {
 
     final markdownData = MarkdownRenderer.getMarkdownData(element);
     final markdownConfig = MarkdownRenderer.getMarkdownConfig(element);
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10;
+    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
 

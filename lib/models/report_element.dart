@@ -67,10 +67,11 @@ class ReportElement {
       case ReportElementType.text:
         return {
           'text': 'Testo',
-          'fontSize': 10.0,
+          'fontSize': 5.0,
           'fontWeight': 'normal',
           'fontStyle': 'normal',
-          'alignment': 'left',
+          'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#000000',
           'backgroundColor': null,
           // 🆕 Formattazione Condizionale
@@ -82,9 +83,10 @@ class ReportElement {
       case ReportElementType.dynamicField:
         return {
           'fieldName': '', // nome del campo dati (es: 'product.name', 'price', 'sku')
-          'fontSize': 10.0,
+          'fontSize': 5.0,
           'fontWeight': 'normal',
-          'alignment': 'left',
+          'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#000000',
           'prefix': '',
           'suffix': '',
@@ -151,13 +153,17 @@ class ReportElement {
           'columns': [], // lista di definizioni colonne
           'dataSource': '', // nome della lista dati
           'headerStyle': {
-            'fontSize': 10.0,
+            'fontSize': 5.0,
             'fontWeight': 'bold',
             'backgroundColor': '#EEEEEE',
+            'alignment': 'center',
+            'verticalAlignment': 'center',
           },
           'cellStyle': {
-            'fontSize': 9.0,
+            'fontSize': 5.0,
             'padding': 2.0,
+            'alignment': 'center',
+            'verticalAlignment': 'center',
           },
           'borderWidth': 0.5,
           'borderColor': '#000000',
@@ -203,14 +209,17 @@ class ReportElement {
       case ReportElementType.pageNumber:
         return {
           'format': 'Pagina {current} di {total}',
-          'fontSize': 8.0,
+          'fontSize': 5.0,
           'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#666666',
         };
       case ReportElementType.date:
         return {
           'format': 'dd/MM/yyyy',
-          'fontSize': 8.0,
+          'fontSize': 5.0,
+          'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#000000',
         };
       case ReportElementType.logo:
@@ -230,9 +239,10 @@ class ReportElement {
         return {
           'fieldName': '', // campo da cui prendere il valore
           'placeholder': '',
-          'fontSize': 10.0,
+          'fontSize': 5.0,
           'fontWeight': 'normal',
-          'alignment': 'left',
+          'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#000000',
           'backgroundColor': '#FFFFFF',
           'borderColor': '#000000',
@@ -245,9 +255,10 @@ class ReportElement {
           'variables': {}, // mappatura variabili -> campi dati
           'format': 'number', // 'number', 'currency', 'percentage', 'date'
           'errorValue': '0', // valore in caso di errore
-          'fontSize': 10.0,
+          'fontSize': 5.0,
           'fontWeight': 'normal',
-          'alignment': 'right',
+          'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#000000',
           // 🆕 Formattazione Condizionale
           'conditionalFormatting': {
@@ -264,8 +275,9 @@ class ReportElement {
             'enableCodeHighlighting': true,
             'theme': 'light',
           },
-          'fontSize': 10.0,
-          'alignment': 'left',
+          'fontSize': 5.0,
+          'alignment': 'center',
+          'verticalAlignment': 'center',
           'color': '#000000',
         };
     }

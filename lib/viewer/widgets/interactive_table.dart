@@ -82,12 +82,12 @@ class _InteractiveTableState extends State<InteractiveTable> {
                 columnSpacing: 4 * widget.scale,
                 horizontalMargin: 2 * widget.scale,
                 headingTextStyle: TextStyle(
-                  fontSize: (widget.headerStyle['fontSize'] as num?)?.toDouble() ?? 10 * widget.scale,
+                  fontSize: (widget.headerStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
                 dataTextStyle: TextStyle(
-                  fontSize: (widget.cellStyle['fontSize'] as num?)?.toDouble() ?? 9 * widget.scale,
+                  fontSize: (widget.cellStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
                   color: Colors.black87,
                 ),
                 showCheckboxColumn: widget.enableSelection,
@@ -217,7 +217,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: (widget.headerStyle['fontSize'] as num?)?.toDouble() ?? 10 * widget.scale,
+                  fontSize: (widget.headerStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -275,7 +275,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
               child: Text(
                 value.toString(),
                 style: TextStyle(
-                  fontSize: (widget.cellStyle['fontSize'] as num?)?.toDouble() ?? 9 * widget.scale,
+                  fontSize: (widget.cellStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
                   decoration: widget.enableDrillDown && _isClickableField(field)
                       ? TextDecoration.underline
                       : null,

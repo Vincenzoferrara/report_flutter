@@ -64,9 +64,9 @@ class DataImporter {
     bool hasHeader = true,
   }) {
     try {
-      final converter = CsvToListConverter(
+      final converter = CsvDecoder(
         fieldDelimiter: delimiter,
-        shouldParseNumbers: true,
+        dynamicTyping: true,
       );
 
       final rows = converter.convert(csvContent);

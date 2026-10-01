@@ -38,6 +38,15 @@ class PdfExporter {
     final bytes = await pdf.save();
     await file.writeAsBytes(bytes);
   }
+
+  /// Genera i bytes PDF di un template con dati.
+  static Future<Uint8List> exportToPdfBytes({
+    required ReportTemplate template,
+    required List<dynamic> data,
+    PdfExportOptions options = const PdfExportOptions(),
+  }) {
+    return _generatePdf(template, data, options);
+  }
   
   /// Mostra anteprima di stampa
   static Future<void> showPrintPreview({

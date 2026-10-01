@@ -91,7 +91,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
             child: Text(
               title,
               style: TextStyle(
-                fontSize: 12 * widget.scale,
+                fontSize: 5.0 * widget.scale,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
@@ -121,7 +121,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
           child: Text(
             'Nessun dato disponibile',
             style: TextStyle(
-              fontSize: 12 * widget.scale,
+              fontSize: 5.0 * widget.scale,
               color: Colors.grey.shade600,
             ),
           ),
@@ -183,7 +183,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 10 * widget.scale,
+                fontSize: 5.0 * widget.scale,
                 color: Colors.black87,
               ),
             ),

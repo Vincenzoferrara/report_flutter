@@ -43,7 +43,7 @@ class ReportExportService {
       }
 
       // Converti in CSV
-      final csvData = const ListToCsvConverter().convert(rows);
+      final csvData = CsvEncoder().convert(rows);
       
       // Salva su file
       final directory = await getApplicationDocumentsDirectory();
@@ -361,4 +361,3 @@ class ReportExportService {
     return filePath;
   }
 }
-

@@ -1,4 +1,3 @@
-import 'package:formula_parser/formula_parser.dart';
 import '../models/report_element.dart';
 import '../schema/data_schema.dart';
 
@@ -10,15 +9,8 @@ class FormulaEngine {
       // 1. Sostituisci le variabili {campo} con i valori reali
       final resolvedFormula = _resolveVariables(formula, data, variables);
       
-      // 2. Usa formula_parser per valutare l'espressione
-      final parser = FormulaParser(resolvedFormula);
-      final result = parser.parse;
-      
-      if (result.isSuccess) {
-        return result.value;
-      } else {
-        throw Exception('Errore sintassi formula: ${result.error}');
-      }
+      // 2. Valuta l'espressione aritmetica senza dipendenze esterne.
+      return _FormulaExpressionParser(resolvedFormula).parse();
     } catch (e) {
       throw Exception('Errore valutazione formula: $e');
     }
@@ -133,9 +125,8 @@ class FormulaEngine {
         testFormula = testFormula.replaceAll('{$variable}', '1');
       }
       
-      final parser = FormulaParser(testFormula);
-      final result = parser.parse;
-      return result.isSuccess;
+      _FormulaExpressionParser(testFormula).parse();
+      return true;
     } catch (e) {
       return false;
     }
@@ -155,4 +146,112 @@ class FormulaEngine {
     
     return fields;
   }
+}
+
+class _FormulaExpressionParser {
+  _FormulaExpressionParser(this._source);
+
+  final String _source;
+  int _index = 0;
+
+  num parse() {
+    final value = _parseExpression();
+    _skipWhitespace();
+    if (!_isAtEnd) {
+      throw FormatException('Carattere non valido: ${_source[_index]}');
+    }
+    return value;
+  }
+
+  num _parseExpression() {
+    var value = _parseTerm();
+    while (true) {
+      _skipWhitespace();
+      if (_match('+')) {
+        value += _parseTerm();
+      } else if (_match('-')) {
+        value -= _parseTerm();
+      } else {
+        return value;
+      }
+    }
+  }
+
+  num _parseTerm() {
+    var value = _parseFactor();
+    while (true) {
+      _skipWhitespace();
+      if (_match('*')) {
+        value *= _parseFactor();
+      } else if (_match('/')) {
+        final divisor = _parseFactor();
+        if (divisor == 0) {
+          throw const FormatException('Divisione per zero');
+        }
+        value /= divisor;
+      } else {
+        return value;
+      }
+    }
+  }
+
+  num _parseFactor() {
+    _skipWhitespace();
+    if (_match('+')) return _parseFactor();
+    if (_match('-')) return -_parseFactor();
+
+    if (_match('(')) {
+      final value = _parseExpression();
+      _skipWhitespace();
+      if (!_match(')')) {
+        throw const FormatException('Parentesi chiusa mancante');
+      }
+      return value;
+    }
+
+    return _parseNumber();
+  }
+
+  num _parseNumber() {
+    _skipWhitespace();
+    final start = _index;
+
+    while (!_isAtEnd && _isDigit(_source[_index])) {
+      _index++;
+    }
+
+    if (!_isAtEnd && (_source[_index] == '.' || _source[_index] == ',')) {
+      _index++;
+      while (!_isAtEnd && _isDigit(_source[_index])) {
+        _index++;
+      }
+    }
+
+    if (start == _index) {
+      throw const FormatException('Numero atteso');
+    }
+
+    final token = _source.substring(start, _index).replaceAll(',', '.');
+    final value = num.tryParse(token);
+    if (value == null) {
+      throw FormatException('Numero non valido: $token');
+    }
+    return value;
+  }
+
+  bool _match(String expected) {
+    if (_isAtEnd || _source[_index] != expected) return false;
+    _index++;
+    return true;
+  }
+
+  void _skipWhitespace() {
+    while (!_isAtEnd && _source[_index].trim().isEmpty) {
+      _index++;
+    }
+  }
+
+  bool _isDigit(String char) => char.codeUnitAt(0) >= 48 && char.codeUnitAt(0) <= 57;
+
+  bool get _isAtEnd => _index >= _source.length;
 }
