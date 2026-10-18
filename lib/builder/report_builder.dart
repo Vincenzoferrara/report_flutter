@@ -103,6 +103,13 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
   void initState() {
     super.initState();
     _template = widget.template.copyWith();
+    // Una linea e' alta quanto il suo spessore: corregge le linee salvate
+    // con l'altezza di un riquadro generico.
+    for (final element in _template.elements) {
+      if (element.type == ReportElementType.line) {
+        element.height = _lineThickness(element);
+      }
+    }
     _extractAllFields();
     // Salva stato iniziale
     _saveToHistory();
@@ -180,7 +187,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       final fields = _template.dataSchema!.fields.map((field) => FieldInfo(
         name: field.name,
         displayName: field.displayName,
-        type: field.type is Type ? field.type : String,
+        type: field.type,
         isNested: false,
       )).toList();
 
@@ -731,7 +738,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
                 if (mounted) {
                   final renderBox = context.findRenderObject() as RenderBox?;
                   if (renderBox != null) {
-                    _calculateFillScale(renderBox.constraints! as BoxConstraints);
+                    _calculateFillScale(renderBox.constraints);
                   }
                 }
               });
@@ -899,8 +906,11 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
             // Cerca elemento sotto il pointer (in ordine inverso per z-index)
             ReportElement? hitElement;
             for (final element in _template.sortedElements.reversed) {
+              // Una linea sottile si seleziona anche cliccando appena sopra o sotto.
+              final pickMargin = element.type == ReportElementType.line ? 4 / _scale : 0.0;
               if (xMm >= element.x && xMm <= element.x + element.width &&
-                  yMm >= element.y && yMm <= element.y + element.height) {
+                  yMm >= element.y - pickMargin &&
+                  yMm <= element.y + element.height + pickMargin) {
                 hitElement = element;
                 break;
               }
@@ -1068,14 +1078,23 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               ),
             ),
             // Resize handles (solo se selezionato)
-            if (isSelected) ..._buildResizeHandles(w, h),
+            if (isSelected)
+              ..._buildResizeHandles(
+                w,
+                h,
+                horizontalOnly: element.type == ReportElementType.line,
+              ),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildResizeHandles(double w, double h) {
+  List<Widget> _buildResizeHandles(
+    double w,
+    double h, {
+    bool horizontalOnly = false,
+  }) {
     final handleColor = AppTheme.elementSelected;
     final half = _handleSize / 2;
 
@@ -1095,6 +1114,14 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
           ),
         ),
       );
+    }
+
+    // Una linea ha solo le maniglie alle estremita'.
+    if (horizontalOnly) {
+      return [
+        buildHandle(0, h / 2, SystemMouseCursors.resizeLeftRight),
+        buildHandle(w, h / 2, SystemMouseCursors.resizeLeftRight),
+      ];
     }
 
     return [
@@ -1191,7 +1218,12 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       case ReportElementType.image:
         return Center(child: Icon(Icons.image, color: AppTheme.textSecondary));
       case ReportElementType.line:
-        return Divider(thickness: 1, color: AppTheme.textPrimary);
+        final lineColor = element.properties['color'] as String?;
+        return Container(
+          color: lineColor != null && lineColor.isNotEmpty
+              ? _parseColor(lineColor)
+              : AppTheme.textPrimary,
+        );
       case ReportElementType.rectangle:
         return Container(
           decoration: BoxDecoration(
@@ -1665,6 +1697,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
             (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1,
             (v) {
               element.properties['strokeWidth'] = v;
+              setState(() => element.height = _lineThickness(element));
               _notifyChange();
             },
           ),
@@ -1897,7 +1930,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
       child: DropdownButtonFormField<String>(
-        value: options.contains(value) ? value : options.first,
+        initialValue: options.contains(value) ? value : options.first,
         decoration: InputDecoration(labelText: label),
         items: options.map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
         onChanged: onChanged,
@@ -2044,6 +2077,11 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
       x: x,
       y: y,
     );
+    if (type == ReportElementType.line) {
+      element.properties['strokeWidth'] = 0.3;
+      element.width = defaultWidth;
+      element.height = _lineThickness(element);
+    }
 
     // Trova posizione libera se c'è sovrapposizione
     final adjustedElement = _findFreePosition(element);
@@ -2149,6 +2187,13 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     final w = element.width;
     final h = element.height;
 
+    // Una linea si allunga solo in orizzontale: l'altezza e' lo spessore.
+    if (element.type == ReportElementType.line) {
+      if (_isInHandle(xMm, yMm, x, y + h / 2, handleSizeMm)) return 'left';
+      if (_isInHandle(xMm, yMm, x + w, y + h / 2, handleSizeMm)) return 'right';
+      return null;
+    }
+
     // Angoli
     if (_isInHandle(xMm, yMm, x, y, handleSizeMm)) return 'topLeft';
     if (_isInHandle(xMm, yMm, x + w, y, handleSizeMm)) return 'topRight';
@@ -2250,10 +2295,21 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
     newW = newW.clamp(_minElementSize, _template.itemWidth);
     newH = newH.clamp(_minElementSize, _template.itemHeight);
 
+    if (element.type == ReportElementType.line) {
+      newY = element.y;
+      newH = _lineThickness(element);
+    }
+
     element.x = newX;
     element.y = newY;
     element.width = newW;
     element.height = newH;
+  }
+
+  /// Spessore della linea in mm, che e' anche la sua altezza.
+  double _lineThickness(ReportElement element) {
+    final thickness = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 0.3;
+    return thickness.clamp(0.1, _template.itemHeight).toDouble();
   }
 
   /// Calcola le linee guida basate sugli altri elementi
@@ -2554,7 +2610,7 @@ class _ReportBuilderState extends State<ReportBuilder> with SingleTickerProvider
               final width = double.tryParse(widthController.text);
               final height = double.tryParse(heightController.text);
               if (width != null && height != null && width > 0 && height > 0) {
-                this.setState(() {
+                setState(() {
                   _template.itemWidth = width;
                   _template.itemHeight = height;
                 });
@@ -2926,7 +2982,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
                 child: _availableFields.isEmpty
                     ? const Text('Nessun campo disponibile', style: TextStyle(color: Colors.orange))
                     : DropdownButtonFormField<String>(
-                        value: variables[varName]?.isEmpty ?? true ? null : variables[varName],
+                        initialValue: variables[varName]?.isEmpty ?? true ? null : variables[varName],
                         decoration: const InputDecoration(labelText: 'Campo Dati'),
                         items: _availableFields
                             .where((f) => !f.isNested)
