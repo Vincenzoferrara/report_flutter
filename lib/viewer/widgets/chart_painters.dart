@@ -196,7 +196,7 @@ class BarChartPainter extends CustomPainter {
       final barY = size.height - padding - barHeight;
       
       final paint = Paint()
-        ..color = isHovered ? color.withOpacity(0.8) : color
+        ..color = isHovered ? color.withValues(alpha: 0.8) : color
         ..style = PaintingStyle.fill;
       
       // Disegna barra
@@ -398,7 +398,7 @@ class LineChartPainter extends CustomPainter {
           color: Colors.black87,
           fontSize: 5.0 * scale,
           fontWeight: FontWeight.bold,
-          backgroundColor: Colors.white.withOpacity(0.8),
+          backgroundColor: Colors.white.withValues(alpha: 0.8),
         ),
       ),
       textDirection: TextDirection.ltr,

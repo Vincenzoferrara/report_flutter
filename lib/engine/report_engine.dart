@@ -4,9 +4,6 @@ import '../models/report_template.dart';
 import '../schema/data_schema.dart';
 import '../schema/field_definition.dart';
 import '../core/data_extractor.dart';
-import '../core/formula_engine.dart';
-import '../core/conditional_formatter.dart';
-import '../core/markdown_renderer.dart';
 
 /// Motore principale per il rendering e processing dei report
 class ReportEngine {

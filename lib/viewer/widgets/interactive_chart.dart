@@ -44,7 +44,7 @@ class InteractiveChart extends StatefulWidget {
 class _InteractiveChartState extends State<InteractiveChart> {
   dynamic _selectedItem;
   Offset _panOffset = Offset.zero;
-  double _zoomLevel = 1.0;
+  final double _zoomLevel = 1.0;
 
   @override
   Widget build(BuildContext context) {

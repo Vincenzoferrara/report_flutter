@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/report_element.dart';
-import '../schema/data_schema.dart';
 
 /// Servizio per caricare immagini basate su condizioni
 class ConditionalImageLoader {

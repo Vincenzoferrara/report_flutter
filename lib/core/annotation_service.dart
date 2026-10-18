@@ -402,7 +402,7 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
             
             // Tipo annotazione
             DropdownButtonFormField<AnnotationType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: const InputDecoration(
                 labelText: 'Tipo',
                 border: OutlineInputBorder(),

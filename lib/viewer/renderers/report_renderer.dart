@@ -413,7 +413,7 @@ class ReportRenderer extends StatelessWidget {
       }
     }
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Text(
@@ -529,7 +529,7 @@ class ReportRenderer extends StatelessWidget {
     final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Center(
@@ -648,7 +648,7 @@ class ReportRenderer extends StatelessWidget {
     final now = DateTime.now();
     final formattedDate = DataExtractor.formatValue(now, format: format);
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Text(
@@ -669,7 +669,7 @@ class ReportRenderer extends StatelessWidget {
     // Per ora usa placeholder
     final text = format.replaceAll('{current}', '1').replaceAll('{total}', '1');
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Text(
@@ -1005,7 +1005,7 @@ class ReportRenderer extends StatelessWidget {
         }
       }
 
-      return Container(
+      return SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Text(
@@ -1018,7 +1018,7 @@ class ReportRenderer extends StatelessWidget {
       );
     } catch (e) {
       // Mostra valore di errore
-      return Container(
+      return SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Text(
@@ -1055,7 +1055,7 @@ class ReportRenderer extends StatelessWidget {
       color: color,
     );
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Align(

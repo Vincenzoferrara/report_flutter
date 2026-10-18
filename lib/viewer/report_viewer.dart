@@ -586,7 +586,7 @@ class _ReportViewerState extends State<ReportViewer> {
       height: 32,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         border: Border(
           top: BorderSide(
             color: colorScheme.outline.withValues(alpha: 0.2),
@@ -649,13 +649,13 @@ class _ReportViewerState extends State<ReportViewer> {
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: _dataSource == DataSource.cache 
-                  ? Colors.orange.withOpacity(0.1)
-                  : Colors.green.withOpacity(0.1),
+                  ? Colors.orange.withValues(alpha: 0.1)
+                  : Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: _dataSource == DataSource.cache 
-                    ? Colors.orange.withOpacity(0.3)
-                    : Colors.green.withOpacity(0.3),
+                    ? Colors.orange.withValues(alpha: 0.3)
+                    : Colors.green.withValues(alpha: 0.3),
               ),
             ),
             child: Text(
@@ -706,7 +706,7 @@ class _ReportViewerState extends State<ReportViewer> {
     final currentData = widget.data[_currentPage];
     
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       padding: _currentOptions.padding,
       child: LayoutBuilder(
         builder: (context, constraints) {

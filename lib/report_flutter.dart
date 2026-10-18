@@ -1,5 +1,5 @@
 /// Report Flutter - Sistema completo per creare e visualizzare report/etichette
-library report_flutter;
+library;
 
 // Core - Modelli e utilità base
 export 'models/report_element.dart';

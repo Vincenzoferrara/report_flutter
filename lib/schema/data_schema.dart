@@ -1,5 +1,4 @@
 import 'field_definition.dart';
-import 'dart:convert';
 
 /// Schema astratto per definire la struttura dei dati
 abstract class DataSchema {
