@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/report_element.dart';
 
-/// Servizio per applicare formattazione condizionale agli elementi
+/// Service that applies conditional formatting to elements
 class ConditionalFormatter {
-  /// Applica le regole di formattazione condizionale a un valore
-  static Map<String, dynamic> applyRules(dynamic value, List<Map<String, dynamic>> rules) {
+  /// Applies the conditional formatting rules to a value
+  static Map<String, dynamic> applyRules(
+    dynamic value,
+    List<Map<String, dynamic>> rules,
+  ) {
     for (final rule in rules) {
       if (_evaluateCondition(value, rule)) {
         return {
@@ -17,13 +20,13 @@ class ConditionalFormatter {
         };
       }
     }
-    return {}; // Nessuna regola applicata
+    return {}; // No rule applied
   }
 
-  /// Valuta una condizione di formattazione
+  /// Evaluates a formatting condition
   static bool _evaluateCondition(dynamic value, Map<String, dynamic> rule) {
     final type = rule['type'] as String?;
-    
+
     switch (type) {
       case 'threshold':
         return _evaluateThreshold(value, rule);
@@ -38,16 +41,16 @@ class ConditionalFormatter {
     }
   }
 
-  /// Valuta condizioni basate su soglie numeriche
+  /// Conditions based on numeric thresholds
   static bool _evaluateThreshold(dynamic value, Map<String, dynamic> rule) {
     final condition = rule['condition'] as String?;
     final threshold = rule['value'] as num?;
-    
+
     if (threshold == null) return false;
-    
+
     final numValue = num.tryParse(value.toString());
     if (numValue == null) return false;
-    
+
     switch (condition) {
       case 'greater':
         return numValue > threshold;
@@ -64,42 +67,41 @@ class ConditionalFormatter {
     }
   }
 
-  /// Valuta condizioni basate su contenuto testuale
+  /// Conditions based on text content
   static bool _evaluateContains(dynamic value, Map<String, dynamic> rule) {
     final text = rule['text'] as String?;
     if (text == null) return false;
-    
+
     final valueStr = value.toString().toLowerCase();
     final searchStr = text.toLowerCase();
-    
+
     return valueStr.contains(searchStr);
   }
 
-  /// Valuta condizioni basate su range di valori
+  /// Evaluates conditions based on value ranges
   static bool _evaluateRange(dynamic value, Map<String, dynamic> rule) {
     final min = rule['min'] as num?;
     final max = rule['max'] as num?;
-    
+
     if (min == null || max == null) return false;
-    
+
     final numValue = num.tryParse(value.toString());
     if (numValue == null) return false;
-    
+
     return numValue >= min && numValue <= max;
   }
 
-  /// Valuta espressioni complesse (futuro implementazione)
+  /// Complex expressions (future implementation)
   static bool _evaluateExpression(dynamic value, Map<String, dynamic> rule) {
     final expression = rule['expression'] as String?;
     if (expression == null) return false;
-    
-    // Implementazione base - potrebbe essere estesa con un motore di espressioni
+
+    // Basic implementation - could be extended with an expression engine
     try {
-      // Sostituisci {value} con il valore reale
       final evalExpression = expression.replaceAll('{value}', value.toString());
-      
-      // Valutazione semplificata - in una implementazione completa
-      // si userebbe un motore di espressioni più potente
+
+      // Simplified evaluation - a complete implementation
+      // would use a more powerful expression engine
       if (evalExpression.contains('>')) {
         final parts = evalExpression.split('>');
         if (parts.length == 2) {
@@ -108,7 +110,7 @@ class ConditionalFormatter {
           return left != null && right != null && left > right;
         }
       }
-      
+
       if (evalExpression.contains('<')) {
         final parts = evalExpression.split('<');
         if (parts.length == 2) {
@@ -117,39 +119,49 @@ class ConditionalFormatter {
           return left != null && right != null && left < right;
         }
       }
-      
+
       if (evalExpression.contains('==')) {
         final parts = evalExpression.split('==');
         if (parts.length == 2) {
           return parts[0].trim() == parts[1].trim();
         }
       }
-      
+
       return false;
     } catch (e) {
       return false;
     }
   }
 
-  /// Crea uno stile TextStyle basato sulle regole applicate
-  static TextStyle? applyTextStyle(dynamic value, List<Map<String, dynamic>> rules, TextStyle baseStyle) {
+  /// Creates a TextStyle from the applied rules
+  static TextStyle? applyTextStyle(
+    dynamic value,
+    List<Map<String, dynamic>> rules,
+    TextStyle baseStyle,
+  ) {
     final formatting = applyRules(value, rules);
     if (formatting.isEmpty) return null;
-    
+
     return baseStyle.copyWith(
-      color: formatting['color'] != null ? _parseColor(formatting['color']) : baseStyle.color,
-      backgroundColor: formatting['backgroundColor'] != null ? _parseColor(formatting['backgroundColor']) : baseStyle.backgroundColor,
+      color: formatting['color'] != null
+          ? _parseColor(formatting['color'])
+          : baseStyle.color,
+      backgroundColor: formatting['backgroundColor'] != null
+          ? _parseColor(formatting['backgroundColor'])
+          : baseStyle.backgroundColor,
       fontWeight: _parseFontWeight(formatting['fontWeight']),
-      fontSize: formatting['fontSize'] != null ? (formatting['fontSize'] as num).toDouble() : baseStyle.fontSize,
+      fontSize: formatting['fontSize'] != null
+          ? (formatting['fontSize'] as num).toDouble()
+          : baseStyle.fontSize,
       fontStyle: _parseFontStyle(formatting['fontStyle']),
       decoration: _parseTextDecoration(formatting['decoration']),
     );
   }
 
-  /// Converte un colore esadecimale in Color
+  /// Converts a hex color to a Color
   static Color? _parseColor(String? hexColor) {
     if (hexColor == null || hexColor.isEmpty) return null;
-    
+
     try {
       final buffer = StringBuffer();
       if (hexColor.length == 6 || hexColor.length == 7) buffer.write('ff');
@@ -160,7 +172,7 @@ class ConditionalFormatter {
     }
   }
 
-  /// Converte una stringa di peso font in FontWeight
+  /// Converts a font weight string to a FontWeight
   static FontWeight? _parseFontWeight(String? weight) {
     switch (weight) {
       case 'bold':
@@ -171,7 +183,7 @@ class ConditionalFormatter {
     }
   }
 
-  /// Converte una stringa di stile font in FontStyle
+  /// Converts a font style string to a FontStyle
   static FontStyle? _parseFontStyle(String? style) {
     switch (style) {
       case 'italic':
@@ -182,7 +194,7 @@ class ConditionalFormatter {
     }
   }
 
-  /// Converte una stringa di decorazione in TextDecoration
+  /// Converts a decoration string to a TextDecoration
   static TextDecoration? _parseTextDecoration(String? decoration) {
     switch (decoration) {
       case 'underline':
@@ -197,44 +209,55 @@ class ConditionalFormatter {
     }
   }
 
-  /// Verifica se un elemento ha formattazione condizionale abilitata
+  /// Whether an element has conditional formatting enabled
   static bool isConditionalFormattingEnabled(ReportElement element) {
-    final conditionalFormatting = element.properties['conditionalFormatting'] as Map<String, dynamic>?;
+    final conditionalFormatting =
+        element.properties['conditionalFormatting'] as Map<String, dynamic>?;
     return conditionalFormatting?['enabled'] == true;
   }
 
-  /// Ottiene le regole di formattazione condizionale da un elemento
+  /// Returns the conditional formatting rules of an element
   static List<Map<String, dynamic>> getConditionalRules(ReportElement element) {
-    final conditionalFormatting = element.properties['conditionalFormatting'] as Map<String, dynamic>?;
+    final conditionalFormatting =
+        element.properties['conditionalFormatting'] as Map<String, dynamic>?;
     final rules = conditionalFormatting?['rules'] as List<dynamic>?;
-    
+
     if (rules == null) return [];
-    
+
     return rules.map((rule) => Map<String, dynamic>.from(rule)).toList();
   }
 
-  /// Aggiunge una nuova regola di formattazione condizionale
-  static void addConditionalRule(ReportElement element, Map<String, dynamic> rule) {
+  /// Adds a new conditional formatting rule
+  static void addConditionalRule(
+    ReportElement element,
+    Map<String, dynamic> rule,
+  ) {
     final conditionalFormatting = Map<String, dynamic>.from(
-      element.properties['conditionalFormatting'] ?? {'enabled': true, 'rules': []}
+      element.properties['conditionalFormatting'] ??
+          {'enabled': true, 'rules': []},
     );
-    
-    final rules = List<Map<String, dynamic>>.from(conditionalFormatting['rules'] ?? []);
+
+    final rules = List<Map<String, dynamic>>.from(
+      conditionalFormatting['rules'] ?? [],
+    );
     rules.add(rule);
-    
+
     conditionalFormatting['rules'] = rules;
     conditionalFormatting['enabled'] = true;
-    
+
     element.properties['conditionalFormatting'] = conditionalFormatting;
   }
 
-  /// Rimuove una regola di formattazione condizionale
+  /// Removes a conditional formatting rule
   static void removeConditionalRule(ReportElement element, int index) {
     final conditionalFormatting = Map<String, dynamic>.from(
-      element.properties['conditionalFormatting'] ?? {'enabled': true, 'rules': []}
+      element.properties['conditionalFormatting'] ??
+          {'enabled': true, 'rules': []},
     );
-    
-    final rules = List<Map<String, dynamic>>.from(conditionalFormatting['rules'] ?? []);
+
+    final rules = List<Map<String, dynamic>>.from(
+      conditionalFormatting['rules'] ?? [],
+    );
     if (index >= 0 && index < rules.length) {
       rules.removeAt(index);
       conditionalFormatting['rules'] = rules;
@@ -242,13 +265,20 @@ class ConditionalFormatter {
     }
   }
 
-  /// Aggiorna una regola di formattazione condizionale
-  static void updateConditionalRule(ReportElement element, int index, Map<String, dynamic> rule) {
+  /// Updates a conditional formatting rule
+  static void updateConditionalRule(
+    ReportElement element,
+    int index,
+    Map<String, dynamic> rule,
+  ) {
     final conditionalFormatting = Map<String, dynamic>.from(
-      element.properties['conditionalFormatting'] ?? {'enabled': true, 'rules': []}
+      element.properties['conditionalFormatting'] ??
+          {'enabled': true, 'rules': []},
     );
-    
-    final rules = List<Map<String, dynamic>>.from(conditionalFormatting['rules'] ?? []);
+
+    final rules = List<Map<String, dynamic>>.from(
+      conditionalFormatting['rules'] ?? [],
+    );
     if (index >= 0 && index < rules.length) {
       rules[index] = rule;
       conditionalFormatting['rules'] = rules;

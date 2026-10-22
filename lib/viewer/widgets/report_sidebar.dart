@@ -3,7 +3,7 @@ import '../renderers/report_renderer.dart';
 import '../../models/report_template.dart';
 import '../../schema/data_schema.dart';
 
-/// Widget per la barra laterale del visualizzatore report
+/// Sidebar widget of the report viewer
 class ReportSidebar extends StatefulWidget {
   final ReportTemplate template;
   final List<dynamic> data;
@@ -64,23 +64,16 @@ class _ReportSidebarState extends State<ReportSidebar>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-          right: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          right: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Column(
         children: [
-          // Header con toggle
           _buildHeader(),
-          
-          // Contenuto tabs
+
           if (_isExpanded) ...[
             _buildTabBar(),
-            Expanded(
-              child: _buildTabContent(),
-            ),
+            Expanded(child: _buildTabContent()),
           ],
         ],
       ),
@@ -94,10 +87,7 @@ class _ReportSidebarState extends State<ReportSidebar>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Row(
@@ -152,24 +142,17 @@ class _ReportSidebarState extends State<ReportSidebar>
   Widget _buildTabContent() {
     return TabBarView(
       controller: _tabController,
-      children: [
-        _buildFiltersTab(),
-        _buildParametersTab(),
-        _buildPagesTab(),
-      ],
+      children: [_buildFiltersTab(), _buildParametersTab(), _buildPagesTab()],
     );
   }
 
   Widget _buildFiltersTab() {
     if (!widget.options.enableFilters) {
-      return const Center(
-        child: Text('Filtri non abilitati'),
-      );
+      return const Center(child: Text('Filtri non abilitati'));
     }
 
     return Column(
       children: [
-        // Header filtri
         Container(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -189,18 +172,17 @@ class _ReportSidebarState extends State<ReportSidebar>
             ],
           ),
         ),
-        
-        // Lista filtri
+
         Expanded(
           child: _filters.isEmpty
               ? _buildEmptyFilters()
               : ListView.builder(
                   itemCount: _filters.length,
-                  itemBuilder: (context, index) => _buildFilterItem(_filters[index], index),
+                  itemBuilder: (context, index) =>
+                      _buildFilterItem(_filters[index], index),
                 ),
         ),
-        
-        // Aggiungi filtro
+
         Container(
           padding: const EdgeInsets.all(12),
           child: ElevatedButton.icon(
@@ -229,18 +211,12 @@ class _ReportSidebarState extends State<ReportSidebar>
           const SizedBox(height: 16),
           Text(
             'Nessun filtro configurato',
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
             'Aggiungi filtri per filtrare i dati del report',
-            style: TextStyle(
-              color: Colors.grey.shade500,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -281,7 +257,10 @@ class _ReportSidebarState extends State<ReportSidebar>
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
@@ -311,14 +290,11 @@ class _ReportSidebarState extends State<ReportSidebar>
 
   Widget _buildParametersTab() {
     if (!widget.options.enableParameters) {
-      return const Center(
-        child: Text('Parametri non abilitati'),
-      );
+      return const Center(child: Text('Parametri non abilitati'));
     }
 
     return Column(
       children: [
-        // Header parametri
         Container(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -332,8 +308,7 @@ class _ReportSidebarState extends State<ReportSidebar>
             ],
           ),
         ),
-        
-        // Lista parametri
+
         Expanded(
           child: _parameters.isEmpty
               ? _buildEmptyParameters()
@@ -345,8 +320,7 @@ class _ReportSidebarState extends State<ReportSidebar>
                   },
                 ),
         ),
-        
-        // Aggiungi parametro
+
         Container(
           padding: const EdgeInsets.all(12),
           child: ElevatedButton.icon(
@@ -367,26 +341,16 @@ class _ReportSidebarState extends State<ReportSidebar>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.tune,
-            size: 48,
-            color: Colors.grey.shade400,
-          ),
+          Icon(Icons.tune, size: 48, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
             'Nessun parametro configurato',
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
             'Aggiungi parametri per personalizzare il report',
-            style: TextStyle(
-              color: Colors.grey.shade500,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
             textAlign: TextAlign.center,
           ),
         ],
@@ -413,7 +377,6 @@ class _ReportSidebarState extends State<ReportSidebar>
   Widget _buildPagesTab() {
     return Column(
       children: [
-        // Header pagine
         Container(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -432,8 +395,8 @@ class _ReportSidebarState extends State<ReportSidebar>
             ],
           ),
         ),
-        
-        // Griglia miniature
+
+        // Thumbnail grid
         Expanded(
           child: widget.totalPages == 0
               ? _buildEmptyPages()
@@ -454,32 +417,30 @@ class _ReportSidebarState extends State<ReportSidebar>
   }
 
   Widget _buildEmptyPages() {
-    return const Center(
-      child: Text('Nessuna pagina disponibile'),
-    );
+    return const Center(child: Text('Nessuna pagina disponibile'));
   }
 
   Widget _buildPageThumbnail(int pageIndex) {
     final isSelected = pageIndex == widget.currentPage;
-    
+
     return GestureDetector(
       onTap: () => widget.onPageSelected?.call(pageIndex),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(4),
-          color: isSelected 
+          color: isSelected
               ? Theme.of(context).colorScheme.primaryContainer
               : Colors.white,
         ),
         child: Column(
           children: [
-            // Miniatura placeholder
+            // Placeholder thumbnail
             Expanded(
               child: Container(
                 margin: const EdgeInsets.all(4),
@@ -495,8 +456,7 @@ class _ReportSidebarState extends State<ReportSidebar>
                 ),
               ),
             ),
-            
-            // Numero pagina
+
             Container(
               height: 24,
               alignment: Alignment.center,
@@ -505,7 +465,7 @@ class _ReportSidebarState extends State<ReportSidebar>
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected 
+                  color: isSelected
                       ? Theme.of(context).colorScheme.onPrimaryContainer
                       : Colors.black87,
                 ),
@@ -535,7 +495,7 @@ class _ReportSidebarState extends State<ReportSidebar>
   }
 
   void _addFilter() {
-    // TODO: Implementare dialog per aggiungere filtro
+    // TODO: dialog to add a filter
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -573,7 +533,7 @@ class _ReportSidebarState extends State<ReportSidebar>
   }
 
   void _addParameter() {
-    // TODO: Implementare dialog per aggiungere parametro
+    // TODO: dialog to add a parameter
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -590,7 +550,7 @@ class _ReportSidebarState extends State<ReportSidebar>
   }
 
   void _editParameter(String key, dynamic value) {
-    // TODO: Implementare dialog per modificare parametro
+    // TODO: dialog to edit a parameter
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

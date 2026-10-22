@@ -7,9 +7,9 @@ import '../models/report_template.dart';
 import '../models/report_element.dart';
 import '../core/data_extractor.dart';
 
-/// Servizio per esportare report in PDF
+/// Service that exports reports to PDF
 class PdfExporter {
-  /// Esporta un template con dati in PDF
+  /// Exports a template with data to PDF
   static Future<void> exportToPdf({
     required ReportTemplate template,
     required List<dynamic> data,
@@ -17,29 +17,27 @@ class PdfExporter {
     PdfExportOptions options = const PdfExportOptions(),
   }) async {
     final pdf = pw.Document();
-    
-    // Configura il template PDF
+
     final pageFormat = _getPageFormat(template);
-    
+
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
-      
+
       if (template.reportType == ReportType.label) {
-        // Etichette multiple per pagina
+        // Multiple labels per page
         await _addLabelsPage(pdf, template, item, pageFormat, options);
       } else {
-        // Documento singolo
+        // Single document
         await _addDocumentPage(pdf, template, item, pageFormat, options);
       }
     }
-    
-    // Salva il file
+
     final file = File(filePath);
     final bytes = await pdf.save();
     await file.writeAsBytes(bytes);
   }
 
-  /// Genera i bytes PDF di un template con dati.
+  /// Generates the PDF bytes of a template with data.
   static Future<Uint8List> exportToPdfBytes({
     required ReportTemplate template,
     required List<dynamic> data,
@@ -47,8 +45,8 @@ class PdfExporter {
   }) {
     return _generatePdf(template, data, options);
   }
-  
-  /// Mostra anteprima di stampa
+
+  /// Shows the print preview
   static Future<void> showPrintPreview({
     required ReportTemplate template,
     required List<dynamic> data,
@@ -58,24 +56,24 @@ class PdfExporter {
       onLayout: (PdfPageFormat format) async {
         final pdf = pw.Document();
         final pageFormat = _getPageFormat(template);
-        
+
         for (int i = 0; i < data.length; i++) {
           final item = data[i];
-          
+
           if (template.reportType == ReportType.label) {
             await _addLabelsPage(pdf, template, item, pageFormat, options);
           } else {
             await _addDocumentPage(pdf, template, item, pageFormat, options);
           }
         }
-        
+
         return await pdf.save();
       },
       name: '${template.name}_${DateTime.now().millisecondsSinceEpoch}',
     );
   }
-  
-  /// Genera PDF bytes
+
+  /// Generate the PDF bytes
   static Future<Uint8List> _generatePdf(
     ReportTemplate template,
     List<dynamic> data,
@@ -83,21 +81,21 @@ class PdfExporter {
   ) async {
     final pdf = pw.Document();
     final pageFormat = _getPageFormat(template);
-    
+
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
-      
+
       if (template.reportType == ReportType.label) {
         await _addLabelsPage(pdf, template, item, pageFormat, options);
       } else {
         await _addDocumentPage(pdf, template, item, pageFormat, options);
       }
     }
-    
+
     return await pdf.save();
   }
-  
-  /// Aggiunge pagina con etichette multiple
+
+  /// Adds a page with multiple labels
   static Future<void> _addLabelsPage(
     pw.Document pdf,
     ReportTemplate template,
@@ -108,9 +106,7 @@ class PdfExporter {
     pdf.addPage(
       pw.Page(
         pageFormat: pageFormat,
-        margin: pw.EdgeInsets.all(
-          template.marginLeft * PdfPageFormat.mm,
-        ),
+        margin: pw.EdgeInsets.all(template.marginLeft * PdfPageFormat.mm),
         build: (pw.Context context) {
           return pw.Wrap(
             spacing: template.horizontalGap * PdfPageFormat.mm,
@@ -121,9 +117,9 @@ class PdfExporter {
                 width: template.itemWidth * PdfPageFormat.mm,
                 height: template.itemHeight * PdfPageFormat.mm,
                 decoration: pw.BoxDecoration(
-                  border: options.showBorders 
-                    ? pw.Border.all(color: PdfColors.grey300, width: 0.5)
-                    : null,
+                  border: options.showBorders
+                      ? pw.Border.all(color: PdfColors.grey300, width: 0.5)
+                      : null,
                 ),
                 child: pw.Stack(
                   children: template.sortedElements.map((element) {
@@ -137,8 +133,8 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Aggiunge pagina documento singolo
+
+  /// Adds a single document page
   static Future<void> _addDocumentPage(
     pw.Document pdf,
     ReportTemplate template,
@@ -149,9 +145,7 @@ class PdfExporter {
     pdf.addPage(
       pw.Page(
         pageFormat: pageFormat,
-        margin: pw.EdgeInsets.all(
-          template.marginLeft * PdfPageFormat.mm,
-        ),
+        margin: pw.EdgeInsets.all(template.marginLeft * PdfPageFormat.mm),
         build: (pw.Context context) {
           return pw.Container(
             width: template.pageWidth * PdfPageFormat.mm,
@@ -166,8 +160,8 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce un elemento PDF
+
+  /// Builds a PDF element
   static pw.Widget _buildPdfElement(
     ReportElement element,
     dynamic data,
@@ -177,7 +171,7 @@ class PdfExporter {
     final top = element.y * PdfPageFormat.mm;
     final width = element.width * PdfPageFormat.mm;
     final height = element.height * PdfPageFormat.mm;
-    
+
     return pw.Positioned(
       left: left,
       top: top,
@@ -188,8 +182,8 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce il contenuto PDF di un elemento
+
+  /// Builds the PDF content of an element
   static pw.Widget _buildPdfContent(
     ReportElement element,
     dynamic data,
@@ -228,17 +222,18 @@ class PdfExporter {
         return pw.Container();
     }
   }
-  
-  /// Costruisce testo PDF
+
+  /// Builds PDF text
   static pw.Widget _buildPdfText(ReportElement element) {
     final text = element.properties['text'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10.0;
-    final fontWeight = element.properties['fontWeight'] == 'bold' 
-      ? pw.FontWeight.bold 
-      : pw.FontWeight.normal;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 10.0;
+    final fontWeight = element.properties['fontWeight'] == 'bold'
+        ? pw.FontWeight.bold
+        : pw.FontWeight.normal;
     final alignment = _getPdfAlignment(element.properties['alignment']);
     final color = _parsePdfColor(element.properties['color'] ?? '#000000');
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -253,26 +248,27 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce campo dinamico PDF
+
+  /// Builds a PDF dynamic field
   static pw.Widget _buildPdfDynamicField(ReportElement element, dynamic data) {
     final fieldName = element.properties['fieldName'] ?? '';
     final value = DataExtractor.getValue(data, fieldName)?.toString() ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10.0;
-    final fontWeight = element.properties['fontWeight'] == 'bold' 
-      ? pw.FontWeight.bold 
-      : pw.FontWeight.normal;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 10.0;
+    final fontWeight = element.properties['fontWeight'] == 'bold'
+        ? pw.FontWeight.bold
+        : pw.FontWeight.normal;
     final alignment = _getPdfAlignment(element.properties['alignment']);
     final color = _parsePdfColor(element.properties['color'] ?? '#000000');
     final prefix = element.properties['prefix'] ?? '';
     final suffix = element.properties['suffix'] ?? '';
     final format = element.properties['format'];
-    
+
     String formattedValue = value;
     if (format != null) {
       formattedValue = DataExtractor.formatValue(value, format: format);
     }
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -287,15 +283,16 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce barcode PDF
+
+  /// Builds a PDF barcode
   static pw.Widget _buildPdfBarcode(ReportElement element, dynamic data) {
     final fieldName = element.properties['fieldName'] ?? '';
     final value = DataExtractor.getValue(data, fieldName)?.toString() ?? '';
     final barcodeType = element.properties['barcodeType'] ?? 'code128';
     final showText = element.properties['showText'] ?? true;
-    final textSize = (element.properties['textSize'] as num?)?.toDouble() ?? 8.0;
-    
+    final textSize =
+        (element.properties['textSize'] as num?)?.toDouble() ?? 8.0;
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -319,13 +316,12 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce QR Code PDF
+
+  /// Builds a PDF QR code
   static pw.Widget _buildPdfQRCode(ReportElement element, dynamic data) {
     final fieldName = element.properties['fieldName'] ?? '';
     final value = DataExtractor.getValue(data, fieldName)?.toString() ?? '';
-    final errorCorrection = element.properties['errorCorrection'] ?? 'M';
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -337,12 +333,13 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce linea PDF
+
+  /// Builds a PDF line
   static pw.Widget _buildPdfLine(ReportElement element) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1.0;
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1.0;
     final color = _parsePdfColor(element.properties['color'] ?? '#000000');
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -355,14 +352,18 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce rettangolo PDF
+
+  /// Builds a PDF rectangle
   static pw.Widget _buildPdfRectangle(ReportElement element) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1.0;
-    final strokeColor = _parsePdfColor(element.properties['strokeColor'] ?? '#000000');
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1.0;
+    final strokeColor = _parsePdfColor(
+      element.properties['strokeColor'] ?? '#000000',
+    );
     final fillColor = element.properties['fillColor'];
-    final borderRadius = (element.properties['borderRadius'] as num?)?.toDouble() ?? 0.0;
-    
+    final borderRadius =
+        (element.properties['borderRadius'] as num?)?.toDouble() ?? 0.0;
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -373,13 +374,16 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce cerchio PDF
+
+  /// Builds a PDF circle
   static pw.Widget _buildPdfCircle(ReportElement element) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1.0;
-    final strokeColor = _parsePdfColor(element.properties['strokeColor'] ?? '#000000');
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1.0;
+    final strokeColor = _parsePdfColor(
+      element.properties['strokeColor'] ?? '#000000',
+    );
     final fillColor = element.properties['fillColor'];
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -390,8 +394,8 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce immagine PDF (placeholder)
+
+  /// Builds a PDF image (placeholder)
   static pw.Widget _buildPdfImage(ReportElement element, dynamic data) {
     return pw.Container(
       width: double.infinity,
@@ -403,16 +407,13 @@ class PdfExporter {
       child: pw.Center(
         child: pw.Text(
           'Image',
-          style: pw.TextStyle(
-            fontSize: 8,
-            color: PdfColors.grey600,
-          ),
+          style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
         ),
       ),
     );
   }
-  
-  /// Costruisce tabella PDF (placeholder)
+
+  /// Builds a PDF table (placeholder)
   static pw.Widget _buildPdfTable(ReportElement element, dynamic data) {
     return pw.Container(
       width: double.infinity,
@@ -424,22 +425,19 @@ class PdfExporter {
       child: pw.Center(
         child: pw.Text(
           'Table',
-          style: pw.TextStyle(
-            fontSize: 8,
-            color: PdfColors.grey600,
-          ),
+          style: pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
         ),
       ),
     );
   }
-  
-  /// Costruisce checkbox PDF
+
+  /// Builds a PDF checkbox
   static pw.Widget _buildPdfCheckbox(ReportElement element, dynamic data) {
     final fieldName = element.properties['fieldName'] ?? '';
     final value = DataExtractor.getValue(data, fieldName) ?? false;
     final size = (element.properties['size'] as num?)?.toDouble() ?? 12.0;
     final color = _parsePdfColor(element.properties['color'] ?? '#000000');
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -451,9 +449,12 @@ class PdfExporter {
             decoration: pw.BoxDecoration(
               border: pw.Border.all(color: color, width: 1),
             ),
-            child: value == true 
-              ? pw.Text('✓', style: pw.TextStyle(fontSize: size * 0.8, color: color))
-              : null,
+            child: value == true
+                ? pw.Text(
+                    '✓',
+                    style: pw.TextStyle(fontSize: size * 0.8, color: color),
+                  )
+                : null,
           ),
           pw.SizedBox(width: 4),
           pw.Text(
@@ -464,17 +465,23 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce textbox PDF
+
+  /// Builds a PDF textbox
   static pw.Widget _buildPdfTextbox(ReportElement element, dynamic data) {
     final fieldName = element.properties['fieldName'] ?? '';
     final value = DataExtractor.getValue(data, fieldName)?.toString() ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 10.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 10.0;
     final color = _parsePdfColor(element.properties['color'] ?? '#000000');
-    final backgroundColor = _parsePdfColor(element.properties['backgroundColor'] ?? '#FFFFFF');
-    final borderColor = _parsePdfColor(element.properties['borderColor'] ?? '#000000');
-    final borderWidth = (element.properties['borderWidth'] as num?)?.toDouble() ?? 1.0;
-    
+    final backgroundColor = _parsePdfColor(
+      element.properties['backgroundColor'] ?? '#FFFFFF',
+    );
+    final borderColor = _parsePdfColor(
+      element.properties['borderColor'] ?? '#000000',
+    );
+    final borderWidth =
+        (element.properties['borderWidth'] as num?)?.toDouble() ?? 1.0;
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -489,13 +496,14 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce numero pagina PDF
+
+  /// Builds the PDF page number
   static pw.Widget _buildPdfPageNumber(ReportElement element) {
     final format = element.properties['format'] ?? 'Pagina {current}';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 8.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 8.0;
     final color = _parsePdfColor(element.properties['color'] ?? '#666666');
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -505,16 +513,17 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce data PDF
+
+  /// Builds a PDF date
   static pw.Widget _buildPdfDate(ReportElement element) {
     final format = element.properties['format'] ?? 'dd/MM/yyyy';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 8.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 8.0;
     final color = _parsePdfColor(element.properties['color'] ?? '#000000');
-    
+
     final now = DateTime.now();
     final formattedDate = DataExtractor.formatValue(now, format: format);
-    
+
     return pw.Container(
       width: double.infinity,
       height: double.infinity,
@@ -524,8 +533,8 @@ class PdfExporter {
       ),
     );
   }
-  
-  /// Costruisce logo PDF (placeholder)
+
+  /// Builds a PDF logo (placeholder)
   static pw.Widget _buildPdfLogo(ReportElement element) {
     return pw.Container(
       width: double.infinity,
@@ -537,16 +546,13 @@ class PdfExporter {
       child: pw.Center(
         child: pw.Text(
           'Logo',
-          style: pw.TextStyle(
-            fontSize: 10,
-            color: PdfColors.grey500,
-          ),
+          style: pw.TextStyle(fontSize: 10, color: PdfColors.grey500),
         ),
       ),
     );
   }
-  
-  /// Ottiene il formato pagina PDF
+
+  /// Returns the PDF page format
   static PdfPageFormat _getPageFormat(ReportTemplate template) {
     switch (template.pageFormat) {
       case PageFormat.a4Portrait:
@@ -563,16 +569,11 @@ class PdfExporter {
       case PageFormat.thermal80mm:
         return PdfPageFormat(80, 40);
       case PageFormat.custom:
-        return PdfPageFormat(
-          template.pageWidth,
-          template.pageHeight,
-        );
-      default:
-        return PdfPageFormat.a4;
+        return PdfPageFormat(template.pageWidth, template.pageHeight);
     }
   }
-  
-  /// Converte allineamento
+
+  /// Converts the alignment
   static pw.TextAlign _getPdfAlignment(String? alignment) {
     switch (alignment) {
       case 'center':
@@ -584,8 +585,8 @@ class PdfExporter {
         return pw.TextAlign.left;
     }
   }
-  
-  /// Converte colore PDF
+
+  /// Converts a PDF color
   static PdfColor _parsePdfColor(String hex) {
     final buffer = StringBuffer();
     if (hex.length == 6 || hex.length == 7) buffer.write('ff');
@@ -598,8 +599,8 @@ class PdfExporter {
       ((color >> 24) & 0xFF) / 255.0,
     );
   }
-  
-  /// Ottiene tipo barcode PDF
+
+  /// Returns the PDF barcode type
   static pw.Barcode _getPdfBarcodeType(String type) {
     switch (type.toLowerCase()) {
       case 'code128':
@@ -618,13 +619,13 @@ class PdfExporter {
   }
 }
 
-/// Opzioni per export PDF
+/// PDF export options
 class PdfExportOptions {
   final bool showBorders;
   final bool includeBackground;
   final double quality;
   final bool compress;
-  
+
   const PdfExportOptions({
     this.showBorders = true,
     this.includeBackground = true,

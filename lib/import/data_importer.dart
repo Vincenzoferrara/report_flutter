@@ -4,7 +4,7 @@ import 'package:csv/csv.dart';
 import '../schema/data_schema.dart';
 import '../schema/field_definition.dart';
 
-/// Risultato dell'import dei dati
+/// Result of a data import
 class ImportResult {
   final DataSchema schema;
   final List<Map<String, dynamic>> data;
@@ -21,10 +21,11 @@ class ImportResult {
   bool get isSuccess => error == null;
 }
 
-/// Importer per dati da varie fonti (CSV, JSON)
+/// Imports data from several sources (CSV, JSON)
 class DataImporter {
-  /// Import da file CSV
-  static Future<ImportResult> fromCsv(String filePath, {
+  /// Imports from a CSV file
+  static Future<ImportResult> fromCsv(
+    String filePath, {
     String? schemaName,
     String delimiter = ',',
     bool hasHeader = true,
@@ -57,8 +58,9 @@ class DataImporter {
     }
   }
 
-  /// Import da stringa CSV
-  static ImportResult fromCsvString(String csvContent, {
+  /// Imports from a CSV string
+  static ImportResult fromCsvString(
+    String csvContent, {
     String schemaName = 'ImportedData',
     String delimiter = ',',
     bool hasHeader = true,
@@ -79,7 +81,7 @@ class DataImporter {
         );
       }
 
-      // Estrai header
+      // Extract the header
       List<String> headers;
       int dataStartIndex;
 
@@ -91,21 +93,21 @@ class DataImporter {
         dataStartIndex = 0;
       }
 
-      // Analizza tipi dai dati
+      // Infer the types from the data
       final fieldTypes = _inferFieldTypes(rows, headers, dataStartIndex);
 
-      // Crea campi
       final fields = <FieldDefinition>[];
       for (int i = 0; i < headers.length; i++) {
-        fields.add(FieldDefinition(
-          name: _sanitizeFieldName(headers[i]),
-          displayName: headers[i],
-          type: fieldTypes[i],
-          isRequired: false,
-        ));
+        fields.add(
+          FieldDefinition(
+            name: _sanitizeFieldName(headers[i]),
+            displayName: headers[i],
+            type: fieldTypes[i],
+            isRequired: false,
+          ),
+        );
       }
 
-      // Converti dati in lista di mappe
       final data = <Map<String, dynamic>>[];
       for (int i = dataStartIndex; i < rows.length; i++) {
         final row = rows[i];
@@ -119,7 +121,7 @@ class DataImporter {
         data.add(rowMap);
       }
 
-      // Crea schema dinamico
+      // Create a dynamic schema
       final schema = _ImportedDataSchema(
         name: schemaName,
         displayName: schemaName,
@@ -128,11 +130,7 @@ class DataImporter {
         sampleData: data.isNotEmpty ? data.first : {},
       );
 
-      return ImportResult(
-        schema: schema,
-        data: data,
-        rowCount: data.length,
-      );
+      return ImportResult(schema: schema, data: data, rowCount: data.length);
     } catch (e) {
       return ImportResult(
         schema: _createEmptySchema(schemaName),
@@ -143,8 +141,9 @@ class DataImporter {
     }
   }
 
-  /// Import da file JSON
-  static Future<ImportResult> fromJson(String filePath, {
+  /// Imports from a JSON file
+  static Future<ImportResult> fromJson(
+    String filePath, {
     String? schemaName,
   }) async {
     try {
@@ -173,8 +172,9 @@ class DataImporter {
     }
   }
 
-  /// Import da stringa JSON
-  static ImportResult fromJsonString(String jsonContent, {
+  /// Imports from a JSON string
+  static ImportResult fromJsonString(
+    String jsonContent, {
     String schemaName = 'ImportedData',
   }) {
     try {
@@ -182,7 +182,9 @@ class DataImporter {
 
       List<Map<String, dynamic>> dataList;
       if (decoded is List) {
-        dataList = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        dataList = decoded
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
       } else if (decoded is Map) {
         dataList = [Map<String, dynamic>.from(decoded)];
       } else {
@@ -203,17 +205,19 @@ class DataImporter {
         );
       }
 
-      // Estrai campi dal primo oggetto
+      // Extract the fields from the first object
       final firstItem = dataList.first;
       final fields = <FieldDefinition>[];
 
       firstItem.forEach((key, value) {
-        fields.add(FieldDefinition(
-          name: key,
-          displayName: _formatDisplayName(key),
-          type: _inferType(value),
-          isRequired: false,
-        ));
+        fields.add(
+          FieldDefinition(
+            name: key,
+            displayName: _formatDisplayName(key),
+            type: _inferType(value),
+            isRequired: false,
+          ),
+        );
       });
 
       final schema = _ImportedDataSchema(
@@ -260,16 +264,24 @@ class DataImporter {
         .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]} ${m[2]}')
         .replaceAll('_', ' ')
         .split(' ')
-        .map((word) => word.isNotEmpty
-            ? word[0].toUpperCase() + word.substring(1).toLowerCase()
-            : '')
+        .map(
+          (word) => word.isNotEmpty
+              ? word[0].toUpperCase() + word.substring(1).toLowerCase()
+              : '',
+        )
         .join(' ')
         .trim();
   }
 
-  static List<Type> _inferFieldTypes(List<List<dynamic>> rows, List<String> headers, int dataStartIndex) {
+  static List<Type> _inferFieldTypes(
+    List<List<dynamic>> rows,
+    List<String> headers,
+    int dataStartIndex,
+  ) {
     final types = List<Type>.filled(headers.length, String);
-    final maxRows = (rows.length < dataStartIndex + 100) ? rows.length : dataStartIndex + 100;
+    final maxRows = (rows.length < dataStartIndex + 100)
+        ? rows.length
+        : dataStartIndex + 100;
 
     for (int col = 0; col < headers.length; col++) {
       bool allInt = true;
@@ -284,7 +296,9 @@ class DataImporter {
 
         if (value is! int) allInt = false;
         if (value is! double && value is! int) allDouble = false;
-        if (value is! bool && value.toString().toLowerCase() != 'true' && value.toString().toLowerCase() != 'false') {
+        if (value is! bool &&
+            value.toString().toLowerCase() != 'true' &&
+            value.toString().toLowerCase() != 'false') {
           allBool = false;
         }
       }
@@ -324,7 +338,7 @@ class DataImporter {
   }
 }
 
-/// Schema dinamico creato dall'import
+/// Dynamic schema created by the import
 class _ImportedDataSchema extends DataSchema {
   @override
   final String name;

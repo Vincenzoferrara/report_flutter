@@ -1,0 +1,584 @@
+{
+  "@@locale": "en",
+  "printPrintCenterTitle": "Templates and print",
+  "@printPrintCenterTitle": {
+    "description": "Title of the labels, signs and reports screen"
+  },
+  "printTemplateQuestion": "Choose a template",
+  "@printTemplateQuestion": {
+    "description": "Title of wizard step 2"
+  },
+  "printTemplateActions": "Template options",
+  "@printTemplateActions": {
+    "description": "Tooltip of the template menu"
+  },
+  "printRename": "Rename",
+  "@printRename": {
+    "description": "Menu action that renames a template"
+  },
+  "printDeleteTemplateTitle": "Delete template",
+  "@printDeleteTemplateTitle": {
+    "description": "Title of the delete template dialog"
+  },
+  "printDeleteTemplateMessage": "Delete the template \"{name}\"? The ready-made templates are not affected.",
+  "@printDeleteTemplateMessage": {
+    "description": "Body of the delete template dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printTemplateNameLabel": "Template name",
+  "@printTemplateNameLabel": {
+    "description": "Label of the template name field"
+  },
+  "printTemplateSaved": "Template \"{name}\" saved",
+  "@printTemplateSaved": {
+    "description": "Confirmation after saving a template",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printSavePdf": "Save PDF",
+  "@printSavePdf": {
+    "description": "Button saving or sharing the PDF"
+  },
+  "printPrintError": "Printing failed: {error}",
+  "@printPrintError": {
+    "description": "Error shown when printing or saving fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "printPreviewTitle": "Preview",
+  "@printPreviewTitle": {
+    "description": "Title of the preview panel"
+  },
+  "printPreviewOneLabel": "One",
+  "@printPreviewOneLabel": {
+    "description": "Preview switch: show a single label enlarged"
+  },
+  "printPreviewWholeSheet": "Whole sheet",
+  "@printPreviewWholeSheet": {
+    "description": "Preview switch: show the whole sheet"
+  },
+  "printPreviewSampleNotice": "Example data: the print will look exactly like this.",
+  "@printPreviewSampleNotice": {
+    "description": "Notice under the preview title"
+  },
+  "printPreviewSheetNotice": "Dashed lines and grey boxes show the label edges and the used positions: they are not printed.",
+  "@printPreviewSheetNotice": {
+    "description": "Notice under the preview title when the whole sheet is shown"
+  },
+  "printSectionQuantity": "How many",
+  "@printSectionQuantity": {
+    "description": "Editor section: number of copies"
+  },
+  "printSectionPaper": "Paper format",
+  "@printSectionPaper": {
+    "description": "Editor section: paper format"
+  },
+  "printCopiesQuestion": "How many copies to print?",
+  "@printCopiesQuestion": {
+    "description": "Label of the copies stepper"
+  },
+  "printFullSheet": "Whole sheet ({count})",
+  "@printFullSheet": {
+    "description": "Chip filling a whole sheet of labels",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "printSkipQuestion": "Positions already used on each sheet",
+  "@printSkipQuestion": {
+    "description": "Label of the skipped positions stepper"
+  },
+  "printSkipHelp": "For each sheet, enter how many labels are missing at the start: printing on that sheet begins right after them. Rolls always start from the first label.",
+  "@printSkipHelp": {
+    "description": "Help of the skipped positions stepper"
+  },
+  "printSheetsNeeded": "{count, plural, =1{1 sheet to print} other{{count} sheets to print}}",
+  "@printSheetsNeeded": {
+    "description": "Number of sheets the print needs",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "printDecrease": "Decrease",
+  "@printDecrease": {
+    "description": "Tooltip of the minus button"
+  },
+  "printIncrease": "Increase",
+  "@printIncrease": {
+    "description": "Tooltip of the plus button"
+  },
+  "printPaperGroupSheets": "Adhesive A4 sheets (normal printer)",
+  "@printPaperGroupSheets": {
+    "description": "Paper group title"
+  },
+  "printPaperGroupRolls": "Roll (label printer)",
+  "@printPaperGroupRolls": {
+    "description": "Paper group title"
+  },
+  "printPaperLabelSheet": "A4 sheet · {count} labels {size} mm",
+  "@printPaperLabelSheet": {
+    "description": "Paper format: adhesive A4 sheet",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "printPaperRoll": "Roll · label {size} mm",
+  "@printPaperRoll": {
+    "description": "Paper format: thermal roll",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "printPaperSignA4Portrait": "A4 portrait · 1 per sheet",
+  "@printPaperSignA4Portrait": {
+    "description": "Paper format"
+  },
+  "printPaperSignA4Landscape": "A4 landscape · 1 per sheet",
+  "@printPaperSignA4Landscape": {
+    "description": "Paper format"
+  },
+  "printPaperSignA5": "A5 · 2 per A4 sheet",
+  "@printPaperSignA5": {
+    "description": "Paper format"
+  },
+  "printPaperSignA6": "A6 · 4 per A4 sheet",
+  "@printPaperSignA6": {
+    "description": "Paper format"
+  },
+  "printEditDesign": "Edit template",
+  "@printEditDesign": {
+    "description": "Button opening the drag-and-drop designer"
+  },
+  "printDesignerTitle": "Edit: {name}",
+  "@printDesignerTitle": {
+    "description": "Title of the designer screen",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printApplyDesign": "Use these changes",
+  "@printApplyDesign": {
+    "description": "Button closing the designer and applying the layout"
+  },
+  "printDiscardDesignTitle": "Discard changes?",
+  "@printDiscardDesignTitle": {
+    "description": "Title of the dialog shown when closing the designer with changes"
+  },
+  "printDiscardDesignMessage": "The changes made in the designer will be lost.",
+  "@printDiscardDesignMessage": {
+    "description": "Body of the discard changes dialog"
+  },
+  "printKeepEditing": "Keep editing",
+  "@printKeepEditing": {
+    "description": "Button that keeps the designer open"
+  },
+  "printDiscardDesign": "Discard",
+  "@printDiscardDesign": {
+    "description": "Button that closes the designer without applying"
+  },
+  "printTabPrint": "Print",
+  "@printTabPrint": {
+    "description": "Tab that prints templates"
+  },
+  "printTabTemplates": "Templates",
+  "@printTabTemplates": {
+    "description": "Tab that manages templates"
+  },
+  "printReload": "Reload",
+  "@printReload": {
+    "description": "Reloads the print library from the server"
+  },
+  "printLoadError": "Templates could not be loaded from the server. Check the connection and try again.",
+  "@printLoadError": {
+    "description": "Shown when the print library cannot be loaded"
+  },
+  "printPrintHelp": "Tap a template to see the preview and print.",
+  "@printPrintHelp": {
+    "description": "Help of the Print tab"
+  },
+  "printJobTemplateQuestion": "Choose the label template",
+  "@printJobTemplateQuestion": {
+    "description": "Title of the Print tab when printing labels for products"
+  },
+  "printJobSummary": "Labels for {products, plural, =1{1 item} other{{products} items}}: {labels, plural, =1{1 label} other{{labels} labels}}",
+  "@printJobSummary": {
+    "description": "Summary of the labels requested from the products list",
+    "placeholders": {
+      "products": {
+        "type": "int"
+      },
+      "labels": {
+        "type": "int"
+      }
+    }
+  },
+  "printJobCancel": "Cancel",
+  "@printJobCancel": {
+    "description": "Discards the labels requested from the products list"
+  },
+  "printJobLabelsTitle": "Labels to print",
+  "@printJobLabelsTitle": {
+    "description": "Section with the labels per product"
+  },
+  "printJobQuantityHelp": "One label per piece in stock. Variants without pieces are not listed.",
+  "@printJobQuantityHelp": {
+    "description": "Help of the labels per product"
+  },
+  "printChangeTemplate": "Change template",
+  "@printChangeTemplate": {
+    "description": "Back to the template list"
+  },
+  "printPreviewRealNotice": "Product data: the print will look exactly like this.",
+  "@printPreviewRealNotice": {
+    "description": "Notice above the preview of real product labels"
+  },
+  "printNoTemplates": "There are no templates yet.",
+  "@printNoTemplates": {
+    "description": "Shown when the library has no templates"
+  },
+  "printNoCategory": "No category",
+  "@printNoCategory": {
+    "description": "Group of templates without a category"
+  },
+  "printEmptyCategory": "No templates in this category.",
+  "@printEmptyCategory": {
+    "description": "Shown under an empty category"
+  },
+  "printManagersOnly": "Only shop managers can create, change or delete templates, categories and paper formats.",
+  "@printManagersOnly": {
+    "description": "Notice for staff without management rights"
+  },
+  "printNewTemplate": "New template",
+  "@printNewTemplate": {
+    "description": "Button that creates a template"
+  },
+  "printNewCategory": "New category",
+  "@printNewCategory": {
+    "description": "Button that creates a category"
+  },
+  "printPaperFormats": "Paper formats",
+  "@printPaperFormats": {
+    "description": "Button and title of the paper formats page"
+  },
+  "printDuplicate": "Duplicate",
+  "@printDuplicate": {
+    "description": "Template action"
+  },
+  "printMoveToCategory": "Move to category",
+  "@printMoveToCategory": {
+    "description": "Template action"
+  },
+  "printCopyOf": "Copy of {name}",
+  "@printCopyOf": {
+    "description": "Name of a duplicated template",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printTemplateDeleted": "Template \"{name}\" deleted",
+  "@printTemplateDeleted": {
+    "description": "Confirmation after deleting a template",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printSaveError": "Not saved on the server: {error}",
+  "@printSaveError": {
+    "description": "Error when a change is refused by the server",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "printCategoryActions": "Category options",
+  "@printCategoryActions": {
+    "description": "Tooltip of the category menu"
+  },
+  "printMoveUp": "Move up",
+  "@printMoveUp": {
+    "description": "Category action"
+  },
+  "printMoveDown": "Move down",
+  "@printMoveDown": {
+    "description": "Category action"
+  },
+  "printCategoryNameLabel": "Category name",
+  "@printCategoryNameLabel": {
+    "description": "Label of the category name field"
+  },
+  "printCategorySaved": "Category \"{name}\" saved",
+  "@printCategorySaved": {
+    "description": "Confirmation after saving a category",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printCategoryDeleted": "Category \"{name}\" deleted",
+  "@printCategoryDeleted": {
+    "description": "Confirmation after deleting a category",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printDeleteCategoryTitle": "Delete category",
+  "@printDeleteCategoryTitle": {
+    "description": "Title of the delete category dialog"
+  },
+  "printDeleteCategoryMessage": "Delete the category \"{name}\"? Its templates are kept and listed under \"No category\".",
+  "@printDeleteCategoryMessage": {
+    "description": "Body of the delete category dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printCategoryLabel": "Category",
+  "@printCategoryLabel": {
+    "description": "Label of the category choice"
+  },
+  "printOpenDesigner": "Open the designer",
+  "@printOpenDesigner": {
+    "description": "Creates the template and opens the designer"
+  },
+  "printPaperFormatsHelp": "Sheets and rolls used by the templates. Every measure is in millimetres.",
+  "@printPaperFormatsHelp": {
+    "description": "Help of the paper formats page"
+  },
+  "printNewPaperFormat": "New paper format",
+  "@printNewPaperFormat": {
+    "description": "Button and dialog title"
+  },
+  "printEditPaperFormat": "Edit paper format",
+  "@printEditPaperFormat": {
+    "description": "Dialog title"
+  },
+  "printPaperFormatSaved": "Paper format \"{name}\" saved",
+  "@printPaperFormatSaved": {
+    "description": "Confirmation after saving a paper format",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printDeletePaperFormatTitle": "Delete paper format",
+  "@printDeletePaperFormatTitle": {
+    "description": "Title of the delete paper format dialog"
+  },
+  "printDeletePaperFormatMessage": "Delete the paper format \"{name}\"?",
+  "@printDeletePaperFormatMessage": {
+    "description": "Body of the delete paper format dialog",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "printDeletePaperFormatUsedMessage": "Delete the paper format \"{name}\"? {count, plural, =1{1 template uses it and will print} other{{count} templates use it and will print}} on a page the size of the template until you choose another format.",
+  "@printDeletePaperFormatUsedMessage": {
+    "description": "Body of the delete dialog when templates use the format",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "printPaperMissing": "No paper format for this type: add one in Paper formats.",
+  "@printPaperMissing": {
+    "description": "Shown when a type has no paper format"
+  },
+  "printPaperNameLabel": "Name",
+  "@printPaperNameLabel": {
+    "description": "Label of the paper format name"
+  },
+  "printPaperNameHelp": "Leave empty to show the measures.",
+  "@printPaperNameHelp": {
+    "description": "Helper of the paper format name"
+  },
+  "printPaperFeedSheet": "Sheet",
+  "@printPaperFeedSheet": {
+    "description": "Paper feed option"
+  },
+  "printPaperFeedRoll": "Roll",
+  "@printPaperFeedRoll": {
+    "description": "Paper feed option"
+  },
+  "printPaperLabelSizeTitle": "Label size (mm)",
+  "@printPaperLabelSizeTitle": {
+    "description": "Section title in the paper format dialog"
+  },
+  "printPaperCellSizeTitle": "Size of each label or sign (mm)",
+  "@printPaperCellSizeTitle": {
+    "description": "Section title in the paper format dialog"
+  },
+  "printPaperPageTitle": "Sheet size (mm)",
+  "@printPaperPageTitle": {
+    "description": "Section title in the paper format dialog"
+  },
+  "printPaperGridTitle": "Layout on the sheet",
+  "@printPaperGridTitle": {
+    "description": "Section title in the paper format dialog"
+  },
+  "printPaperWidth": "Width",
+  "@printPaperWidth": {
+    "description": "Paper format field"
+  },
+  "printPaperHeight": "Height",
+  "@printPaperHeight": {
+    "description": "Paper format field"
+  },
+  "printPaperColumns": "Columns",
+  "@printPaperColumns": {
+    "description": "Paper format field"
+  },
+  "printPaperRows": "Rows",
+  "@printPaperRows": {
+    "description": "Paper format field"
+  },
+  "printPaperMarginTop": "Top margin",
+  "@printPaperMarginTop": {
+    "description": "Paper format field"
+  },
+  "printPaperMarginLeft": "Left margin",
+  "@printPaperMarginLeft": {
+    "description": "Paper format field"
+  },
+  "printPaperGapX": "Gap between columns",
+  "@printPaperGapX": {
+    "description": "Paper format field"
+  },
+  "printPaperGapY": "Gap between rows",
+  "@printPaperGapY": {
+    "description": "Paper format field"
+  },
+  "printPaperErrorSize": "Enter the size of the sheet and of each label.",
+  "@printPaperErrorSize": {
+    "description": "Paper format validation error"
+  },
+  "printPaperErrorGrid": "Columns must be 1 to 20 and rows 1 to 40.",
+  "@printPaperErrorGrid": {
+    "description": "Paper format validation error"
+  },
+  "printPaperErrorOutside": "The labels do not fit on the sheet: check sizes, margins and gaps.",
+  "@printPaperErrorOutside": {
+    "description": "Paper format validation error"
+  },
+  "printPaperSheetDescription": "Sheet {page} mm · {count} × {cell} mm",
+  "@printPaperSheetDescription": {
+    "description": "Description of a sheet paper format",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "cell": {
+        "type": "String"
+      }
+    }
+  },
+  "printJobLabelCount": "{count, plural, =1{1 label} other{{count} labels}}",
+  "@printJobLabelCount": {
+    "description": "Labels printed for one product or variant",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "printJobRemove": "Remove from the labels",
+  "@printJobRemove": {
+    "description": "Tooltip of the button removing a product or variant from the labels"
+  },
+  "printJobEmpty": "No labels left to print.",
+  "@printJobEmpty": {
+    "description": "Shown when every line was removed"
+  },
+  "printSheetNumber": "Sheet {number}",
+  "@printSheetNumber": {
+    "description": "Label of one sheet in the positions already used list",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "printAddLabelsHelp": "To print labels of real products, add them from the catalogue.",
+  "@printAddLabelsHelp": {
+    "description": "Help above the add label button when printing example labels"
+  },
+  "printAddLabelsAlreadyListed": "The chosen products are already in the labels.",
+  "@printAddLabelsAlreadyListed": {
+    "description": "Shown when every chosen variant is already listed"
+  },
+  "printCancel": "Cancel",
+  "@printCancel": {
+    "description": "Common action label"
+  },
+  "printDelete": "Delete",
+  "@printDelete": {
+    "description": "Common action label"
+  },
+  "printSave": "Save",
+  "@printSave": {
+    "description": "Common action label"
+  },
+  "printPrint": "Print",
+  "@printPrint": {
+    "description": "Common action label"
+  },
+  "printClose": "Close",
+  "@printClose": {
+    "description": "Common action label"
+  },
+  "printPreviewError": "Preview not available: {error}",
+  "@printPreviewError": {
+    "description": "Error shown in the preview panel",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "printAddLabels": "Add label",
+  "@printAddLabels": {
+    "description": "Opens the product picker to add products to the labels"
+  }
+}

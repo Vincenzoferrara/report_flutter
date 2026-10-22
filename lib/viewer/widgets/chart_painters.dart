@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-/// Painter per grafico a torta
+/// Painter for pie charts
 class PieChartPainter extends CustomPainter {
   final List<dynamic> data;
   final Map<String, dynamic> style;
@@ -23,7 +23,7 @@ class PieChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = math.min(size.width, size.height) / 2 * 0.8;
-    
+
     final colors = [
       Colors.blue,
       Colors.green,
@@ -34,7 +34,7 @@ class PieChartPainter extends CustomPainter {
       Colors.pink,
       Colors.grey,
     ];
-    
+
     double total = 0;
     for (final item in data) {
       if (item is Map<String, dynamic>) {
@@ -43,7 +43,7 @@ class PieChartPainter extends CustomPainter {
         total += (item as num?)?.toDouble() ?? 0.0;
       }
     }
-    
+
     double currentAngle = 0;
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
@@ -53,24 +53,23 @@ class PieChartPainter extends CustomPainter {
       } else {
         value = (item as num?)?.toDouble() ?? 0.0;
       }
-      
+
       final sweepAngle = (value / total) * 2 * math.pi;
       final color = colors[i % colors.length];
       final isHovered = selectedItem == item;
-      
-      // Disegna il settore
+
       final offset = isHovered ? 5 * scale : 0.0;
       final offsetAngle = currentAngle + sweepAngle / 2;
       final offsetCenter = Offset(
         center.dx + math.cos(offsetAngle) * offset,
         center.dy + math.sin(offsetAngle) * offset,
       );
-      
+
       final paint = Paint()
         ..color = color
         ..style = PaintingStyle.fill;
-      
-      // Disegna settore
+
+      // Draw the slice
       canvas.drawArc(
         Rect.fromCircle(center: offsetCenter, radius: radius),
         currentAngle,
@@ -78,13 +77,13 @@ class PieChartPainter extends CustomPainter {
         true,
         paint,
       );
-      
-      // Disegna bordo
+
+      // Draw the border
       final borderPaint = Paint()
         ..color = Colors.white
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1 * scale;
-      
+
       canvas.drawArc(
         Rect.fromCircle(center: offsetCenter, radius: radius),
         currentAngle,
@@ -92,24 +91,37 @@ class PieChartPainter extends CustomPainter {
         true,
         borderPaint,
       );
-      
-      // Disegna etichetta se c'è spazio
+
+      // Draw the label when there is room
       if (sweepAngle > 20 * math.pi / 180) {
-        _drawPieLabel(canvas, offsetCenter, radius, currentAngle, sweepAngle, item);
+        _drawPieLabel(
+          canvas,
+          offsetCenter,
+          radius,
+          currentAngle,
+          sweepAngle,
+          item,
+        );
       }
     }
   }
 
-  void _drawPieLabel(Canvas canvas, Offset center, double radius, 
-      double startAngle, double sweepAngle, Map<String, dynamic> sector) {
+  void _drawPieLabel(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double startAngle,
+    double sweepAngle,
+    Map<String, dynamic> sector,
+  ) {
     final labelAngle = startAngle + sweepAngle / 2;
     final labelRadius = radius * 0.7;
     final labelX = center.dx + math.cos(labelAngle) * labelRadius;
     final labelY = center.dy + math.sin(labelAngle) * labelRadius;
-    
+
     final label = sector['label'] as String;
     final percentage = (sector['percentage'] as double) * 100;
-    
+
     final textPainter = TextPainter(
       text: TextSpan(
         text: '$label\n${percentage.toStringAsFixed(1)}%',
@@ -121,14 +133,11 @@ class PieChartPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
-      Offset(
-        labelX - textPainter.width / 2,
-        labelY - textPainter.height / 2,
-      ),
+      Offset(labelX - textPainter.width / 2, labelY - textPainter.height / 2),
     );
   }
 
@@ -138,7 +147,7 @@ class PieChartPainter extends CustomPainter {
   }
 }
 
-/// Painter per grafico a barre
+/// Painter for bar charts
 class BarChartPainter extends CustomPainter {
   final List<dynamic> data;
   final Map<String, dynamic> style;
@@ -159,17 +168,17 @@ class BarChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
-    
+
     final padding = 20 * scale;
     final chartWidth = size.width - padding * 2;
     final chartHeight = size.height - padding * 2;
     final barWidth = chartWidth / data.length * 0.8;
     final barSpacing = chartWidth / data.length * 0.2;
-    
-    // Disegna assi
+
+    // Draw the axes
     _drawAxes(canvas, size, padding);
-    
-    // Disegna barre
+
+    // Draw the bars
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
       double value = 0;
@@ -190,23 +199,22 @@ class BarChartPainter extends CustomPainter {
       ];
       final color = colors[i % colors.length];
       final isHovered = selectedItem == item;
-      
+
       final barHeight = (value / 100) * chartHeight; // Normalize to 0-100
       final barX = padding + i * (barWidth + barSpacing) + barSpacing / 2;
       final barY = size.height - padding - barHeight;
-      
+
       final paint = Paint()
         ..color = isHovered ? color.withValues(alpha: 0.8) : color
         ..style = PaintingStyle.fill;
-      
-      // Disegna barra
+
       final rect = RRect.fromRectAndRadius(
         Rect.fromLTWH(barX, barY, barWidth, barHeight),
         Radius.circular(2 * scale),
       );
       canvas.drawRRect(rect, paint);
-      
-      // Disegna valore sopra la barra
+
+      // Draw the value above the bar
       _drawBarValue(canvas, barX, barY, barWidth, value);
     }
   }
@@ -215,15 +223,15 @@ class BarChartPainter extends CustomPainter {
     final paint = Paint()
       ..color = Colors.grey.shade400
       ..strokeWidth = 1 * scale;
-    
-    // Asse X
+
+    // X axis
     canvas.drawLine(
       Offset(padding, size.height - padding),
       Offset(size.width - padding, size.height - padding),
       paint,
     );
-    
-    // Asse Y
+
+    // Y axis
     canvas.drawLine(
       Offset(padding, padding),
       Offset(padding, size.height - padding),
@@ -231,7 +239,13 @@ class BarChartPainter extends CustomPainter {
     );
   }
 
-  void _drawBarValue(Canvas canvas, double barX, double barY, double barWidth, double value) {
+  void _drawBarValue(
+    Canvas canvas,
+    double barX,
+    double barY,
+    double barWidth,
+    double value,
+  ) {
     final textPainter = TextPainter(
       text: TextSpan(
         text: value.toStringAsFixed(1),
@@ -243,7 +257,7 @@ class BarChartPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
@@ -260,7 +274,7 @@ class BarChartPainter extends CustomPainter {
   }
 }
 
-/// Painter per grafico a linee
+/// Painter for line charts
 class LineChartPainter extends CustomPainter {
   final List<dynamic> data;
   final Map<String, dynamic> style;
@@ -281,27 +295,28 @@ class LineChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
-    
+
     final padding = 20 * scale;
     final chartWidth = size.width - padding * 2;
     final chartHeight = size.height - padding * 2;
-    final pointSpacing = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth;
+    final pointSpacing = data.length > 1
+        ? chartWidth / (data.length - 1)
+        : chartWidth;
     final valueRange = 100.0; // Normalize to 0-100
-    
-    // Disegna assi
+
+    // Draw the axes
     _drawAxes(canvas, size, padding);
-    
-    // Disegna griglia
+
+    // Draw the grid
     _drawGrid(canvas, size, padding);
-    
-    // Disegna linea
+
     final linePaint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 2 * scale
       ..style = PaintingStyle.stroke;
-    
+
     final path = Path();
-    
+
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
       double y = 0;
@@ -313,17 +328,17 @@ class LineChartPainter extends CustomPainter {
       final x = padding + i * pointSpacing;
       final normalizedY = y / valueRange;
       final chartY = size.height - padding - (normalizedY * chartHeight);
-      
+
       if (i == 0) {
         path.moveTo(x, chartY);
       } else {
         path.lineTo(x, chartY);
       }
     }
-    
+
     canvas.drawPath(path, linePaint);
-    
-    // Disegna punti
+
+    // Draw the points
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
       double y = 0;
@@ -336,18 +351,18 @@ class LineChartPainter extends CustomPainter {
       final normalizedY = y / valueRange;
       final chartY = size.height - padding - (normalizedY * chartHeight);
       final isHovered = selectedItem == item;
-      
+
       final pointPaint = Paint()
         ..color = isHovered ? Colors.orange : Colors.blue
         ..style = PaintingStyle.fill;
-      
+
       canvas.drawCircle(
         Offset(x, chartY),
         isHovered ? 5 * scale : 3 * scale,
         pointPaint,
       );
-      
-      // Disegna valore se è hovered
+
+      // Draw the value when hovered
       if (isHovered) {
         _drawPointValue(canvas, x, chartY, y);
       }
@@ -358,15 +373,15 @@ class LineChartPainter extends CustomPainter {
     final paint = Paint()
       ..color = Colors.grey.shade400
       ..strokeWidth = 1 * scale;
-    
-    // Asse X
+
+    // X axis
     canvas.drawLine(
       Offset(padding, size.height - padding),
       Offset(size.width - padding, size.height - padding),
       paint,
     );
-    
-    // Asse Y
+
+    // Y axis
     canvas.drawLine(
       Offset(padding, padding),
       Offset(padding, size.height - padding),
@@ -378,8 +393,8 @@ class LineChartPainter extends CustomPainter {
     final gridPaint = Paint()
       ..color = Colors.grey.shade200
       ..strokeWidth = 0.5 * scale;
-    
-    // Linee orizzontali
+
+    // Horizontal lines
     for (int i = 0; i <= 5; i++) {
       final y = padding + (size.height - padding * 2) * i / 5;
       canvas.drawLine(
@@ -403,14 +418,11 @@ class LineChartPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     );
-    
+
     textPainter.layout();
     textPainter.paint(
       canvas,
-      Offset(
-        x - textPainter.width / 2,
-        y - textPainter.height - 5 * scale,
-      ),
+      Offset(x - textPainter.width / 2, y - textPainter.height - 5 * scale),
     );
   }
 
@@ -419,7 +431,8 @@ class LineChartPainter extends CustomPainter {
     return true;
   }
 }
-/// Painter per grafico ad area
+
+/// Painter for area charts
 class AreaChartPainter extends CustomPainter {
   final List<dynamic> data;
   final Map<String, dynamic> style;
@@ -440,20 +453,20 @@ class AreaChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
-    
+
     final paint = Paint()
       ..color = Colors.blue.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
-    
+
     final path = Path();
-    
+
     // Simple area chart implementation
     final width = size.width;
     final height = size.height;
     final stepX = width / (data.length - 1);
-    
+
     path.moveTo(0, height);
-    
+
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
       double value = 0;
@@ -462,16 +475,16 @@ class AreaChartPainter extends CustomPainter {
       } else {
         value = (item as num?)?.toDouble() ?? 0.0;
       }
-      
+
       final x = i * stepX;
       final y = height - (value / 100) * height; // Normalize to 0-100
-      
+
       path.lineTo(x, y);
     }
-    
+
     path.lineTo(width, height);
     path.close();
-    
+
     canvas.drawPath(path, paint);
   }
 
@@ -481,7 +494,7 @@ class AreaChartPainter extends CustomPainter {
   }
 }
 
-/// Painter per grafico a dispersione
+/// Painter for scatter charts
 class ScatterChartPainter extends CustomPainter {
   final List<dynamic> data;
   final Map<String, dynamic> style;
@@ -502,14 +515,14 @@ class ScatterChartPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
-    
+
     final paint = Paint()
       ..color = Colors.blue
       ..style = PaintingStyle.fill;
-    
+
     final width = size.width;
     final height = size.height;
-    
+
     for (int i = 0; i < data.length; i++) {
       final item = data[i];
       double x = 0, y = 0;
@@ -521,16 +534,12 @@ class ScatterChartPainter extends CustomPainter {
         x = i.toDouble();
         y = (item as num?)?.toDouble() ?? 0.0;
       }
-      
+
       // Normalize to canvas size
       final canvasX = (x / 100) * width;
       final canvasY = height - (y / 100) * height;
-      
-      canvas.drawCircle(
-        Offset(canvasX, canvasY),
-        4 * scale,
-        paint,
-      );
+
+      canvas.drawCircle(Offset(canvasX, canvasY), 4 * scale, paint);
     }
   }
 

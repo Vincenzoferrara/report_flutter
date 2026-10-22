@@ -1,4 +1,4 @@
-/// Risultato della validazione
+/// Validation result
 class ValidationResult {
   final bool isValid;
   final List<String> errors;
@@ -16,7 +16,10 @@ class ValidationResult {
     return const ValidationResult(isValid: true);
   }
 
-  factory ValidationResult.failure(List<String> errors, {List<String> warnings = const []}) {
+  factory ValidationResult.failure(
+    List<String> errors, {
+    List<String> warnings = const [],
+  }) {
     return ValidationResult(
       isValid: false,
       errors: errors,
@@ -26,10 +29,7 @@ class ValidationResult {
   }
 
   factory ValidationResult.warning(List<String> warnings) {
-    return ValidationResult(
-      isValid: true,
-      warnings: warnings,
-    );
+    return ValidationResult(isValid: true, warnings: warnings);
   }
 
   factory ValidationResult.error(String message) {
@@ -41,7 +41,7 @@ class ValidationResult {
   }
 }
 
-/// Definizione di un campo dati per lo schema
+/// Definition of a data field of the schema
 class FieldDefinition {
   final String name;
   final String displayName;
@@ -63,11 +63,11 @@ class FieldDefinition {
     this.metadata,
   });
 
-  /// Crea FieldDefinition da JSON
+  /// Creates a FieldDefinition from JSON
   factory FieldDefinition.fromJson(Map<String, dynamic> json) {
     Type fieldType;
     final typeString = json['type'] as String;
-    
+
     switch (typeString.toLowerCase()) {
       case 'string':
         fieldType = String;
@@ -133,7 +133,7 @@ class FieldDefinition {
     };
   }
 
-  /// Valida un valore contro questa definizione
+  /// Validates a value against this definition
   ValidationResult validate(dynamic value) {
     // Check required
     if (isRequired && (value == null || value.toString().trim().isEmpty)) {
@@ -147,7 +147,9 @@ class FieldDefinition {
 
     // Type validation
     if (!_isValidType(value)) {
-      return ValidationResult.error('Il campo "$displayName" deve essere di tipo ${_getTypeName()}');
+      return ValidationResult.error(
+        'Il campo "$displayName" deve essere di tipo ${_getTypeName()}',
+      );
     }
 
     // Custom validation rules
@@ -163,10 +165,23 @@ class FieldDefinition {
 
   bool _isValidType(dynamic value) {
     if (type == String) return value is String;
-    if (type == int) return value is int || (value is String && int.tryParse(value) != null);
-    if (type == double) return value is double || (value is String && double.tryParse(value) != null);
-    if (type == bool) return value is bool || (value is String && (value.toLowerCase() == 'true' || value.toLowerCase() == 'false'));
-    if (type == DateTime) return value is DateTime || (value is String && DateTime.tryParse(value) != null);
+    if (type == int) {
+      return value is int || (value is String && int.tryParse(value) != null);
+    }
+    if (type == double) {
+      return value is double ||
+          (value is String && double.tryParse(value) != null);
+    }
+    if (type == bool) {
+      return value is bool ||
+          (value is String &&
+              (value.toLowerCase() == 'true' ||
+                  value.toLowerCase() == 'false'));
+    }
+    if (type == DateTime) {
+      return value is DateTime ||
+          (value is String && DateTime.tryParse(value) != null);
+    }
     return true;
   }
 
@@ -188,34 +203,44 @@ class FieldDefinition {
       case 'minLength':
         final minLength = int.tryParse(ruleParam ?? '0') ?? 0;
         if (value.toString().length < minLength) {
-          return ValidationResult.error('Il campo "$displayName" deve avere almeno $minLength caratteri');
+          return ValidationResult.error(
+            'Il campo "$displayName" deve avere almeno $minLength caratteri',
+          );
         }
         break;
       case 'maxLength':
         final maxLength = int.tryParse(ruleParam ?? '999') ?? 999;
         if (value.toString().length > maxLength) {
-          return ValidationResult.error('Il campo "$displayName" non può superare $maxLength caratteri');
+          return ValidationResult.error(
+            'Il campo "$displayName" non può superare $maxLength caratteri',
+          );
         }
         break;
       case 'min':
         final min = double.tryParse(ruleParam ?? '0') ?? 0;
         final numValue = double.tryParse(value.toString()) ?? 0;
         if (numValue < min) {
-          return ValidationResult.error('Il campo "$displayName" deve essere almeno $min');
+          return ValidationResult.error(
+            'Il campo "$displayName" deve essere almeno $min',
+          );
         }
         break;
       case 'max':
         final max = double.tryParse(ruleParam ?? '999999') ?? 999999;
         final numValue = double.tryParse(value.toString()) ?? 0;
         if (numValue > max) {
-          return ValidationResult.error('Il campo "$displayName" non può superare $max');
+          return ValidationResult.error(
+            'Il campo "$displayName" non può superare $max',
+          );
         }
         break;
       case 'pattern':
         final pattern = ruleParam ?? '';
         final regex = RegExp(pattern);
         if (!regex.hasMatch(value.toString())) {
-          return ValidationResult.error('Il campo "$displayName" non ha un formato valido');
+          return ValidationResult.error(
+            'Il campo "$displayName" non ha un formato valido',
+          );
         }
         break;
     }
@@ -223,7 +248,7 @@ class FieldDefinition {
     return ValidationResult.success();
   }
 
-  /// Copia con modifiche
+  /// Copies with changes
   FieldDefinition copyWith({
     String? name,
     String? displayName,
@@ -260,7 +285,14 @@ class FieldDefinition {
 
   @override
   int get hashCode {
-    return Object.hash(name, displayName, type, isRequired, defaultValue, description);
+    return Object.hash(
+      name,
+      displayName,
+      type,
+      isRequired,
+      defaultValue,
+      description,
+    );
   }
 
   @override
@@ -268,4 +300,3 @@ class FieldDefinition {
     return 'FieldDefinition(name: $name, displayName: $displayName, type: $type, required: $isRequired)';
   }
 }
-

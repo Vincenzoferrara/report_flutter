@@ -2,7 +2,7 @@ import 'report_element.dart';
 import '../schema/data_schema.dart';
 import '../schema/field_definition.dart';
 
-/// Formato pagina predefinito
+/// Predefined page format
 enum PageFormat {
   a4Portrait,
   a4Landscape,
@@ -12,32 +12,32 @@ enum PageFormat {
   custom,
 }
 
-/// Tipo di report
+/// Report type
 enum ReportType {
-  label,      // Etichette (multiple per pagina)
-  document,   // Documento singolo
-  list,       // Lista multi-pagina
+  label, // Labels (several per page)
+  document, // Single document
+  list, // Multi-page list
 }
 
-/// Template per report - accetta qualsiasi classe dati
+/// Report template - accepts any data class
 class ReportTemplate {
   final String id;
   String name;
   String? description;
   ReportType reportType;
 
-  // Dimensioni pagina in mm
+  // Page size in mm
   double pageWidth;
   double pageHeight;
   PageFormat pageFormat;
 
-  // Margini pagina in mm
+  // Page margins in mm
   double marginTop;
   double marginBottom;
   double marginLeft;
   double marginRight;
 
-  // Layout per etichette/items multipli
+  // Layout for multiple labels/items
   int itemsPerRow;
   int itemsPerColumn;
   double horizontalGap;
@@ -45,10 +45,9 @@ class ReportTemplate {
   double itemWidth;
   double itemHeight;
 
-  // Elementi nel template
   List<ReportElement> elements;
 
-  // Schema dati associato
+  // Associated data schema
   String? dataSchemaName;
   DataSchema? dataSchema;
 
@@ -72,16 +71,16 @@ class ReportTemplate {
     this.itemsPerColumn = 6,
     this.horizontalGap = 2,
     this.verticalGap = 2,
-    this.itemWidth = 40,  // Verticale: larghezza minore
-    this.itemHeight = 45, // Verticale: altezza maggiore
+    this.itemWidth = 40, // Portrait: smaller width
+    this.itemHeight = 45, // Portrait: larger height
     List<ReportElement>? elements,
     this.dataSchemaName,
     this.dataSchema,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : elements = elements ?? [],
-        createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : elements = elements ?? [],
+       createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   void setPageFormat(PageFormat format) {
     pageFormat = format;
@@ -148,32 +147,32 @@ class ReportTemplate {
     return sorted;
   }
 
-  /// Valida una lista di dati contro lo schema del template
+  /// Validates a list of data against the template schema
   ValidationResult validateData(List<dynamic> data) {
     if (dataSchema == null) {
-      return ValidationResult.success(); // Nessuna validazione se non c'è schema
+      return ValidationResult.success(); // No validation without a schema
     }
-    
+
     return dataSchema!.validateList(data);
   }
 
-  /// Valida un singolo dato contro lo schema del template
+  /// Validates a single data item against the template schema
   ValidationResult validateSingleData(dynamic data) {
     if (dataSchema == null) {
       return ValidationResult.success();
     }
-    
+
     return dataSchema!.validate(data);
   }
 
-  /// Imposta lo schema dati
+  /// Sets the data schema
   void setDataSchema(DataSchema schema) {
     dataSchema = schema;
     dataSchemaName = schema.name;
     updatedAt = DateTime.now();
   }
 
-  /// Carica lo schema dal registry per nome
+  /// Loads the schema from the registry by name
   bool loadSchemaByName(String schemaName) {
     final schema = SchemaRegistry.getSchema(schemaName);
     if (schema != null) {
@@ -183,24 +182,24 @@ class ReportTemplate {
     return false;
   }
 
-  /// Verifica se un campo è valido nello schema
+  /// Whether a field is valid in the schema
   bool isValidField(String fieldName) {
-    if (dataSchema == null) return true; // Nessuna validazione se non c'è schema
+    if (dataSchema == null) return true; // No validation without a schema
     return dataSchema!.getField(fieldName) != null;
   }
 
-  /// Ottieni la definizione di un campo
+  /// Returns the definition of a field
   FieldDefinition? getFieldDefinition(String fieldName) {
     return dataSchema?.getField(fieldName);
   }
 
-  /// Lista tutti i campi disponibili dallo schema
+  /// Lists all fields available in the schema
   List<String> getAvailableFields() {
     if (dataSchema == null) return [];
     return dataSchema!.getFieldNames();
   }
 
-  /// Ottieni dati sample dallo schema
+  /// Returns the sample data of the schema
   Map<String, dynamic> getSampleData() {
     return dataSchema?.sampleData ?? {};
   }
@@ -305,12 +304,13 @@ class ReportTemplate {
       verticalGap: (json['verticalGap'] as num?)?.toDouble() ?? 2,
       itemWidth: (json['itemWidth'] as num?)?.toDouble() ?? 50,
       itemHeight: (json['itemHeight'] as num?)?.toDouble() ?? 30,
-      elements: (json['elements'] as List?)
+      elements:
+          (json['elements'] as List?)
               ?.map((e) => ReportElement.fromJson(e))
               .toList() ??
           [],
       dataSchemaName: json['dataSchemaName'],
-      dataSchema: json['dataSchema'] != null 
+      dataSchema: json['dataSchema'] != null
           ? DataSchema.fromJson(json['dataSchema'])
           : null,
       createdAt: json['createdAt'] != null

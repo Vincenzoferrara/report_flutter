@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'dart:convert';
 import '../../models/report_element.dart';
 import '../../models/report_template.dart';
 import '../../schema/data_schema.dart';
@@ -12,17 +11,10 @@ import '../../core/conditional_formatter.dart';
 import '../../core/markdown_renderer.dart';
 import '../../core/conditional_image_loader.dart';
 
+/// Report display mode
+enum ReportViewMode { singlePage, continuous, twoPage, dashboard }
 
-
-/// Modalità di visualizzazione del report
-enum ReportViewMode {
-  singlePage,
-  continuous,
-  twoPage,
-  dashboard,
-}
-
-/// Opzioni di filtro per i dati del report
+/// Filter options for the report data
 class ReportFilter {
   final String field;
   final dynamic value;
@@ -51,18 +43,15 @@ class ReportFilter {
   }
 }
 
-/// Opzioni di ordinamento per le tabelle del report
+/// Sort options for the report tables
 class ReportSort {
   final String field;
   final bool ascending;
 
-  const ReportSort({
-    required this.field,
-    this.ascending = true,
-  });
+  const ReportSort({required this.field, this.ascending = true});
 }
 
-/// Opzioni per il visualizzatore report
+/// Options of the report viewer
 class ReportViewerOptions {
   final double scale;
   final bool showGrid;
@@ -73,8 +62,7 @@ class ReportViewerOptions {
   final bool enableZoom;
   final bool enablePan;
   final EdgeInsets padding;
-  
-  // Funzionalità specifiche report
+
   final ReportViewMode viewMode;
   final bool showSidebar;
   final bool enableFilters;
@@ -100,8 +88,7 @@ class ReportViewerOptions {
     this.enableZoom = true,
     this.enablePan = true,
     this.padding = const EdgeInsets.all(8.0),
-    
-    // Funzionalità report
+
     this.viewMode = ReportViewMode.singlePage,
     this.showSidebar = true,
     this.enableFilters = true,
@@ -128,8 +115,7 @@ class ReportViewerOptions {
     bool? enableZoom,
     bool? enablePan,
     EdgeInsets? padding,
-    
-    // Funzionalità report
+
     ReportViewMode? viewMode,
     bool? showSidebar,
     bool? enableFilters,
@@ -155,12 +141,13 @@ class ReportViewerOptions {
       enableZoom: enableZoom ?? this.enableZoom,
       enablePan: enablePan ?? this.enablePan,
       padding: padding ?? this.padding,
-      
+
       viewMode: viewMode ?? this.viewMode,
       showSidebar: showSidebar ?? this.showSidebar,
       enableFilters: enableFilters ?? this.enableFilters,
       enableParameters: enableParameters ?? this.enableParameters,
-      enableDataInteraction: enableDataInteraction ?? this.enableDataInteraction,
+      enableDataInteraction:
+          enableDataInteraction ?? this.enableDataInteraction,
       enableTableSorting: enableTableSorting ?? this.enableTableSorting,
       enableRowSelection: enableRowSelection ?? this.enableRowSelection,
       enableDrillDown: enableDrillDown ?? this.enableDrillDown,
@@ -174,7 +161,7 @@ class ReportViewerOptions {
   }
 }
 
-/// Renderer per report singolo
+/// Renderer for a single report
 class ReportRenderer extends StatelessWidget {
   final ReportTemplate template;
   final dynamic data;
@@ -193,36 +180,37 @@ class ReportRenderer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Calcola le dimensioni disponibili
         final availableWidth = constraints.maxWidth;
         final availableHeight = constraints.maxHeight;
 
-        // Calcola le dimensioni base del template
         final templateWidth = template.itemWidth;
         final templateHeight = template.itemHeight;
 
         double finalScale;
 
-        // Se i constraints sono infiniti (es. dentro InteractiveViewer con constrained: false)
-        // usa una scala basata sulle dimensioni del template per una visualizzazione ragionevole
+        // With infinite constraints (e.g. inside an InteractiveViewer with constrained: false)
+        // use a scale based on the template size for a sensible display
         if (!availableWidth.isFinite || !availableHeight.isFinite) {
           if (options.scale != 1.0) {
             finalScale = options.scale;
           } else {
-            // Calcola una scala ragionevole basata sulle dimensioni del template
-            // Target: etichetta piccola (50x30mm) -> scala ~10, A4 (210x297mm) -> scala ~3
-            final minDimension = templateWidth < templateHeight ? templateWidth : templateHeight;
+            // Sensible scale based on the template size
+            // Target: small label (50x30 mm) -> scale ~10, A4 (210x297 mm) -> scale ~3
+            final minDimension = templateWidth < templateHeight
+                ? templateWidth
+                : templateHeight;
             finalScale = (300 / minDimension).clamp(2.0, 15.0);
           }
         } else {
-          // Calcola la scala per riempire lo spazio disponibile
           final horizontalScale = availableWidth / templateWidth;
           final verticalScale = availableHeight / templateHeight;
 
-          // Usa la scala più piccola per garantire che il template sia completamente visibile
-          final fillScale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
+          // The smaller scale keeps the whole template visible
+          final fillScale = horizontalScale < verticalScale
+              ? horizontalScale
+              : verticalScale;
 
-          // Applica la scala dell'utente se è diversa da 1.0, altrimenti usa la scala di riempimento
+          // Use the user scale when it is not 1.0, otherwise the fill scale
           finalScale = options.scale != 1.0 ? options.scale : fillScale;
         }
 
@@ -243,11 +231,8 @@ class ReportRenderer extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // Griglia di sfondo se richiesta
-              if (options.showGrid)
-                _buildGrid(width, height, finalScale),
+              if (options.showGrid) _buildGrid(width, height, finalScale),
 
-              // Elementi del report
               ...template.sortedElements.map((element) {
                 return _buildElement(element, finalScale);
               }),
@@ -323,38 +308,16 @@ class ReportRenderer extends StatelessWidget {
     }
   }
 
-  Widget _renderChartPlaceholder(String label, IconData icon, double scale) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 24 * scale, color: Colors.grey.shade600),
-          SizedBox(height: 4 * scale),
-          Text(
-            label,
-            style: TextStyle(fontSize: 8 * scale, color: Colors.grey.shade600),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _renderText(ReportElement element, double scale) {
     final text = element.properties['text'] ?? 'Testo';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
     final backgroundColor = element.properties['backgroundColor'];
 
-    // Scala 1:1 - fontSize in punti scalato direttamente
+    // 1:1 scale - font size in points scaled directly
     final scaledFontSize = fontSize * scale;
 
     return Container(
@@ -380,25 +343,25 @@ class ReportRenderer extends StatelessWidget {
     final prefix = element.properties['prefix'] ?? '';
     final suffix = element.properties['suffix'] ?? '';
     final format = element.properties['format'];
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
-    // Estrai valore dai dati
     final value = DataExtractor.getValue(data, fieldName);
     final formattedValue = DataExtractor.formatValue(value, format: format);
     final displayText = '$prefix$formattedValue$suffix';
 
-    // 🆕 Se il Markdown è abilitato, renderizza come Markdown
+    // With Markdown enabled, render as Markdown
     if (MarkdownRenderer.isMarkdownEnabled(element)) {
       return _renderMarkdown(element, scale);
     }
 
-    // Scala 1:1 - fontSize in punti scalato direttamente
+    // 1:1 scale - font size in points scaled directly
     final scaledFontSize = fontSize * scale;
 
-    // 🆕 Applica formattazione condizionale se abilitata
+    // Apply conditional formatting when enabled
     TextStyle textStyle = TextStyle(
       fontSize: scaledFontSize,
       fontWeight: fontWeight,
@@ -407,7 +370,11 @@ class ReportRenderer extends StatelessWidget {
 
     if (ConditionalFormatter.isConditionalFormattingEnabled(element)) {
       final rules = ConditionalFormatter.getConditionalRules(element);
-      final conditionalStyle = ConditionalFormatter.applyTextStyle(value, rules, textStyle);
+      final conditionalStyle = ConditionalFormatter.applyTextStyle(
+        value,
+        rules,
+        textStyle,
+      );
       if (conditionalStyle != null) {
         textStyle = conditionalStyle;
       }
@@ -429,9 +396,8 @@ class ReportRenderer extends StatelessWidget {
   Widget _renderBarcode(ReportElement element, double scale) {
     final fieldName = element.properties['fieldName'] ?? '';
     final showText = element.properties['showText'] ?? true;
-    final textSize = (element.properties['textSize'] as num?)?.toDouble() ?? 8;
 
-    // Per ora renderizza come placeholder
+    // Rendered as a placeholder for now
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -441,11 +407,11 @@ class ReportRenderer extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final iconSize = showText && fieldName.isNotEmpty 
-              ? constraints.maxHeight * 0.7 
+          final iconSize = showText && fieldName.isNotEmpty
+              ? constraints.maxHeight * 0.7
               : constraints.maxHeight * 0.9;
           final fontSize = constraints.maxHeight * 0.2;
-          
+
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -462,10 +428,9 @@ class ReportRenderer extends StatelessWidget {
               if (showText && fieldName.isNotEmpty)
                 Flexible(
                   child: Text(
-                    DataExtractor.getValue(data, fieldName)?.toString() ?? '123456789',
-                    style: TextStyle(
-                      fontSize: fontSize.clamp(4.0, 10.0),
-                    ),
+                    DataExtractor.getValue(data, fieldName)?.toString() ??
+                        '123456789',
+                    style: TextStyle(fontSize: fontSize.clamp(4.0, 10.0)),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -481,17 +446,17 @@ class ReportRenderer extends StatelessWidget {
   Widget _renderQRCode(ReportElement element, double scale) {
     final fieldName = element.properties['fieldName'] ?? '';
     final errorCorrection = element.properties['errorCorrection'] ?? 'M';
-    
+
     String qrData = '';
     if (fieldName.isNotEmpty) {
       qrData = DataExtractor.getValue(data, fieldName)?.toString() ?? '';
     }
-    
-    // Se non ci sono dati, usa un placeholder
+
+    // Placeholder when there is no data
     if (qrData.isEmpty) {
       qrData = 'QR Code';
     }
-    
+
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -512,10 +477,9 @@ class ReportRenderer extends StatelessWidget {
   }
 
   Widget _renderImage(ReportElement element, double scale) {
-    final source = element.properties['source'] ?? 'field';
     final fit = _getBoxFit(element.properties['fit']);
 
-    // 🆕 Usa il ConditionalImageLoader per tutte le sorgenti
+    // ConditionalImageLoader handles every source
     return ConditionalImageLoader.loadImage(
       data,
       element,
@@ -526,7 +490,8 @@ class ReportRenderer extends StatelessWidget {
   }
 
   Widget _renderLine(ReportElement element, double scale) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     return SizedBox(
@@ -543,28 +508,32 @@ class ReportRenderer extends StatelessWidget {
   }
 
   Widget _renderRectangle(ReportElement element, double scale) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
-    final strokeColor = _parseColor(element.properties['strokeColor'] ?? '#000000');
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
+    final strokeColor = _parseColor(
+      element.properties['strokeColor'] ?? '#000000',
+    );
     final fillColor = element.properties['fillColor'];
-    final borderRadius = (element.properties['borderRadius'] as num?)?.toDouble() ?? 0;
+    final borderRadius =
+        (element.properties['borderRadius'] as num?)?.toDouble() ?? 0;
 
     return Container(
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
         color: fillColor != null ? _parseColor(fillColor) : null,
-        border: Border.all(
-          color: strokeColor,
-          width: strokeWidth * scale,
-        ),
+        border: Border.all(color: strokeColor, width: strokeWidth * scale),
         borderRadius: BorderRadius.circular(borderRadius * scale),
       ),
     );
   }
 
   Widget _renderCircle(ReportElement element, double scale) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
-    final strokeColor = _parseColor(element.properties['strokeColor'] ?? '#000000');
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
+    final strokeColor = _parseColor(
+      element.properties['strokeColor'] ?? '#000000',
+    );
     final fillColor = element.properties['fillColor'];
 
     return Container(
@@ -572,10 +541,7 @@ class ReportRenderer extends StatelessWidget {
       height: double.infinity,
       decoration: BoxDecoration(
         color: fillColor != null ? _parseColor(fillColor) : null,
-        border: Border.all(
-          color: strokeColor,
-          width: strokeWidth * scale,
-        ),
+        border: Border.all(color: strokeColor, width: strokeWidth * scale),
         shape: BoxShape.circle,
       ),
     );
@@ -615,7 +581,8 @@ class ReportRenderer extends StatelessWidget {
   Widget _renderTextbox(ReportElement element, double scale) {
     final fieldName = element.properties['fieldName'] ?? '';
     final placeholder = element.properties['placeholder'] ?? '';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final maxLines = (element.properties['maxLines'] as num?)?.toInt() ?? 1;
 
     final value = DataExtractor.getValue(data, fieldName) ?? placeholder;
@@ -630,10 +597,7 @@ class ReportRenderer extends StatelessWidget {
       ),
       child: Text(
         value.toString(),
-        style: TextStyle(
-          fontSize: fontSize * scale / 3,
-          color: Colors.black87,
-        ),
+        style: TextStyle(fontSize: fontSize * scale / 3, color: Colors.black87),
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
       ),
@@ -642,7 +606,8 @@ class ReportRenderer extends StatelessWidget {
 
   Widget _renderDate(ReportElement element, double scale) {
     final format = element.properties['format'] ?? 'dd/MM/yyyy';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     final now = DateTime.now();
@@ -653,10 +618,7 @@ class ReportRenderer extends StatelessWidget {
       height: double.infinity,
       child: Text(
         formattedDate,
-        style: TextStyle(
-          fontSize: fontSize * scale / 3,
-          color: color,
-        ),
+        style: TextStyle(fontSize: fontSize * scale / 3, color: color),
       ),
     );
   }
@@ -666,7 +628,7 @@ class ReportRenderer extends StatelessWidget {
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 8;
     final color = _parseColor(element.properties['color'] ?? '#666666');
 
-    // Per ora usa placeholder
+    // Placeholder for now
     final text = format.replaceAll('{current}', '1').replaceAll('{total}', '1');
 
     return SizedBox(
@@ -674,10 +636,7 @@ class ReportRenderer extends StatelessWidget {
       height: double.infinity,
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: fontSize * scale / 3,
-          color: color,
-        ),
+        style: TextStyle(fontSize: fontSize * scale / 3, color: color),
       ),
     );
   }
@@ -685,7 +644,7 @@ class ReportRenderer extends StatelessWidget {
   Widget _renderLogo(ReportElement element, double scale) {
     final assetPath = element.properties['assetPath'] ?? '';
     final fit = _getBoxFit(element.properties['fit']);
-    
+
     if (assetPath.isNotEmpty) {
       return Image.asset(
         assetPath,
@@ -704,18 +663,21 @@ class ReportRenderer extends StatelessWidget {
     final dataSource = element.properties['dataSource'] ?? '';
     final headerStyle = element.properties['headerStyle'] as Map? ?? {};
     final cellStyle = element.properties['cellStyle'] as Map? ?? {};
-    final borderWidth = (element.properties['borderWidth'] as num?)?.toDouble() ?? 0.5;
-    final borderColor = _parseColor(element.properties['borderColor'] ?? '#000000');
+    final borderWidth =
+        (element.properties['borderWidth'] as num?)?.toDouble() ?? 0.5;
+    final borderColor = _parseColor(
+      element.properties['borderColor'] ?? '#000000',
+    );
     final enableSorting = options.enableTableSorting;
     final enableSelection = options.enableRowSelection;
     final enableDrillDown = options.enableDrillDown;
-    
+
     // Get table data
     List<dynamic> tableData = [];
     if (dataSource.isNotEmpty) {
       tableData = DataExtractor.getValue(data, dataSource) as List? ?? [];
     }
-    
+
     if (tableData.isEmpty) {
       // Show placeholder if no data
       return Container(
@@ -747,7 +709,7 @@ class ReportRenderer extends StatelessWidget {
         ),
       );
     }
-    
+
     // Build interactive table
     return Container(
       width: double.infinity,
@@ -766,28 +728,9 @@ class ReportRenderer extends StatelessWidget {
         enableSorting: enableSorting,
         enableSelection: enableSelection,
         enableDrillDown: enableDrillDown,
-        onRowClick: enableDrillDown ? (rowData) => _handleDrillDown(rowData, dataSource) : null,
-      ),
-    );
-  }
-
-  Widget _renderFallback(ReportElement element, double scale) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.red),
-      ),
-      child: Center(
-        child: Text(
-          'Unknown: ${element.type.name}',
-          style: TextStyle(
-            fontSize: 8 * scale,
-            color: Colors.red,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        onRowClick: enableDrillDown
+            ? (rowData) => _handleDrillDown(rowData, dataSource)
+            : null,
       ),
     );
   }
@@ -865,22 +808,6 @@ class ReportRenderer extends StatelessWidget {
     }
   }
 
-  Widget _buildImagePlaceholder() {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        border: Border.all(color: Colors.grey.shade400),
-      ),
-      child: Icon(
-        Icons.image,
-        size: 24.0,
-        color: Colors.grey.shade600,
-      ),
-    );
-  }
-
   Widget _buildLogoPlaceholder() {
     return Container(
       width: double.infinity,
@@ -889,46 +816,48 @@ class ReportRenderer extends StatelessWidget {
         color: Colors.grey.shade100,
         border: Border.all(color: Colors.grey.shade300),
       ),
-      child: Icon(
-        Icons.business,
-        size: 32.0,
-        color: Colors.grey.shade500,
-      ),
+      child: Icon(Icons.business, size: 32.0, color: Colors.grey.shade500),
     );
   }
 
-  Widget _renderInteractiveChart(ReportElement element, double scale, ChartType chartType) {
+  Widget _renderInteractiveChart(
+    ReportElement element,
+    double scale,
+    ChartType chartType,
+  ) {
     final dataSource = element.properties['dataSource'] ?? '';
     final enableDrillDown = options.enableDrillDown;
-    
+
     // Get chart data
     List<dynamic> chartData = [];
     if (dataSource.isNotEmpty) {
       chartData = DataExtractor.getValue(data, dataSource) as List? ?? [];
     }
-    
+
     if (chartData.isEmpty) {
       return _buildChartPlaceholder(chartType, scale);
     }
-    
+
     return InteractiveChart(
       type: chartType,
       data: chartData,
-      style: element.properties ?? {},
-      width: element.width ?? 300,
-      height: element.height ?? 200,
+      style: element.properties,
+      width: element.width,
+      height: element.height,
       scale: scale,
       enableZoom: false,
       enablePan: false,
       enableSelection: enableDrillDown,
-      onDataPointTap: enableDrillDown ? (itemData) => _handleChartDrillDown(itemData, chartType) : null,
+      onDataPointTap: enableDrillDown
+          ? (itemData) => _handleChartDrillDown(itemData, chartType)
+          : null,
     );
   }
 
   Widget _buildChartPlaceholder(ChartType chartType, double scale) {
     IconData icon;
     String label;
-    
+
     switch (chartType) {
       case ChartType.pie:
         icon = Icons.pie_chart;
@@ -951,7 +880,7 @@ class ReportRenderer extends StatelessWidget {
         label = 'Grafico Dispersione';
         break;
     }
-    
+
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -974,32 +903,37 @@ class ReportRenderer extends StatelessWidget {
     );
   }
 
-  /// 🆕 Renderizza un elemento Formula
+  /// Renders a Formula element
   Widget _renderFormula(ReportElement element, double scale) {
     final formula = element.properties['formula'] ?? '';
-    final variables = Map<String, String>.from(element.properties['variables'] ?? {});
+    final variables = Map<String, String>.from(
+      element.properties['variables'] ?? {},
+    );
     final format = element.properties['format'] ?? 'number';
     final errorValue = element.properties['errorValue'] ?? '0';
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     try {
-      // Valuta la formula
       final result = FormulaEngine.evaluate(formula, data, variables);
       final formattedResult = FormulaEngine.formatResult(result, format);
-      
-      // Applica formattazione condizionale se abilitata
+
       TextStyle textStyle = TextStyle(
         fontSize: fontSize * scale,
         fontWeight: fontWeight,
         color: color,
       );
-      
+
       if (ConditionalFormatter.isConditionalFormattingEnabled(element)) {
         final rules = ConditionalFormatter.getConditionalRules(element);
-        final conditionalStyle = ConditionalFormatter.applyTextStyle(result, rules, textStyle);
+        final conditionalStyle = ConditionalFormatter.applyTextStyle(
+          result,
+          rules,
+          textStyle,
+        );
         if (conditionalStyle != null) {
           textStyle = conditionalStyle;
         }
@@ -1017,7 +951,6 @@ class ReportRenderer extends StatelessWidget {
         ),
       );
     } catch (e) {
-      // Mostra valore di errore
       return SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -1036,24 +969,21 @@ class ReportRenderer extends StatelessWidget {
     }
   }
 
-  /// 🆕 Renderizza un elemento Markdown
+  /// Renders a Markdown element
   Widget _renderMarkdown(ReportElement element, double scale) {
-    // Se il Markdown non è abilitato, fallback a testo normale
+    // Without Markdown, fall back to plain text
     if (!MarkdownRenderer.isMarkdownEnabled(element)) {
       return _renderText(element, scale);
     }
 
     final markdownData = MarkdownRenderer.getMarkdownData(element);
     final markdownConfig = MarkdownRenderer.getMarkdownConfig(element);
-    final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
+    final fontSize =
+        (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final alignment = _getAlignment(element.properties['alignment']);
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
-    // Crea uno stile base per il Markdown
-    final baseStyle = TextStyle(
-      fontSize: fontSize * scale,
-      color: color,
-    );
+    final baseStyle = TextStyle(fontSize: fontSize * scale, color: color);
 
     return SizedBox(
       width: double.infinity,
@@ -1070,17 +1000,17 @@ class ReportRenderer extends StatelessWidget {
   }
 
   void _handleChartDrillDown(dynamic itemData, ChartType chartType) {
-    // TODO: Implementare drill-down per grafici
-    // Questo verrà gestito dal ReportViewer principale
+    // TODO: implement drill-down for charts
+    // It will be handled by the main ReportViewer
   }
 
   void _handleDrillDown(dynamic rowData, String dataSource) {
-    // TODO: Implementare drill-down per tabelle
-    // Questo verrà gestito dal ReportViewer principale
+    // TODO: implement drill-down for tables
+    // It will be handled by the main ReportViewer
   }
 }
 
-/// Painter per la griglia di sfondo
+/// Painter for the background grid
 class _GridPainter extends CustomPainter {
   final double scale;
   final Color color;
@@ -1093,7 +1023,7 @@ class _GridPainter extends CustomPainter {
       ..color = color
       ..strokeWidth = 0.5;
 
-    // Griglia ogni 5mm
+    // Grid every 5 mm
     final gridSpacing = 5 * scale;
 
     for (double x = 0; x <= size.width; x += gridSpacing) {

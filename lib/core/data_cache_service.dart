@@ -4,21 +4,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/report_template.dart';
 import '../viewer/renderers/report_renderer.dart';
 
-/// Servizio per gestione cache e refresh dati
+/// Service that manages data caching and refresh
 class DataCacheService {
   static const String _cachePrefix = 'report_cache_';
   static const String _metadataPrefix = 'cache_metadata_';
   static const Duration _defaultCacheDuration = Duration(hours: 1);
-  static const int _maxCacheSize = 50; // Massimo numero di report in cache
+  static const int _maxCacheSize = 50; // Maximum number of cached reports
 
   static SharedPreferences? _prefs;
 
-  /// Inizializza il servizio
+  /// Initializes the service
   static Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
   }
 
-  /// Salva dati in cache
+  /// Saves data to the cache
   static Future<void> cacheData(
     String cacheKey,
     List<dynamic> data, {
@@ -26,32 +26,32 @@ class DataCacheService {
     Map<String, dynamic>? metadata,
   }) async {
     await init();
-    
+
     try {
       final cacheData = {
         'data': data,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
-        'duration': duration?.inMilliseconds ?? _defaultCacheDuration.inMilliseconds,
+        'duration':
+            duration?.inMilliseconds ?? _defaultCacheDuration.inMilliseconds,
         'metadata': metadata ?? {},
       };
 
       final jsonString = jsonEncode(cacheData);
       await _prefs!.setString('$_cachePrefix$cacheKey', jsonString);
-      
-      // Aggiorna metadati della cache
+
       await _updateCacheMetadata(cacheKey, cacheData);
-      
-      // Pulisci cache vecchia se necessario
+
+      // Drop old cache entries if needed
       await _cleanupOldCache();
     } catch (e) {
-      throw Exception('Errore durante il salvataggio in cache: $e');
+      throw Exception('Error while saving to the cache: $e');
     }
   }
 
-  /// Recupera dati dalla cache
+  /// Reads data from the cache
   static Future<CacheResult?> getCachedData(String cacheKey) async {
     await init();
-    
+
     try {
       final jsonString = _prefs!.getString('$_cachePrefix$cacheKey');
       if (jsonString == null) return null;
@@ -62,10 +62,9 @@ class DataCacheService {
       final data = cacheData['data'] as List<dynamic>;
       final metadata = cacheData['metadata'] as Map<String, dynamic>? ?? {};
 
-      // Verifica se la cache è ancora valida
       final now = DateTime.now().millisecondsSinceEpoch;
       if (now - timestamp > duration) {
-        // Cache scaduta, rimuovila
+        // Expired cache, remove it
         await removeCachedData(cacheKey);
         return null;
       }
@@ -77,24 +76,24 @@ class DataCacheService {
         isExpired: false,
       );
     } catch (e) {
-      // Se c'è un errore, rimuovi la cache corrotta
+      // On error, remove the corrupted cache
       await removeCachedData(cacheKey);
       return null;
     }
   }
 
-  /// Rimuovi dati specifici dalla cache
+  /// Removes specific data from the cache
   static Future<void> removeCachedData(String cacheKey) async {
     await init();
-    
+
     await _prefs!.remove('$_cachePrefix$cacheKey');
     await _prefs!.remove('$_metadataPrefix$cacheKey');
   }
 
-  /// Svuota tutta la cache
+  /// Clears the whole cache
   static Future<void> clearAllCache() async {
     await init();
-    
+
     final keys = _prefs!.getKeys();
     for (final key in keys) {
       if (key.startsWith(_cachePrefix) || key.startsWith(_metadataPrefix)) {
@@ -103,10 +102,10 @@ class DataCacheService {
     }
   }
 
-  /// Ottiene informazioni sulla cache
+  /// Returns information about the cache
   static Future<CacheInfo> getCacheInfo() async {
     await init();
-    
+
     final keys = _prefs!.getKeys();
     int totalItems = 0;
     int totalSize = 0;
@@ -116,29 +115,32 @@ class DataCacheService {
       if (key.startsWith(_cachePrefix)) {
         final cacheKey = key.substring(_cachePrefix.length);
         final jsonString = _prefs!.getString(key);
-        
+
         if (jsonString != null) {
           try {
             final cacheData = jsonDecode(jsonString) as Map<String, dynamic>;
             final timestamp = cacheData['timestamp'] as int;
             final duration = cacheData['duration'] as int;
-            final metadata = cacheData['metadata'] as Map<String, dynamic>? ?? {};
-            
+            final metadata =
+                cacheData['metadata'] as Map<String, dynamic>? ?? {};
+
             totalItems++;
             totalSize += jsonString.length;
-            
+
             final now = DateTime.now().millisecondsSinceEpoch;
             final isExpired = now - timestamp > duration;
-            
-            items.add(CacheItemInfo(
-              key: cacheKey,
-              timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-              size: jsonString.length,
-              isExpired: isExpired,
-              metadata: metadata,
-            ));
+
+            items.add(
+              CacheItemInfo(
+                key: cacheKey,
+                timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+                size: jsonString.length,
+                isExpired: isExpired,
+                metadata: metadata,
+              ),
+            );
           } catch (e) {
-            // Ignora cache corrotta
+            // Ignore corrupted cache
           }
         }
       }
@@ -151,8 +153,11 @@ class DataCacheService {
     );
   }
 
-  /// Aggiorna metadati della cache
-  static Future<void> _updateCacheMetadata(String cacheKey, Map<String, dynamic> cacheData) async {
+  /// Updates the cache metadata
+  static Future<void> _updateCacheMetadata(
+    String cacheKey,
+    Map<String, dynamic> cacheData,
+  ) async {
     final metadata = {
       'lastAccessed': DateTime.now().millisecondsSinceEpoch,
       'key': cacheKey,
@@ -163,17 +168,16 @@ class DataCacheService {
     await _prefs!.setString('$_metadataPrefix$cacheKey', jsonEncode(metadata));
   }
 
-  /// Pulisce cache vecchia
+  /// Clears the old cache
   static Future<void> _cleanupOldCache() async {
     final cacheInfo = await getCacheInfo();
-    
+
     if (cacheInfo.totalItems <= _maxCacheSize) return;
 
-    // Ordina per ultimo accesso (più vecchi prima)
+    // Sort by last access (oldest first)
     final sortedItems = List.from(cacheInfo.items);
     sortedItems.sort((a, b) => a.lastAccessed.compareTo(b.lastAccessed));
 
-    // Rimuovi gli elementi più vecchi fino a raggiungere il limite
     final itemsToRemove = cacheInfo.totalItems - _maxCacheSize;
     for (int i = 0; i < itemsToRemove; i++) {
       await removeCachedData(sortedItems[i].key);
@@ -181,7 +185,7 @@ class DataCacheService {
   }
 }
 
-/// Risultato della cache
+/// Cache result
 class CacheResult {
   final List<dynamic> data;
   final DateTime timestamp;
@@ -196,7 +200,7 @@ class CacheResult {
   });
 }
 
-/// Informazioni sulla cache
+/// Information about the cache
 class CacheInfo {
   final int totalItems;
   final int totalSize;
@@ -209,7 +213,7 @@ class CacheInfo {
   });
 }
 
-/// Informazioni su un item della cache
+/// Information about a cache item
 class CacheItemInfo {
   final String key;
   final DateTime timestamp;
@@ -229,17 +233,17 @@ class CacheItemInfo {
   }
 }
 
-/// Funzione di callback per refresh dati
-typedef DataRefreshCallback = Future<List<dynamic>> Function(
-  ReportTemplate template,
-  Map<String, dynamic>? parameters,
-  List<ReportFilter>? filters,
-);
+/// Callback that refreshes the data
+typedef DataRefreshCallback =
+    Future<List<dynamic>> Function(
+      ReportTemplate template,
+      Map<String, dynamic>? parameters,
+      List<ReportFilter>? filters,
+    );
 
-/// Servizio per refresh dati
+/// Service that refreshes data
 class DataRefreshService {
-
-  /// Esegue refresh dati con gestione cache
+  /// Refreshes data, using the cache
   static Future<RefreshResult> refreshData(
     ReportTemplate template, {
     Map<String, dynamic>? parameters,
@@ -249,9 +253,9 @@ class DataRefreshService {
     DataRefreshCallback? refreshCallback,
   }) async {
     final cacheKey = _generateCacheKey(template, parameters, filters);
-    
+
     try {
-      // Se non è forzato, prova a ottenere dalla cache
+      // Unless forced, try the cache first
       if (!forceRefresh) {
         final cachedData = await DataCacheService.getCachedData(cacheKey);
         if (cachedData != null && !cachedData.isExpired) {
@@ -264,12 +268,11 @@ class DataRefreshService {
         }
       }
 
-      // Esegui refresh dati
       if (refreshCallback != null) {
         final startTime = DateTime.now();
         final data = await refreshCallback(template, parameters, filters);
         final endTime = DateTime.now();
-        
+
         // Salva in cache
         await DataCacheService.cacheData(
           cacheKey,
@@ -294,10 +297,10 @@ class DataRefreshService {
           },
         );
       } else {
-        throw Exception('Nessuna callback di refresh fornita');
+        throw Exception('No refresh callback provided');
       }
     } catch (e) {
-      // In caso di errore, prova a usare cache anche se scaduta
+      // On error, use the cache even when expired
       if (!forceRefresh) {
         final cachedData = await DataCacheService.getCachedData(cacheKey);
         if (cachedData != null) {
@@ -313,12 +316,12 @@ class DataRefreshService {
           );
         }
       }
-      
-      throw Exception('Errore durante refresh dati: $e');
+
+      throw Exception('Error while refreshing the data: $e');
     }
   }
 
-  /// Genera chiave cache univoca
+  /// Generates a unique cache key
   static String _generateCacheKey(
     ReportTemplate template,
     Map<String, dynamic>? parameters,
@@ -326,7 +329,7 @@ class DataRefreshService {
   ) {
     final buffer = StringBuffer();
     buffer.write(template.name);
-    
+
     if (parameters != null && parameters.isNotEmpty) {
       buffer.write('_params_');
       final sortedKeys = parameters.keys.toList()..sort();
@@ -334,7 +337,7 @@ class DataRefreshService {
         buffer.write('$key=${parameters[key]}');
       }
     }
-    
+
     if (filters != null && filters.isNotEmpty) {
       buffer.write('_filters_');
       final activeFilters = filters.where((f) => f.enabled).toList();
@@ -343,12 +346,12 @@ class DataRefreshService {
         buffer.write('${filter.field}${filter.operator}${filter.value}');
       }
     }
-    
+
     return buffer.toString().hashCode.toString();
   }
 }
 
-/// Risultato del refresh
+/// Refresh result
 class RefreshResult {
   final List<dynamic> data;
   final DataSource source;
@@ -363,8 +366,5 @@ class RefreshResult {
   });
 }
 
-/// Sorgente dati
-enum DataSource {
-  cache,
-  remote,
-}
+/// Data source
+enum DataSource { cache, remote }

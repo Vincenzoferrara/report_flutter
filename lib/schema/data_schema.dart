@@ -1,6 +1,6 @@
 import 'field_definition.dart';
 
-/// Schema astratto per definire la struttura dei dati
+/// Abstract schema that defines the data structure
 abstract class DataSchema {
   String get name;
   String get displayName;
@@ -11,7 +11,7 @@ abstract class DataSchema {
 
   const DataSchema();
 
-  /// Trova una field definition per nome
+  /// Finds a field definition by name
   FieldDefinition? getField(String name) {
     try {
       return fields.firstWhere((field) => field.name == name);
@@ -20,13 +20,13 @@ abstract class DataSchema {
     }
   }
 
-  /// Valida un oggetto dati contro questo schema
+  /// Validates a data object against this schema
   ValidationResult validate(dynamic data) {
     if (data == null) {
       return ValidationResult.error('I dati sono null');
     }
 
-    // Converti in Map se necessario
+    // Convert to a Map if needed
     Map<String, dynamic> dataMap;
     if (data is Map<String, dynamic>) {
       dataMap = data;
@@ -36,15 +36,16 @@ abstract class DataSchema {
       try {
         dataMap = (data as dynamic).toJson() as Map<String, dynamic>;
       } catch (_) {
-        return ValidationResult.error('Impossibile convertire i dati in formato valido');
+        return ValidationResult.error(
+          'Impossibile convertire i dati in formato valido',
+        );
       }
     }
 
-    // Valida tutti i campi definiti nello schema
     for (final field in fields) {
       final value = dataMap[field.name];
       final result = field.validate(value);
-      
+
       if (!result.isValid) {
         return result;
       }
@@ -53,7 +54,7 @@ abstract class DataSchema {
     return ValidationResult.success();
   }
 
-  /// Valida una lista di oggetti dati
+  /// Validates a list of data objects
   ValidationResult validateList(List<dynamic> dataList) {
     if (dataList.isEmpty) {
       return ValidationResult.error('La lista di dati è vuota');
@@ -62,29 +63,31 @@ abstract class DataSchema {
     for (int i = 0; i < dataList.length; i++) {
       final result = validate(dataList[i]);
       if (!result.isValid) {
-        return ValidationResult.error('Errore alla riga ${i + 1}: ${result.errorMessage}');
+        return ValidationResult.error(
+          'Errore alla riga ${i + 1}: ${result.errorMessage}',
+        );
       }
     }
 
     return ValidationResult.success();
   }
 
-  /// Estrai tutti i nomi dei campi disponibili
+  /// Returns all available field names
   List<String> getFieldNames() {
     return fields.map((field) => field.name).toList();
   }
 
-  /// Estrai i campi di un certo tipo
+  /// Returns the fields of a given type
   List<FieldDefinition> getFieldsByType(Type type) {
     return fields.where((field) => field.type == type).toList();
   }
 
-  /// Estrai solo i campi richiesti
+  /// Returns only the required fields
   List<FieldDefinition> getRequiredFields() {
     return fields.where((field) => field.isRequired).toList();
   }
 
-  /// Converte lo schema in JSON
+  /// Converts the schema to JSON
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -96,18 +99,18 @@ abstract class DataSchema {
     };
   }
 
-  /// Crea schema da JSON
+  /// Creates a schema from JSON
   factory DataSchema.fromJson(Map<String, dynamic> json) {
     return _JsonDataSchema.fromJson(json);
   }
 
-  /// Crea schema da classe generica (reflection-based)
+  /// Creates a schema from a generic class (reflection-based)
   factory DataSchema.fromClass(Type type) {
     return _ReflectionDataSchema(type);
   }
 }
 
-/// Implementazione concreta per schema da JSON
+/// Concrete implementation for schemas from JSON
 class _JsonDataSchema extends DataSchema {
   @override
   final String name;
@@ -136,36 +139,38 @@ class _JsonDataSchema extends DataSchema {
       name: json['name'],
       displayName: json['displayName'] ?? json['name'],
       description: json['description'] ?? '',
-      fields: (json['fields'] as List?)
-          ?.map((field) => FieldDefinition.fromJson(field))
-          .toList() ?? [],
+      fields:
+          (json['fields'] as List?)
+              ?.map((field) => FieldDefinition.fromJson(field))
+              .toList() ??
+          [],
       sampleData: Map<String, dynamic>.from(json['sampleData'] ?? {}),
       metadata: Map<String, dynamic>.from(json['metadata'] ?? {}),
     );
   }
 }
 
-/// Implementazione per schema basata su reflection (future implementation)
+/// Reflection-based schema implementation (future implementation)
 class _ReflectionDataSchema extends DataSchema {
   final Type _type;
-  
+
   _ReflectionDataSchema(this._type);
 
   @override
   String get name => _type.toString();
-  
+
   @override
   String get displayName => _formatDisplayName(_type.toString());
-  
+
   @override
   String get description => 'Schema generato da classe $name';
-  
+
   @override
   List<FieldDefinition> get fields => _extractFieldsFromClass();
-  
+
   @override
   Map<String, dynamic> get sampleData => _generateSampleData();
-  
+
   @override
   Map<String, dynamic> get metadata => {
     'generated': true,
@@ -174,13 +179,13 @@ class _ReflectionDataSchema extends DataSchema {
   };
 
   List<FieldDefinition> _extractFieldsFromClass() {
-    // TODO: Implementare reflection quando disponibile in Dart
-    // Per ora ritorna lista vuota
+    // TODO: implement reflection when Dart supports it
+    // Returns an empty list for now
     return [];
   }
 
   Map<String, dynamic> _generateSampleData() {
-    // TODO: Generare dati sample basati sui campi
+    // TODO: generate sample data from the fields
     return {};
   }
 
@@ -188,35 +193,39 @@ class _ReflectionDataSchema extends DataSchema {
     return className
         .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]} ${m[2]}')
         .split(' ')
-        .map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '',
+        )
         .join(' ');
   }
 }
 
-/// Registry per schemi disponibili
+/// Registry of the available schemas
 class SchemaRegistry {
   static final Map<String, DataSchema Function()> _schemas = {
-    // Gli schemi vengono registrati dall'app che usa il pacchetto
-    // Esempio: SchemaRegistry.register('Product', () => MyProductSchema());
+    // Schemas are registered by the app that uses the package
+    // Example: SchemaRegistry.register('Product', () => MyProductSchema());
   };
 
-  /// Registra un nuovo schema
+  /// Registers a new schema
   static void register(String name, DataSchema Function() factory) {
     _schemas[name] = factory;
   }
 
-  /// Ottieni schema per nome
+  /// Returns a schema by name
   static DataSchema? getSchema(String name) {
     final factory = _schemas[name];
     return factory?.call();
   }
 
-  /// Lista tutti i nomi degli schemi disponibili
+  /// Lists the names of all available schemas
   static List<String> getAvailableSchemas() {
     return _schemas.keys.toList();
   }
 
-  /// Controlla se uno schema esiste
+  /// Whether a schema exists
   static bool hasSchema(String name) {
     return _schemas.containsKey(name);
   }

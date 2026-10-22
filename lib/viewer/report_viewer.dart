@@ -9,12 +9,12 @@ import '../export/report_export_service.dart';
 import '../core/data_cache_service.dart';
 import '../core/annotation_service.dart';
 
-/// Widget principale per visualizzare report indipendentemente
+/// Main widget to view reports on their own
 class ReportViewer extends StatefulWidget {
-  final String? templateFile;      // Path al file template .rpt
-  final String? templateAsset;     // Path all'asset template
-  final ReportTemplate? template;   // Template diretto
-  final List<dynamic> data;         // Dati da visualizzare
+  final String? templateFile; // Path of the .rpt template file
+  final String? templateAsset; // Path all'asset template
+  final ReportTemplate? template; // Template object
+  final List<dynamic> data; // Data to display
   final ReportViewerOptions options;
   final bool enablePagination;
   final VoidCallback? onPageChanged;
@@ -34,7 +34,7 @@ class ReportViewer extends StatefulWidget {
     this.onRefreshData,
   }) : assert(
          templateFile != null || templateAsset != null || template != null,
-         'Devi fornire templateFile, templateAsset o template',
+         'Provide templateFile, templateAsset or template',
        );
 
   @override
@@ -49,11 +49,12 @@ class _ReportViewerState extends State<ReportViewer> {
   int _currentPage = 0;
   int _totalPages = 0;
   late ReportViewerOptions _currentOptions;
-  bool _isManualZoom = false; // Traccia se lo zoom è stato modificato manualmente
-  bool _isRefreshing = false; // Traccia se è in corso un refresh
-  DataSource _dataSource = DataSource.remote; // Sorgente dati corrente
-  List<SessionAnnotation> _annotations = []; // Annotazioni temporanee del report
-  bool _showAnnotations = false; // Mostra/nascondi annotazioni
+  bool _isManualZoom = false; // Whether the zoom was changed by hand
+  bool _isRefreshing = false; // Whether a refresh is running
+  DataSource _dataSource = DataSource.remote; // Current data source
+  List<SessionAnnotation> _annotations =
+      []; // Temporary annotations of the report
+  bool _showAnnotations = false; // Show/hide the annotations
 
   @override
   void initState() {
@@ -65,14 +66,14 @@ class _ReportViewerState extends State<ReportViewer> {
   @override
   void didUpdateWidget(ReportViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
-    // Ricarica se cambia il template
+
+    // Reload when the template changes
     if (oldWidget.templateFile != widget.templateFile ||
         oldWidget.templateAsset != widget.templateAsset ||
         oldWidget.template != widget.template) {
       _loadTemplate();
     } else if (oldWidget.data.length != widget.data.length) {
-      // Aggiorna paginazione se cambiano i dati
+      // Update the pagination when the data changes
       _updatePagination();
     }
   }
@@ -91,17 +92,21 @@ class _ReportViewerState extends State<ReportViewer> {
         template = widget.template!;
         schema = template.dataSchema;
       } else if (widget.templateFile != null) {
-        final templateWithSchema = await TemplateLoader.fromFile(widget.templateFile!);
+        final templateWithSchema = await TemplateLoader.fromFile(
+          widget.templateFile!,
+        );
         template = templateWithSchema.template;
         schema = templateWithSchema.schema;
       } else if (widget.templateAsset != null) {
-        final templateWithSchema = await TemplateLoader.fromAsset(widget.templateAsset!);
+        final templateWithSchema = await TemplateLoader.fromAsset(
+          widget.templateAsset!,
+        );
         template = templateWithSchema.template;
         schema = templateWithSchema.schema;
       }
 
       if (template == null) {
-        throw Exception('Impossibile caricare il template');
+        throw Exception('Unable to load the template');
       }
 
       setState(() {
@@ -113,10 +118,10 @@ class _ReportViewerState extends State<ReportViewer> {
       _updatePagination();
       _validateData();
       _loadAnnotations();
-      
-      // Auto-adatta lo zoom allo schermo dopo il caricamento
+
+      // Fit the zoom to the screen after loading
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Piccolo ritardo per assicurarsi che il layout sia completo
+        // Short delay so the layout is complete
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted) {
             _fitToScreen();
@@ -160,9 +165,11 @@ class _ReportViewerState extends State<ReportViewer> {
 
   void _loadAnnotations() {
     if (_template == null || !_currentOptions.enableAnnotations) return;
-    
-    // Carica annotazioni temporanee dalla sessione
-    final annotations = SessionAnnotationService.getAnnotations(_template!.name);
+
+    // Load the temporary annotations of the session
+    final annotations = SessionAnnotationService.getAnnotations(
+      _template!.name,
+    );
     setState(() {
       _annotations = annotations;
     });
@@ -222,10 +229,7 @@ class _ReportViewerState extends State<ReportViewer> {
                 color: Theme.of(context).colorScheme.error,
               ),
               const SizedBox(height: 16),
-              Text(
-                'Errore',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
+              Text('Errore', style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 8),
               Text(
                 _error!,
@@ -246,9 +250,7 @@ class _ReportViewerState extends State<ReportViewer> {
     }
 
     if (_template == null) {
-      return const Center(
-        child: Text('Nessun template caricato'),
-      );
+      return const Center(child: Text('Nessun template caricato'));
     }
 
     if (widget.data.isEmpty) {
@@ -256,18 +258,11 @@ class _ReportViewerState extends State<ReportViewer> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.data_array,
-              size: 64,
-              color: Colors.grey,
-            ),
+            Icon(Icons.data_array, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
               'Nessun dato da visualizzare',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
           ],
         ),
@@ -276,14 +271,11 @@ class _ReportViewerState extends State<ReportViewer> {
 
     return Column(
       children: [
-        // Toolbar potenziata con funzionalità report
         _buildEnhancedToolbar(),
 
-        // Area principale con sidebar e contenuto
         Expanded(
           child: Row(
             children: [
-              // Sidebar (se abilitata)
               if (_currentOptions.showSidebar)
                 ReportSidebar(
                   template: _template!,
@@ -297,19 +289,17 @@ class _ReportViewerState extends State<ReportViewer> {
                   onParametersChanged: _onParametersChanged,
                 ),
 
-              // Area visualizzazione
-              Expanded(
-                child: _buildContentArea(),
-              ),
+              Expanded(child: _buildContentArea()),
             ],
           ),
         ),
 
-        // Barra di stato con informazioni report
         _buildStatusBar(),
 
-        // Paginazione (se abilitata e non in modalità continua)
-        if (widget.enablePagination && _totalPages > 1 && _currentOptions.viewMode != ReportViewMode.continuous)
+        // Pagination (when enabled and not in continuous mode)
+        if (widget.enablePagination &&
+            _totalPages > 1 &&
+            _currentOptions.viewMode != ReportViewMode.continuous)
           _buildPaginationControls(),
       ],
     );
@@ -333,12 +323,11 @@ class _ReportViewerState extends State<ReportViewer> {
       ),
       child: Row(
         children: [
-          // Menu File e Azioni
           _buildMenuSection(),
 
           const VerticalDivider(width: 16, indent: 8, endIndent: 8),
 
-          // Paginazione (sinistra)
+          // Pagination (left)
           if (widget.enablePagination && _totalPages > 1) ...[
             IconButton(
               onPressed: _currentPage > 0 ? _previousPage : null,
@@ -352,14 +341,16 @@ class _ReportViewerState extends State<ReportViewer> {
               decoration: BoxDecoration(
                 color: colorScheme.surface,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
               ),
               child: Text(
                 '${_currentPage + 1} / $_totalPages',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
               ),
             ),
             IconButton(
@@ -371,12 +362,11 @@ class _ReportViewerState extends State<ReportViewer> {
             const VerticalDivider(width: 16, indent: 8, endIndent: 8),
           ],
 
-          // Modalità visualizzazione
           _buildViewModeSection(),
 
           const VerticalDivider(width: 16, indent: 8, endIndent: 8),
 
-          // Controlli zoom (centro)
+          // Zoom controls (center)
           if (_currentOptions.enableZoom) ...[
             IconButton(
               onPressed: () => _updateZoom(_currentOptions.scale - 0.25),
@@ -392,7 +382,9 @@ class _ReportViewerState extends State<ReportViewer> {
                 decoration: BoxDecoration(
                   color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+                  border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -431,12 +423,11 @@ class _ReportViewerState extends State<ReportViewer> {
 
           const Spacer(),
 
-          // Azioni report
           _buildActionSection(),
 
           const SizedBox(width: 8),
 
-          // Info template (destra)
+          // Template info (right)
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -487,8 +478,8 @@ class _ReportViewerState extends State<ReportViewer> {
           onPressed: () => _changeViewMode(ReportViewMode.singlePage),
           icon: const Icon(Icons.description, size: 18),
           tooltip: 'Pagina singola',
-          color: _currentOptions.viewMode == ReportViewMode.singlePage 
-              ? Theme.of(context).colorScheme.primary 
+          color: _currentOptions.viewMode == ReportViewMode.singlePage
+              ? Theme.of(context).colorScheme.primary
               : null,
           visualDensity: VisualDensity.compact,
         ),
@@ -496,8 +487,8 @@ class _ReportViewerState extends State<ReportViewer> {
           onPressed: () => _changeViewMode(ReportViewMode.continuous),
           icon: const Icon(Icons.view_stream, size: 18),
           tooltip: 'Scorrimento continuo',
-          color: _currentOptions.viewMode == ReportViewMode.continuous 
-              ? Theme.of(context).colorScheme.primary 
+          color: _currentOptions.viewMode == ReportViewMode.continuous
+              ? Theme.of(context).colorScheme.primary
               : null,
           visualDensity: VisualDensity.compact,
         ),
@@ -505,8 +496,8 @@ class _ReportViewerState extends State<ReportViewer> {
           onPressed: () => _changeViewMode(ReportViewMode.twoPage),
           icon: const Icon(Icons.view_column, size: 18),
           tooltip: 'Vista a due pagine',
-          color: _currentOptions.viewMode == ReportViewMode.twoPage 
-              ? Theme.of(context).colorScheme.primary 
+          color: _currentOptions.viewMode == ReportViewMode.twoPage
+              ? Theme.of(context).colorScheme.primary
               : null,
           visualDensity: VisualDensity.compact,
         ),
@@ -517,24 +508,26 @@ class _ReportViewerState extends State<ReportViewer> {
   Widget _buildActionSection() {
     return Row(
       children: [
-          if (_currentOptions.enableDataRefresh)
-            IconButton(
-              onPressed: _isRefreshing ? null : _refreshData,
-              icon: _isRefreshing 
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.primary,
-                        ),
+        if (_currentOptions.enableDataRefresh)
+          IconButton(
+            onPressed: _isRefreshing ? null : _refreshData,
+            icon: _isRefreshing
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
                       ),
-                    )
-                  : const Icon(Icons.refresh, size: 18),
-              tooltip: _isRefreshing ? 'Aggiornamento in corso...' : 'Aggiorna dati',
-              visualDensity: VisualDensity.compact,
-            ),
+                    ),
+                  )
+                : const Icon(Icons.refresh, size: 18),
+            tooltip: _isRefreshing
+                ? 'Aggiornamento in corso...'
+                : 'Aggiorna dati',
+            visualDensity: VisualDensity.compact,
+          ),
         if (_currentOptions.enableExport)
           IconButton(
             onPressed: _exportReport,
@@ -581,7 +574,7 @@ class _ReportViewerState extends State<ReportViewer> {
 
   Widget _buildStatusBar() {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       height: 32,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -596,22 +589,16 @@ class _ReportViewerState extends State<ReportViewer> {
       ),
       child: Row(
         children: [
-          // Informazioni dati
           Text(
             '${widget.data.length} record',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          
-          // Filtri attivi
+
           if (_currentOptions.filters.isNotEmpty) ...[
             const SizedBox(width: 16),
-            Icon(
-              Icons.filter_alt,
-              size: 14,
-              color: colorScheme.primary,
-            ),
+            Icon(Icons.filter_alt, size: 14, color: colorScheme.primary),
             const SizedBox(width: 4),
             Text(
               '${_currentOptions.filters.where((f) => f.enabled).length} filtri attivi',
@@ -621,39 +608,36 @@ class _ReportViewerState extends State<ReportViewer> {
               ),
             ),
           ],
-          
+
           const Spacer(),
-          
-          // Zoom corrente
+
           Text(
             '${(_currentOptions.scale * 100).toInt()}%',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
-          // Modalità visualizzazione
+
           Text(
             _getViewModeLabel(_currentOptions.viewMode),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
-          // Sorgente dati
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: _dataSource == DataSource.cache 
+              color: _dataSource == DataSource.cache
                   ? Colors.orange.withValues(alpha: 0.1)
                   : Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: _dataSource == DataSource.cache 
+                color: _dataSource == DataSource.cache
                     ? Colors.orange.withValues(alpha: 0.3)
                     : Colors.green.withValues(alpha: 0.3),
               ),
@@ -661,7 +645,7 @@ class _ReportViewerState extends State<ReportViewer> {
             child: Text(
               _getSourceLabel(_dataSource),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: _dataSource == DataSource.cache 
+                color: _dataSource == DataSource.cache
                     ? Colors.orange.shade700
                     : Colors.green.shade700,
                 fontSize: 10,
@@ -704,24 +688,25 @@ class _ReportViewerState extends State<ReportViewer> {
 
   Widget _buildContentArea() {
     final currentData = widget.data[_currentPage];
-    
+
     return Container(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       padding: _currentOptions.padding,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // Auto-adatta quando le dimensioni cambiano (solo se non è zoom manuale)
+          // Fit again when the size changes (unless zoomed by hand)
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (_template != null && !_isManualZoom) {
               _fitToScreen();
             }
           });
-          
+
           return Center(
             child: Listener(
               onPointerSignal: (pointerSignal) {
-                if (pointerSignal is PointerScrollEvent && _currentOptions.enableZoom) {
-                  // Gestisce zoom con mouse wheel
+                if (pointerSignal is PointerScrollEvent &&
+                    _currentOptions.enableZoom) {
+                  // Mouse wheel zoom
                   final delta = pointerSignal.scrollDelta.dy;
                   final zoomFactor = delta > 0 ? 0.9 : 1.1; // Zoom out/in
                   final newScale = _currentOptions.scale * zoomFactor;
@@ -733,49 +718,56 @@ class _ReportViewerState extends State<ReportViewer> {
                 maxScale: 5.0,
                 panEnabled: _currentOptions.enablePan,
                 boundaryMargin: EdgeInsets.all(
-                  constraints.maxWidth * 0.1, // Margine dinamico basato sulla larghezza
+                  constraints.maxWidth *
+                      0.1, // Dynamic margin based on the width
                 ),
-                constrained: false, // Permette zoom oltre i limiti del contenitore
-                alignment: Alignment.center, // Centra il contenuto durante lo zoom
-                transformationController: null, // Usa il controller di default
-               child: Stack(
-                 children: [
-                   // Report renderer
-                   ReportRenderer(
-                     template: _template!,
-                     data: currentData,
-                     schema: _schema,
-                     options: _currentOptions,
-                   ),
-                   
-                    // Overlay annotazioni
+                constrained:
+                    false, // Allows zooming beyond the container bounds
+                alignment: Alignment
+                    .center, // Keeps the content centered while zooming
+                transformationController: null,
+                child: Stack(
+                  children: [
+                    ReportRenderer(
+                      template: _template!,
+                      data: currentData,
+                      schema: _schema,
+                      options: _currentOptions,
+                    ),
+
                     if (_showAnnotations && _currentOptions.enableAnnotations)
                       SessionAnnotationOverlay(
-                       reportId: _template!.name,
-                       pageIndex: _currentPage,
-                       annotations: _annotations.where((a) => a.pageIndex == _currentPage).toList(),
-                       enabled: true,
-                       onAnnotationAdded: (annotation) {
-                         setState(() {
-                           _annotations.add(annotation);
-                         });
-                       },
-                       onAnnotationUpdated: (annotation) {
-                         setState(() {
-                           final index = _annotations.indexWhere((a) => a.id == annotation.id);
-                           if (index >= 0) {
-                             _annotations[index] = annotation;
-                           }
-                         });
-                       },
-                       onAnnotationDeleted: (annotationId) {
-                         setState(() {
-                           _annotations.removeWhere((a) => a.id == annotationId);
-                         });
-                       },
-                     ),
-                 ],
-               ),
+                        reportId: _template!.name,
+                        pageIndex: _currentPage,
+                        annotations: _annotations
+                            .where((a) => a.pageIndex == _currentPage)
+                            .toList(),
+                        enabled: true,
+                        onAnnotationAdded: (annotation) {
+                          setState(() {
+                            _annotations.add(annotation);
+                          });
+                        },
+                        onAnnotationUpdated: (annotation) {
+                          setState(() {
+                            final index = _annotations.indexWhere(
+                              (a) => a.id == annotation.id,
+                            );
+                            if (index >= 0) {
+                              _annotations[index] = annotation;
+                            }
+                          });
+                        },
+                        onAnnotationDeleted: (annotationId) {
+                          setState(() {
+                            _annotations.removeWhere(
+                              (a) => a.id == annotationId,
+                            );
+                          });
+                        },
+                      ),
+                  ],
+                ),
               ),
             ),
           );
@@ -790,30 +782,24 @@ class _ReportViewerState extends State<ReportViewer> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
-          top: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          top: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Prima pagina
           IconButton(
             onPressed: _currentPage > 0 ? _firstPage : null,
             icon: const Icon(Icons.first_page),
             tooltip: 'Prima pagina',
           ),
-          
-          // Pagina precedente
+
           IconButton(
             onPressed: _currentPage > 0 ? _previousPage : null,
             icon: const Icon(Icons.keyboard_arrow_left),
             tooltip: 'Pagina precedente',
           ),
-          
-          // Info pagina corrente
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -828,15 +814,13 @@ class _ReportViewerState extends State<ReportViewer> {
               ),
             ),
           ),
-          
-          // Pagina successiva
+
           IconButton(
             onPressed: _currentPage < _totalPages - 1 ? _nextPage : null,
             icon: const Icon(Icons.keyboard_arrow_right),
             tooltip: 'Pagina successiva',
           ),
-          
-          // Ultima pagina
+
           IconButton(
             onPressed: _currentPage < _totalPages - 1 ? _lastPage : null,
             icon: const Icon(Icons.last_page),
@@ -849,41 +833,47 @@ class _ReportViewerState extends State<ReportViewer> {
 
   void _updateZoom(double newScale) {
     setState(() {
-      _currentOptions = _currentOptions.copyWith(scale: newScale.clamp(0.1, 5.0));
-      _isManualZoom = true; // Marca come zoom manuale
+      _currentOptions = _currentOptions.copyWith(
+        scale: newScale.clamp(0.1, 5.0),
+      );
+      _isManualZoom = true; // Marks the zoom as manual
     });
   }
 
   void _fitToScreen() {
     if (_template == null || !mounted) return;
-    
-    // Calcola la scala per adattare il template allo schermo
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final renderBox = context.findRenderObject() as RenderBox?;
       if (renderBox == null) return;
-      
+
       final screenSize = renderBox.size;
       final templateWidth = _template!.itemWidth;
       final templateHeight = _template!.itemHeight;
-      
-      // Calcola lo spazio disponibile (escludendo padding e margini)
-      final availableWidth = screenSize.width - (_currentOptions.padding.horizontal + 40); // 40px margine extra
-      final availableHeight = screenSize.height - (_currentOptions.padding.vertical + 120); // 120px per UI elements
-      
-      // Calcola la scala orizzontale e verticale
+
+      final availableWidth =
+          screenSize.width -
+          (_currentOptions.padding.horizontal + 40); // 40 px extra margin
+      final availableHeight =
+          screenSize.height -
+          (_currentOptions.padding.vertical +
+              120); // 120 px for the UI elements
+
       final horizontalScale = availableWidth / templateWidth;
       final verticalScale = availableHeight / templateHeight;
-      
-      // Usa la scala più piccola per garantire che il template sia completamente visibile
-      final optimalScale = horizontalScale < verticalScale ? horizontalScale : verticalScale;
-      
-      // Applica un fattore di sicurezza (95%) per garantire un piccolo margine
+
+      // The smaller scale keeps the whole template visible
+      final optimalScale = horizontalScale < verticalScale
+          ? horizontalScale
+          : verticalScale;
+
+      // 95% safety factor for a small margin
       final finalScale = (optimalScale * 0.95).clamp(0.1, 5.0);
-      
+
       setState(() {
         _currentOptions = _currentOptions.copyWith(scale: finalScale);
-        _isManualZoom = false; // Resetta il flag dopo fit-to-screen
+        _isManualZoom = false; // Reset after fit-to-screen
       });
     });
   }
@@ -891,11 +881,9 @@ class _ReportViewerState extends State<ReportViewer> {
   void _actualSize() {
     setState(() {
       _currentOptions = _currentOptions.copyWith(scale: 1.0);
-      _isManualZoom = true; // Marca come zoom manuale
+      _isManualZoom = true; // Marks the zoom as manual
     });
   }
-
-  // Nuovi metodi per funzionalità report
 
   void _handleMenuAction(String action) {
     switch (action) {
@@ -929,12 +917,14 @@ class _ReportViewerState extends State<ReportViewer> {
   }
 
   void _refreshData() async {
-    if (_isRefreshing || widget.onRefreshData == null || _template == null) return;
-    
+    if (_isRefreshing || widget.onRefreshData == null || _template == null) {
+      return;
+    }
+
     setState(() {
       _isRefreshing = true;
     });
-    
+
     try {
       final result = await DataRefreshService.refreshData(
         _template!,
@@ -942,21 +932,18 @@ class _ReportViewerState extends State<ReportViewer> {
         filters: _currentOptions.filters,
         refreshCallback: widget.onRefreshData,
       );
-      
+
       setState(() {
         _dataSource = result.source;
       });
-      
-      // Notifica il parent con i nuovi dati
-      // TODO: Implementare callback per aggiornare dati nel parent
-      
+
+      // TODO: callback to update the data in the parent
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Dati aggiornati da ${_getSourceLabel(result.source)}',
-          ),
-          backgroundColor: result.source == DataSource.cache 
-              ? Colors.orange 
+          content: Text('Dati aggiornati da ${_getSourceLabel(result.source)}'),
+          backgroundColor: result.source == DataSource.cache
+              ? Colors.orange
               : Colors.green,
           duration: const Duration(seconds: 3),
         ),
@@ -1053,7 +1040,7 @@ class _ReportViewerState extends State<ReportViewer> {
         _template!,
         includeSummary: true,
       );
-      
+
       _showExportSuccess('Excel', filePath);
     } catch (e) {
       _showExportError('Excel', e);
@@ -1066,7 +1053,7 @@ class _ReportViewerState extends State<ReportViewer> {
         widget.data,
         _template!,
       );
-      
+
       _showExportSuccess('CSV', filePath);
     } catch (e) {
       _showExportError('CSV', e);
@@ -1127,7 +1114,7 @@ class _ReportViewerState extends State<ReportViewer> {
     setState(() {
       _showAnnotations = !_showAnnotations;
     });
-    
+
     if (_showAnnotations) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1151,9 +1138,7 @@ class _ReportViewerState extends State<ReportViewer> {
           width: 500,
           height: 400,
           child: _annotations.isEmpty
-              ? const Center(
-                  child: Text('Nessuna annotazione presente'),
-                )
+              ? const Center(child: Text('Nessuna annotazione presente'))
               : ListView.builder(
                   itemCount: _annotations.length,
                   itemBuilder: (context, index) {
@@ -1199,13 +1184,13 @@ class _ReportViewerState extends State<ReportViewer> {
       setState(() {
         _annotations.removeWhere((a) => a.id == annotationId);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Annotazione eliminata')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Annotazione eliminata')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore eliminazione: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Errore eliminazione: $e')));
     }
   }
 
@@ -1247,7 +1232,7 @@ class _ReportViewerState extends State<ReportViewer> {
     setState(() {
       _currentOptions = _currentOptions.copyWith(filters: filters);
     });
-    // TODO: Applicare filtri ai dati
+    // TODO: apply the filters to the data
   }
 
   void _onParametersChanged(Map<String, dynamic> parameters) {
@@ -1255,51 +1240,6 @@ class _ReportViewerState extends State<ReportViewer> {
       _currentOptions = _currentOptions.copyWith(parameters: parameters);
     });
     // TODO: Applicare parametri al report
-  }
-
-  void _handleDrillDown(dynamic rowData, String dataSource) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Drill-Down'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Dettagli record:'),
-            const SizedBox(height: 8),
-            ...rowData.entries.map((entry) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 100,
-                    child: Text(
-                      '${entry.key}:',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(child: Text(entry.value.toString())),
-                ],
-              ),
-            )),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Navigare a report dettaglio
-            },
-            child: const Text('Vai al dettaglio'),
-          ),
-        ],
-      ),
-    );
   }
 
   String _getViewModeLabel(ReportViewMode mode) {
@@ -1316,7 +1256,7 @@ class _ReportViewerState extends State<ReportViewer> {
   }
 }
 
-/// Widget semplificato per singolo report (senza paginazione)
+/// Simplified widget for a single report (no pagination)
 class SingleReportViewer extends StatelessWidget {
   final String? templateFile;
   final String? templateAsset;
@@ -1333,7 +1273,7 @@ class SingleReportViewer extends StatelessWidget {
     this.options = const ReportViewerOptions(),
   }) : assert(
          templateFile != null || templateAsset != null || template != null,
-         'Devi fornire templateFile, templateAsset o template',
+         'Provide templateFile, templateAsset or template',
        );
 
   @override
@@ -1346,9 +1286,7 @@ class SingleReportViewer extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return Center(
-            child: Text('Errore: ${snapshot.error}'),
-          );
+          return Center(child: Text('Errore: ${snapshot.error}'));
         }
 
         final templateWithSchema = snapshot.data;
@@ -1364,21 +1302,18 @@ class SingleReportViewer extends StatelessWidget {
               return Center(
                 child: Listener(
                   onPointerSignal: (pointerSignal) {
-                    if (pointerSignal is PointerScrollEvent && options.enableZoom) {
-                      // Gestisce zoom con mouse wheel
-                      final delta = pointerSignal.scrollDelta.dy;
-                      final zoomFactor = delta > 0 ? 0.9 : 1.1; // Zoom out/in
-                      // Nota: SingleReportViewer è StatelessWidget, quindi non può aggiornare lo stato
-                      // Questo è solo per mostrare che il supporto mouse wheel è disponibile
+                    if (pointerSignal is PointerScrollEvent &&
+                        options.enableZoom) {
+                      // Mouse wheel zoom
+                      // Note: SingleReportViewer is a StatelessWidget, so it cannot update its state;
+                      // this only shows that mouse wheel support is available
                     }
                   },
                   child: InteractiveViewer(
                     minScale: 0.1,
                     maxScale: 5.0,
                     panEnabled: options.enablePan,
-                    boundaryMargin: EdgeInsets.all(
-                      constraints.maxWidth * 0.1,
-                    ),
+                    boundaryMargin: EdgeInsets.all(constraints.maxWidth * 0.1),
                     constrained: false,
                     alignment: Alignment.center,
                     child: ReportRenderer(
@@ -1409,7 +1344,7 @@ class SingleReportViewer extends StatelessWidget {
     } else if (templateAsset != null) {
       return await TemplateLoader.fromAsset(templateAsset!);
     } else {
-      throw Exception('Nessun template fornito');
+      throw Exception('No template provided');
     }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Modello per annotazione temporanea (solo sessione)
+/// Temporary annotation model (session only)
 class SessionAnnotation {
   final String id;
   final int? pageIndex;
@@ -45,20 +45,14 @@ class SessionAnnotation {
   }
 }
 
-/// Tipi di annotazioni
-enum AnnotationType {
-  note,
-  highlight,
-  comment,
-  question,
-  issue,
-}
+/// Annotation types
+enum AnnotationType { note, highlight, comment, question, issue }
 
-/// Servizio per gestione annotazioni temporanee (solo sessione)
+/// Service that manages temporary annotations (session only)
 class SessionAnnotationService {
   static final Map<String, List<SessionAnnotation>> _sessionAnnotations = {};
 
-  /// Aggiunge un'annotazione temporanea
+  /// Adds a temporary annotation
   static void addAnnotation(String reportId, SessionAnnotation annotation) {
     final annotations = _sessionAnnotations[reportId] ?? [];
     annotations.removeWhere((a) => a.id == annotation.id);
@@ -66,62 +60,58 @@ class SessionAnnotationService {
     _sessionAnnotations[reportId] = annotations;
   }
 
-  /// Ottieni tutte le annotazioni temporanee per un report
+  /// Returns all temporary annotations of a report
   static List<SessionAnnotation> getAnnotations(String reportId) {
     return _sessionAnnotations[reportId] ?? [];
   }
 
-  /// Ottieni annotazioni per una pagina specifica
+  /// Returns the annotations of a specific page
   static List<SessionAnnotation> getAnnotationsForPage(
     String reportId,
     int pageIndex,
   ) {
     final allAnnotations = getAnnotations(reportId);
-    return allAnnotations
-        .where((a) => a.pageIndex == pageIndex)
-        .toList();
+    return allAnnotations.where((a) => a.pageIndex == pageIndex).toList();
   }
 
-  /// Ottieni annotazioni per un elemento specifico
+  /// Returns the annotations of a specific element
   static List<SessionAnnotation> getAnnotationsForElement(
     String reportId,
     String elementId,
   ) {
     final allAnnotations = getAnnotations(reportId);
-    return allAnnotations
-        .where((a) => a.elementId == elementId)
-        .toList();
+    return allAnnotations.where((a) => a.elementId == elementId).toList();
   }
 
-  /// Elimina un'annotazione temporanea
+  /// Deletes a temporary annotation
   static void deleteAnnotation(String reportId, String annotationId) {
     final annotations = _sessionAnnotations[reportId] ?? [];
     annotations.removeWhere((a) => a.id == annotationId);
     _sessionAnnotations[reportId] = annotations;
   }
 
-  /// Elimina tutte le annotazioni temporanee per un report
+  /// Deletes all temporary annotations of a report
   static void clearAnnotations(String reportId) {
     _sessionAnnotations.remove(reportId);
   }
 
-  /// Pulisci tutte le annotazioni (fine sessione)
+  /// Clears all annotations (end of session)
   static void clearAllAnnotations() {
     _sessionAnnotations.clear();
   }
 
-  /// Genera ID univoco per annotazione
+  /// Generates a unique annotation ID
   static String generateId() {
     return 'annotation_${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
   }
 
-  /// Conta annotazioni per un report
+  /// Counts the annotations of a report
   static int getAnnotationCount(String reportId) {
     return _sessionAnnotations[reportId]?.length ?? 0;
   }
 }
 
-/// Widget per gestione annotazioni temporanee
+/// Widget that manages temporary annotations
 class SessionAnnotationOverlay extends StatefulWidget {
   final String reportId;
   final int pageIndex;
@@ -143,12 +133,12 @@ class SessionAnnotationOverlay extends StatefulWidget {
   });
 
   @override
-  State<SessionAnnotationOverlay> createState() => _SessionAnnotationOverlayState();
+  State<SessionAnnotationOverlay> createState() =>
+      _SessionAnnotationOverlayState();
 }
 
 class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
   final List<SessionAnnotation> _localAnnotations = [];
-  SessionAnnotation? _selectedAnnotation;
   bool _isAddingAnnotation = false;
   Offset? _pendingPosition;
 
@@ -177,12 +167,12 @@ class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
 
     return Stack(
       children: [
-        // Indicatori annotazioni esistenti
-        ..._localAnnotations.map((annotation) => _buildAnnotationMarker(annotation)),
-        
-        // Area per aggiungere nuove annotazioni
-        if (_isAddingAnnotation)
-          _buildAddAnnotationOverlay(),
+        // Markers of the existing annotations
+        ..._localAnnotations.map(
+          (annotation) => _buildAnnotationMarker(annotation),
+        ),
+
+        if (_isAddingAnnotation) _buildAddAnnotationOverlay(),
       ],
     );
   }
@@ -230,9 +220,7 @@ class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
       },
       child: Container(
         color: Colors.transparent,
-        child: CustomPaint(
-          painter: _AddAnnotationPainter(),
-        ),
+        child: CustomPaint(painter: _AddAnnotationPainter()),
       ),
     );
   }
@@ -243,9 +231,14 @@ class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
       builder: (context) => _SessionAnnotationDialog(
         annotation: annotation,
         onSave: (updatedAnnotation) {
-          SessionAnnotationService.addAnnotation(widget.reportId, updatedAnnotation);
+          SessionAnnotationService.addAnnotation(
+            widget.reportId,
+            updatedAnnotation,
+          );
           setState(() {
-            final index = _localAnnotations.indexWhere((a) => a.id == updatedAnnotation.id);
+            final index = _localAnnotations.indexWhere(
+              (a) => a.id == updatedAnnotation.id,
+            );
             if (index >= 0) {
               _localAnnotations[index] = updatedAnnotation;
             }
@@ -253,7 +246,10 @@ class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
           widget.onAnnotationUpdated?.call(updatedAnnotation);
         },
         onDelete: () {
-          SessionAnnotationService.deleteAnnotation(widget.reportId, annotation.id);
+          SessionAnnotationService.deleteAnnotation(
+            widget.reportId,
+            annotation.id,
+          );
           setState(() {
             _localAnnotations.removeWhere((a) => a.id == annotation.id);
           });
@@ -272,7 +268,10 @@ class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
         isNew: true,
         initialPosition: _pendingPosition!,
         onSave: (newAnnotation) {
-          SessionAnnotationService.addAnnotation(widget.reportId, newAnnotation);
+          SessionAnnotationService.addAnnotation(
+            widget.reportId,
+            newAnnotation,
+          );
           setState(() {
             _localAnnotations.add(newAnnotation);
             _isAddingAnnotation = false;
@@ -321,7 +320,7 @@ class _SessionAnnotationOverlayState extends State<SessionAnnotationOverlay> {
   }
 }
 
-/// Dialog per gestione annotazioni temporanee
+/// Dialog that manages temporary annotations
 class _SessionAnnotationDialog extends StatefulWidget {
   final SessionAnnotation? annotation;
   final bool isNew;
@@ -340,7 +339,8 @@ class _SessionAnnotationDialog extends StatefulWidget {
   });
 
   @override
-  State<_SessionAnnotationDialog> createState() => _SessionAnnotationDialogState();
+  State<_SessionAnnotationDialog> createState() =>
+      _SessionAnnotationDialogState();
 }
 
 class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
@@ -370,13 +370,16 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.isNew ? 'Nuova Annotazione (Temporanea)' : 'Modifica Annotazione'),
+      title: Text(
+        widget.isNew
+            ? 'Nuova Annotazione (Temporanea)'
+            : 'Modifica Annotazione',
+      ),
       content: SizedBox(
         width: 400,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Nota temporaneità
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -391,16 +394,19 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
                   Expanded(
                     child: Text(
                       'Questa annotazione è temporanea e sarà persa alla chiusura',
-                      style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.orange.shade700,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
-            // Tipo annotazione
+
+            // Annotation type
             DropdownButtonFormField<AnnotationType>(
               initialValue: _selectedType,
               decoration: const InputDecoration(
@@ -425,9 +431,9 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
                 });
               },
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Contenuto
             TextField(
               controller: _contentController,
@@ -438,9 +444,9 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
               ),
               maxLines: 4,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Autore
             TextField(
               controller: _authorController,
@@ -456,15 +462,9 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
         if (!widget.isNew)
           TextButton(
             onPressed: widget.onDelete,
-            child: const Text(
-              'Elimina',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Elimina', style: TextStyle(color: Colors.red)),
           ),
-        TextButton(
-          onPressed: widget.onCancel,
-          child: const Text('Annulla'),
-        ),
+        TextButton(onPressed: widget.onCancel, child: const Text('Annulla')),
         ElevatedButton(
           onPressed: _saveAnnotation,
           child: Text(widget.isNew ? 'Aggiungi' : 'Salva'),
@@ -527,7 +527,7 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
   }
 }
 
-/// Painter per overlay aggiunta annotazioni
+/// Painter for the add-annotation overlay
 class _AddAnnotationPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

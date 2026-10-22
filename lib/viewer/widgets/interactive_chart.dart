@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'chart_painters.dart';
 
-/// Tipi di grafici supportati
-enum ChartType {
-  bar,
-  line,
-  pie,
-  area,
-  scatter,
-}
+/// Supported chart types
+enum ChartType { bar, line, pie, area, scatter }
 
-/// Widget interattivo per grafici con zoom, pan e drill-down
+/// Interactive chart widget with zoom, pan and drill-down
 class InteractiveChart extends StatefulWidget {
   final ChartType type;
   final List<dynamic> data;
@@ -58,17 +52,12 @@ class _InteractiveChartState extends State<InteractiveChart> {
       ),
       child: Column(
         children: [
-          // Header del grafico
           _buildChartHeader(),
-          
-          // Area del grafico
-          Expanded(
-            child: _buildChartArea(),
-          ),
-          
+
+          Expanded(child: _buildChartArea()),
+
           // Legenda
-          if (widget.data.isNotEmpty)
-            _buildLegend(),
+          if (widget.data.isNotEmpty) _buildLegend(),
         ],
       ),
     );
@@ -76,9 +65,12 @@ class _InteractiveChartState extends State<InteractiveChart> {
 
   Widget _buildChartHeader() {
     final title = widget.style['title'] ?? _getChartTitle();
-    
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8 * widget.scale, vertical: 4 * widget.scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 8 * widget.scale,
+        vertical: 4 * widget.scale,
+      ),
       child: Row(
         children: [
           Icon(
@@ -101,10 +93,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
           if (widget.enableSelection && _selectedItem != null)
             IconButton(
               onPressed: _clearSelection,
-              icon: Icon(
-                Icons.clear,
-                size: 16 * widget.scale,
-              ),
+              icon: Icon(Icons.clear, size: 16 * widget.scale),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
@@ -130,7 +119,9 @@ class _InteractiveChartState extends State<InteractiveChart> {
     }
 
     return MouseRegion(
-      cursor: widget.enableSelection ? SystemMouseCursors.click : MouseCursor.defer,
+      cursor: widget.enableSelection
+          ? SystemMouseCursors.click
+          : MouseCursor.defer,
       child: GestureDetector(
         onTap: widget.enableSelection ? _handleChartTap : null,
         onPanStart: widget.enablePan ? _handlePanStart : null,
@@ -149,7 +140,10 @@ class _InteractiveChartState extends State<InteractiveChart> {
 
   Widget _buildLegend() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8 * widget.scale, vertical: 4 * widget.scale),
+      padding: EdgeInsets.symmetric(
+        horizontal: 8 * widget.scale,
+        vertical: 4 * widget.scale,
+      ),
       child: Wrap(
         spacing: 8 * widget.scale,
         runSpacing: 4 * widget.scale,
@@ -161,12 +155,12 @@ class _InteractiveChartState extends State<InteractiveChart> {
   List<Widget> _buildLegendItems() {
     final items = <Widget>[];
     final colors = _getChartColors();
-    
+
     for (int i = 0; i < widget.data.length && i < colors.length; i++) {
       final item = widget.data[i];
       final label = _getDataLabel(item);
       final color = colors[i % colors.length];
-      
+
       items.add(
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -174,10 +168,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
             Container(
               width: 12 * widget.scale,
               height: 12 * widget.scale,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
             SizedBox(width: 4 * widget.scale),
             Text(
@@ -191,7 +182,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
         ),
       );
     }
-    
+
     return items;
   }
 
@@ -296,7 +287,6 @@ class _InteractiveChartState extends State<InteractiveChart> {
   }
 
   void _handleChartTap() {
-    // Implementazione del tap sul grafico
     if (widget.onDataPointTap != null && widget.data.isNotEmpty) {
       final selectedItem = widget.data.first;
       setState(() {
@@ -306,9 +296,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
     }
   }
 
-  void _handlePanStart(DragStartDetails details) {
-    // Implementazione del pan start
-  }
+  void _handlePanStart(DragStartDetails details) {}
 
   void _handlePanUpdate(DragUpdateDetails details) {
     setState(() {
@@ -316,9 +304,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
     });
   }
 
-  void _handlePanEnd(DragEndDetails details) {
-    // Implementazione del pan end
-  }
+  void _handlePanEnd(DragEndDetails details) {}
 
   void _clearSelection() {
     setState(() {

@@ -1,0 +1,21 @@
+name: report_flutter_example
+description: "Demo of the report_flutter print center with an example label."
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: '>=3.12.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  report_flutter:
+    path: ../
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

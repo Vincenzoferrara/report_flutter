@@ -62,3 +62,11 @@ app.*.map.json
 # Temporary files
 *.tmp
 *.temp
+
+# Shell locale
+.zsh_history
+
+# Build dell app di esempio
+example/build/
+example/.dart_tool/
+example/web/

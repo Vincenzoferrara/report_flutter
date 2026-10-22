@@ -1,29 +1,35 @@
-/// Report Flutter - Sistema completo per creare e visualizzare report/etichette
+/// Report Flutter - complete toolkit to design, view and print reports and labels.
 library;
 
-// Core - Modelli e utilità base
+// Core - models and base utilities
 export 'models/report_element.dart';
 export 'models/report_template.dart';
 export 'core/data_extractor.dart';
 export 'theme/theme.dart';
 
-// Schema - Definizione e validazione dati
+// Schema - data definition and validation
 export 'schema/schema.dart';
 
-// Builder - Editor drag-and-drop per template
+// Builder - drag-and-drop template editor
 export 'builder/builder.dart';
 
-// Viewer - Visualizzatore indipendente di report
+// Viewer - standalone report viewer
 export 'viewer/viewer.dart';
 
-// Engine - Motore di rendering e processing
+// Engine - rendering and processing engine
 export 'engine/engine.dart';
 
-// Formats - Gestione file .rpt
+// Formats - .rpt file handling
 export 'formats/formats.dart';
 
-// Import - Import dati da CSV/JSON
+// Import - data import from CSV/JSON
 export 'import/import.dart';
 
-// Export - Esportazione PDF
+// Export - PDF export
 export 'export/pdf_exporter.dart';
+
+// Print - Templates, paper formats, print center and PDF printing
+export 'print/print.dart';
+
+// Translations of the library screens
+export 'l10n/report_l10n.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/data_extractor.dart';
 
-/// Tabella interattiva con ordinamento, selezione e drill-down
+/// Interactive table with sorting, selection and drill-down
 class InteractiveTable extends StatefulWidget {
   final List columns;
   final List<dynamic> tableData;
@@ -50,10 +50,8 @@ class _InteractiveTableState extends State<InteractiveTable> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Header con controlli
-        if (widget.enableSelection || widget.enableSorting)
-          _buildTableHeader(),
-        
+        if (widget.enableSelection || widget.enableSorting) _buildTableHeader(),
+
         // Tabella
         Expanded(
           child: SingleChildScrollView(
@@ -62,19 +60,21 @@ class _InteractiveTableState extends State<InteractiveTable> {
               scrollDirection: Axis.vertical,
               child: DataTable(
                 headingRowColor: WidgetStateProperty.all(
-                  _parseColor(widget.headerStyle['backgroundColor'] ?? '#EEEEEE'),
+                  _parseColor(
+                    widget.headerStyle['backgroundColor'] ?? '#EEEEEE',
+                  ),
                 ),
-                dataRowColor: WidgetStateProperty.resolveWith<Color?>(
-                  (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Theme.of(context).colorScheme.primaryContainer;
-                    }
-                    if (states.contains(WidgetState.hovered)) {
-                      return Colors.grey.shade50;
-                    }
-                    return null;
-                  },
-                ),
+                dataRowColor: WidgetStateProperty.resolveWith<Color?>((
+                  Set<WidgetState> states,
+                ) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Theme.of(context).colorScheme.primaryContainer;
+                  }
+                  if (states.contains(WidgetState.hovered)) {
+                    return Colors.grey.shade50;
+                  }
+                  return null;
+                }),
                 border: TableBorder.all(
                   color: widget.borderColor,
                   width: widget.borderWidth,
@@ -82,12 +82,16 @@ class _InteractiveTableState extends State<InteractiveTable> {
                 columnSpacing: 4 * widget.scale,
                 horizontalMargin: 2 * widget.scale,
                 headingTextStyle: TextStyle(
-                  fontSize: (widget.headerStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
+                  fontSize:
+                      (widget.headerStyle['fontSize'] as num?)?.toDouble() ??
+                      5.0 * widget.scale,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
                 dataTextStyle: TextStyle(
-                  fontSize: (widget.cellStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
+                  fontSize:
+                      (widget.cellStyle['fontSize'] as num?)?.toDouble() ??
+                      5.0 * widget.scale,
                   color: Colors.black87,
                 ),
                 showCheckboxColumn: widget.enableSelection,
@@ -98,10 +102,8 @@ class _InteractiveTableState extends State<InteractiveTable> {
             ),
           ),
         ),
-        
-        // Footer con informazioni
-        if (widget.enableSelection)
-          _buildTableFooter(),
+
+        if (widget.enableSelection) _buildTableFooter(),
       ],
     );
   }
@@ -155,10 +157,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
             ),
             IconButton(
               onPressed: _clearSorting,
-              icon: Icon(
-                Icons.clear,
-                size: 12 * widget.scale,
-              ),
+              icon: Icon(Icons.clear, size: 12 * widget.scale),
               visualDensity: VisualDensity.compact,
             ),
           ],
@@ -173,10 +172,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         border: Border(
-          top: BorderSide(
-            color: widget.borderColor,
-            width: widget.borderWidth,
-          ),
+          top: BorderSide(color: widget.borderColor, width: widget.borderWidth),
         ),
       ),
       child: Row(
@@ -209,7 +205,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
       final columnDef = column as Map<String, dynamic>;
       final field = columnDef['field'] as String;
       final title = columnDef['title'] as String? ?? field;
-      
+
       return DataColumn(
         label: Row(
           children: [
@@ -217,7 +213,9 @@ class _InteractiveTableState extends State<InteractiveTable> {
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: (widget.headerStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
+                  fontSize:
+                      (widget.headerStyle['fontSize'] as num?)?.toDouble() ??
+                      5.0 * widget.scale,
                   fontWeight: FontWeight.bold,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -229,9 +227,11 @@ class _InteractiveTableState extends State<InteractiveTable> {
             ],
           ],
         ),
-        onSort: widget.enableSorting ? (columnIndex, ascending) {
-          _sortData(field, ascending);
-        } : null,
+        onSort: widget.enableSorting
+            ? (columnIndex, ascending) {
+                _sortData(field, ascending);
+              }
+            : null,
         tooltip: widget.enableSorting ? 'Clicca per ordinare' : null,
       );
     }).toList();
@@ -245,7 +245,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
         color: Colors.grey.shade400,
       );
     }
-    
+
     return Icon(
       _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
       size: 12 * widget.scale,
@@ -258,24 +258,29 @@ class _InteractiveTableState extends State<InteractiveTable> {
       final index = entry.key;
       final rowData = entry.value;
       final isSelected = _selectedRows.contains(index);
-      
+
       return DataRow(
         selected: isSelected,
-        onSelectChanged: widget.enableSelection ? (selected) {
-          _toggleRowSelection(index, selected ?? false);
-        } : null,
+        onSelectChanged: widget.enableSelection
+            ? (selected) {
+                _toggleRowSelection(index, selected ?? false);
+              }
+            : null,
         cells: widget.columns.map<DataCell>((column) {
           final columnDef = column as Map<String, dynamic>;
           final field = columnDef['field'] as String;
           final value = DataExtractor.getValue(rowData, field) ?? '';
-          
+
           return DataCell(
             SizedBox(
-              width: (columnDef['width'] as num?)?.toDouble() ?? 80 * widget.scale,
+              width:
+                  (columnDef['width'] as num?)?.toDouble() ?? 80 * widget.scale,
               child: Text(
                 value.toString(),
                 style: TextStyle(
-                  fontSize: (widget.cellStyle['fontSize'] as num?)?.toDouble() ?? 5.0 * widget.scale,
+                  fontSize:
+                      (widget.cellStyle['fontSize'] as num?)?.toDouble() ??
+                      5.0 * widget.scale,
                   decoration: widget.enableDrillDown && _isClickableField(field)
                       ? TextDecoration.underline
                       : null,
@@ -299,26 +304,27 @@ class _InteractiveTableState extends State<InteractiveTable> {
   }
 
   bool _isClickableField(String field) {
-    // Logica per determinare se un campo è cliccabile per drill-down
-    // Es. campi ID, codici, link, etc.
+    // Decides whether a field is clickable for drill-down
+    // E.g. ID fields, codes, links, etc.
     final clickableFields = ['id', 'code', 'codice', 'link', 'url'];
-    return clickableFields.any((clickable) => 
-        field.toLowerCase().contains(clickable));
+    return clickableFields.any(
+      (clickable) => field.toLowerCase().contains(clickable),
+    );
   }
 
   void _sortData(String field, bool ascending) {
     setState(() {
       _sortColumn = field;
       _sortAscending = ascending;
-      
+
       _sortedData.sort((a, b) {
         final aValue = DataExtractor.getValue(a, field);
         final bValue = DataExtractor.getValue(b, field);
-        
+
         if (aValue == null && bValue == null) return 0;
         if (aValue == null) return ascending ? -1 : 1;
         if (bValue == null) return ascending ? 1 : -1;
-        
+
         final comparison = aValue.toString().compareTo(bValue.toString());
         return ascending ? comparison : -comparison;
       });
@@ -359,12 +365,16 @@ class _InteractiveTableState extends State<InteractiveTable> {
   }
 
   void _exportSelected() {
-    final selectedData = _selectedRows.map((index) => _sortedData[index]).toList();
-    
-    // TODO: Implementare esportazione dati selezionati
+    final selectedData = _selectedRows
+        .map((index) => _sortedData[index])
+        .toList();
+
+    // TODO: export the selected data
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Esportazione di ${selectedData.length} record in sviluppo'),
+        content: Text(
+          'Esportazione di ${selectedData.length} record in sviluppo',
+        ),
         duration: const Duration(seconds: 2),
       ),
     );

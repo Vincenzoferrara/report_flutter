@@ -1,0 +1,13 @@
+# Translations of the report_flutter library.
+# Source ARB files and generated code both live under lib/l10n.
+arb-dir: lib/l10n
+output-dir: lib/l10n/generated
+output-localization-file: report_localizations.dart
+output-class: ReportLocalizations
+template-arb-file: report_en.arb
+preferred-supported-locales:
+  - en
+  - it
+# Nullable on purpose: an app that forgets to register the delegate gets the
+# English texts through `context.reportL10n` instead of a crash.
+nullable-getter: true

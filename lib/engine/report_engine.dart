@@ -5,9 +5,9 @@ import '../schema/data_schema.dart';
 import '../schema/field_definition.dart';
 import '../core/data_extractor.dart';
 
-/// Motore principale per il rendering e processing dei report
+/// Main engine that renders and processes reports
 class ReportEngine {
-  /// Renderizza un singolo elemento con dati
+  /// Renders a single element with data
   static Widget renderElement(
     ReportElement element,
     dynamic data, {
@@ -44,11 +44,26 @@ class ReportEngine {
       case ReportElementType.table:
         return _renderTableElement(element, data, scale);
       case ReportElementType.pieChart:
-        return _renderChartPlaceholder(element, 'Grafico Torta', Icons.pie_chart, scale);
+        return _renderChartPlaceholder(
+          element,
+          'Grafico Torta',
+          Icons.pie_chart,
+          scale,
+        );
       case ReportElementType.barChart:
-        return _renderChartPlaceholder(element, 'Grafico Barre', Icons.bar_chart, scale);
+        return _renderChartPlaceholder(
+          element,
+          'Grafico Barre',
+          Icons.bar_chart,
+          scale,
+        );
       case ReportElementType.lineChart:
-        return _renderChartPlaceholder(element, 'Grafico Linee', Icons.show_chart, scale);
+        return _renderChartPlaceholder(
+          element,
+          'Grafico Linee',
+          Icons.show_chart,
+          scale,
+        );
       case ReportElementType.formula:
         return _renderFormulaElement(element, data, scale);
       case ReportElementType.markdown:
@@ -56,7 +71,12 @@ class ReportEngine {
     }
   }
 
-  static Widget _renderChartPlaceholder(ReportElement element, String label, IconData icon, double scale) {
+  static Widget _renderChartPlaceholder(
+    ReportElement element,
+    String label,
+    IconData icon,
+    double scale,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
@@ -77,7 +97,7 @@ class ReportEngine {
     );
   }
 
-  /// Processa un template con dati e restituisce una lista di widget
+  /// Processes a template with data and returns a list of widgets
   static List<Widget> processTemplate(
     ReportTemplate template,
     List<dynamic> data, {
@@ -86,10 +106,10 @@ class ReportEngine {
     Function(int)? onPageChanged,
   }) {
     final pages = <Widget>[];
-    
+
     for (int i = 0; i < data.length; i++) {
       final pageWidgets = <Widget>[];
-      
+
       for (final element in template.sortedElements) {
         final positionedWidget = Positioned(
           left: element.x * scale,
@@ -97,44 +117,51 @@ class ReportEngine {
           child: SizedBox(
             width: element.width * scale,
             height: element.height * scale,
-            child: renderElement(element, data[i], schema: schema, scale: scale),
+            child: renderElement(
+              element,
+              data[i],
+              schema: schema,
+              scale: scale,
+            ),
           ),
         );
         pageWidgets.add(positionedWidget);
       }
-      
-      final page = Stack(
-        key: ValueKey('page_$i'),
-        children: pageWidgets,
-      );
-      
+
+      final page = Stack(key: ValueKey('page_$i'), children: pageWidgets);
+
       pages.add(page);
     }
-    
+
     return pages;
   }
 
-  /// Valida dati contro schema
-  static ValidationResult validateData(
-    List<dynamic> data,
-    DataSchema schema,
-  ) {
+  /// Validates data against the schema
+  static ValidationResult validateData(List<dynamic> data, DataSchema schema) {
     return schema.validateList(data);
   }
 
-  /// Estrai valore da dati con fallback
-  static dynamic extractValue(dynamic data, String fieldPath, {dynamic defaultValue}) {
+  /// Reads a value from the data with a fallback
+  static dynamic extractValue(
+    dynamic data,
+    String fieldPath, {
+    dynamic defaultValue,
+  }) {
     final value = DataExtractor.getValue(data, fieldPath);
     return value ?? defaultValue;
   }
 
-  /// Formatta valore secondo regole
-  static String formatValue(dynamic value, {String? format, String? prefix = '', String? suffix = ''}) {
+  /// Formats a value according to the rules
+  static String formatValue(
+    dynamic value, {
+    String? format,
+    String? prefix = '',
+    String? suffix = '',
+  }) {
     final formattedValue = DataExtractor.formatValue(value, format: format);
     return '$prefix$formattedValue$suffix';
   }
 
-  // Metodi privati di rendering
   static Widget _renderTextElement(ReportElement element, double scale) {
     final text = element.properties['text'] ?? '';
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5;
@@ -143,7 +170,10 @@ class ReportEngine {
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     return Align(
-      alignment: _getBoxAlignment(element.properties['alignment'], element.properties['verticalAlignment']),
+      alignment: _getBoxAlignment(
+        element.properties['alignment'],
+        element.properties['verticalAlignment'],
+      ),
       child: Text(
         text,
         style: TextStyle(
@@ -158,7 +188,11 @@ class ReportEngine {
     );
   }
 
-  static Widget _renderDynamicFieldElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderDynamicFieldElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     final fieldName = element.properties['fieldName'] ?? '';
     final prefix = element.properties['prefix'] ?? '';
     final suffix = element.properties['suffix'] ?? '';
@@ -169,10 +203,18 @@ class ReportEngine {
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     final value = extractValue(data, fieldName);
-    final formattedValue = formatValue(value, format: format, prefix: prefix, suffix: suffix);
+    final formattedValue = formatValue(
+      value,
+      format: format,
+      prefix: prefix,
+      suffix: suffix,
+    );
 
     return Align(
-      alignment: _getBoxAlignment(element.properties['alignment'], element.properties['verticalAlignment']),
+      alignment: _getBoxAlignment(
+        element.properties['alignment'],
+        element.properties['verticalAlignment'],
+      ),
       child: Text(
         formattedValue,
         style: TextStyle(
@@ -187,7 +229,11 @@ class ReportEngine {
     );
   }
 
-  static Widget _renderBarcodeElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderBarcodeElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     final fieldName = element.properties['fieldName'] ?? '';
     final showText = element.properties['showText'] ?? true;
     final textSize = (element.properties['textSize'] as num?)?.toDouble() ?? 8;
@@ -195,84 +241,81 @@ class ReportEngine {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.qr_code_2,
-          size: 20 * scale,
-          color: Colors.black,
-        ),
+        Icon(Icons.qr_code_2, size: 20 * scale, color: Colors.black),
         if (showText)
           Text(
             extractValue(data, fieldName)?.toString() ?? '123456789',
-            style: TextStyle(
-              fontSize: textSize * scale,
-            ),
+            style: TextStyle(fontSize: textSize * scale),
           ),
       ],
     );
   }
 
-  static Widget _renderQRCodeElement(ReportElement element, dynamic data, double scale) {
-    return Icon(
-      Icons.qr_code,
-      size: 20 * scale,
-      color: Colors.black,
-    );
+  static Widget _renderQRCodeElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
+    return Icon(Icons.qr_code, size: 20 * scale, color: Colors.black);
   }
 
-  static Widget _renderImageElement(ReportElement element, dynamic data, double scale) {
-    return Icon(
-      Icons.image,
-      size: 20 * scale,
-      color: Colors.grey,
-    );
+  static Widget _renderImageElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
+    return Icon(Icons.image, size: 20 * scale, color: Colors.grey);
   }
 
   static Widget _renderLineElement(ReportElement element, double scale) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
-    return Container(
-      height: strokeWidth * scale,
-      color: color,
-    );
+    return Container(height: strokeWidth * scale, color: color);
   }
 
   static Widget _renderRectangleElement(ReportElement element, double scale) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
-    final strokeColor = _parseColor(element.properties['strokeColor'] ?? '#000000');
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
+    final strokeColor = _parseColor(
+      element.properties['strokeColor'] ?? '#000000',
+    );
     final fillColor = element.properties['fillColor'];
-    final borderRadius = (element.properties['borderRadius'] as num?)?.toDouble() ?? 0;
+    final borderRadius =
+        (element.properties['borderRadius'] as num?)?.toDouble() ?? 0;
 
     return Container(
       decoration: BoxDecoration(
         color: fillColor != null ? _parseColor(fillColor) : null,
-        border: Border.all(
-          color: strokeColor,
-          width: strokeWidth * scale,
-        ),
+        border: Border.all(color: strokeColor, width: strokeWidth * scale),
         borderRadius: BorderRadius.circular(borderRadius * scale),
       ),
     );
   }
 
   static Widget _renderCircleElement(ReportElement element, double scale) {
-    final strokeWidth = (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
-    final strokeColor = _parseColor(element.properties['strokeColor'] ?? '#000000');
+    final strokeWidth =
+        (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1;
+    final strokeColor = _parseColor(
+      element.properties['strokeColor'] ?? '#000000',
+    );
     final fillColor = element.properties['fillColor'];
 
     return Container(
       decoration: BoxDecoration(
         color: fillColor != null ? _parseColor(fillColor) : null,
-        border: Border.all(
-          color: strokeColor,
-          width: strokeWidth * scale,
-        ),
+        border: Border.all(color: strokeColor, width: strokeWidth * scale),
         shape: BoxShape.circle,
       ),
     );
   }
 
-  static Widget _renderCheckboxElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderCheckboxElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     final fieldName = element.properties['fieldName'] ?? '';
     final label = element.properties['label'] ?? '';
     final size = (element.properties['size'] as num?)?.toDouble() ?? 12;
@@ -303,7 +346,11 @@ class ReportEngine {
     );
   }
 
-  static Widget _renderTextboxElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderTextboxElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     final fieldName = element.properties['fieldName'] ?? '';
     final placeholder = element.properties['placeholder'] ?? '';
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5;
@@ -318,10 +365,7 @@ class ReportEngine {
       ),
       child: Text(
         value.toString(),
-        style: TextStyle(
-          fontSize: fontSize * scale,
-          color: Colors.black87,
-        ),
+        style: TextStyle(fontSize: fontSize * scale, color: Colors.black87),
       ),
     );
   }
@@ -336,10 +380,7 @@ class ReportEngine {
 
     return Text(
       formattedDate,
-      style: TextStyle(
-        fontSize: fontSize * scale,
-        color: color,
-      ),
+      style: TextStyle(fontSize: fontSize * scale, color: color),
     );
   }
 
@@ -352,39 +393,35 @@ class ReportEngine {
 
     return Text(
       text,
-      style: TextStyle(
-        fontSize: fontSize * scale,
-        color: color,
-      ),
+      style: TextStyle(fontSize: fontSize * scale, color: color),
     );
   }
 
   static Widget _renderLogoElement(ReportElement element, double scale) {
-    return Icon(
-      Icons.business,
-      size: 20 * scale,
-      color: Colors.grey,
-    );
+    return Icon(Icons.business, size: 20 * scale, color: Colors.grey);
   }
 
-  static Widget _renderTableElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderTableElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-      ),
+      decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
       child: Center(
         child: Text(
           'Tabella',
-          style: TextStyle(
-            fontSize: 10 * scale,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 10 * scale, color: Colors.grey),
         ),
       ),
     );
   }
 
-  static Widget _renderFormulaElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderFormulaElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     final formula = element.properties['formula'] ?? '';
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5;
     final color = _parseColor(element.properties['color'] ?? '#000000');
@@ -409,14 +446,20 @@ class ReportEngine {
     );
   }
 
-  static Widget _renderMarkdownElement(ReportElement element, dynamic data, double scale) {
+  static Widget _renderMarkdownElement(
+    ReportElement element,
+    dynamic data,
+    double scale,
+  ) {
     final useMarkdown = element.properties['useMarkdown'] ?? false;
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 5;
     final color = _parseColor(element.properties['color'] ?? '#000000');
 
     return Container(
       decoration: BoxDecoration(
-        color: useMarkdown ? Colors.green.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+        color: useMarkdown
+            ? Colors.green.withValues(alpha: 0.1)
+            : Colors.grey.withValues(alpha: 0.1),
         border: Border.all(color: useMarkdown ? Colors.green : Colors.grey),
         borderRadius: BorderRadius.circular(2),
       ),
@@ -432,31 +475,9 @@ class ReportEngine {
             const SizedBox(width: 4),
             Text(
               useMarkdown ? 'Markdown' : 'Testo',
-              style: TextStyle(
-                fontSize: fontSize * scale * 0.8,
-                color: color,
-              ),
+              style: TextStyle(fontSize: fontSize * scale * 0.8, color: color),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  static Widget _renderFallbackElement(ReportElement element, double scale) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.red),
-      ),
-      child: Center(
-        child: Text(
-          'Unknown: ${element.type.name}',
-          style: TextStyle(
-            fontSize: 8 * scale,
-            color: Colors.red,
-          ),
-          textAlign: TextAlign.center,
         ),
       ),
     );

@@ -1,55 +1,61 @@
-
-/// Motore per la valutazione di formule Excel-like
+/// Engine that evaluates Excel-like formulas
 class FormulaEngine {
-  /// Valuta una formula con i dati forniti
-  static dynamic evaluate(String formula, Map<String, dynamic> data, Map<String, String> variables) {
+  /// Evaluates a formula with the given data
+  static dynamic evaluate(
+    String formula,
+    Map<String, dynamic> data,
+    Map<String, String> variables,
+  ) {
     try {
-      // 1. Sostituisci le variabili {campo} con i valori reali
+      // 1. Replace the {field} variables with the real values
       final resolvedFormula = _resolveVariables(formula, data, variables);
-      
-      // 2. Valuta l'espressione aritmetica senza dipendenze esterne.
+
+      // 2. Evaluate the arithmetic expression without external dependencies.
       return _FormulaExpressionParser(resolvedFormula).parse();
     } catch (e) {
-      throw Exception('Errore valutazione formula: $e');
+      throw Exception('Formula evaluation error: $e');
     }
   }
 
-  /// Risolve le variabili {campo} nei valori reali dai dati
-  static String _resolveVariables(String formula, Map<String, dynamic> data, Map<String, String> variables) {
+  /// Replaces the {field} variables with the real values from the data
+  static String _resolveVariables(
+    String formula,
+    Map<String, dynamic> data,
+    Map<String, String> variables,
+  ) {
     String resolved = formula;
-    
-    // Sostituisci ogni variabile con il valore corrispondente dai dati
+
     variables.forEach((varName, dataPath) {
       final value = _getNestedValue(data, dataPath);
       final varPattern = '{$varName}';
       resolved = resolved.replaceAll(varPattern, value.toString());
     });
-    
+
     return resolved;
   }
 
-  /// Ottiene un valore annidato da una mappa usando notazione dot (es: 'user.profile.name')
+  /// Reads a nested value from a map using dot notation (e.g. 'user.profile.name')
   static dynamic _getNestedValue(Map<String, dynamic> data, String path) {
     if (path.isEmpty) return null;
-    
+
     final parts = path.split('.');
     dynamic current = data;
-    
+
     for (final part in parts) {
       if (current is Map && current.containsKey(part)) {
         current = current[part];
       } else {
-        return null; // Campo non trovato
+        return null; // Field not found
       }
     }
-    
+
     return current;
   }
 
-  /// Formatta il risultato secondo il formato specificato
+  /// Formats the result with the given format
   static String formatResult(dynamic result, String? format) {
     if (result == null) return '0';
-    
+
     switch (format) {
       case 'currency':
         return _formatCurrency(result);
@@ -63,19 +69,19 @@ class FormulaEngine {
     }
   }
 
-  /// Formatta come valuta (€)
+  /// Formats as currency (€)
   static String _formatCurrency(dynamic value) {
     final numValue = num.tryParse(value.toString()) ?? 0;
     return '€${numValue.toStringAsFixed(2).replaceAll('.', ',')}';
   }
 
-  /// Formatta come percentuale
+  /// Formats as percentage
   static String _formatPercentage(dynamic value) {
     final numValue = num.tryParse(value.toString()) ?? 0;
     return '${(numValue * 100).toStringAsFixed(1)}%';
   }
 
-  /// Formatta come numero
+  /// Formats as number
   static String _formatNumber(dynamic value) {
     final numValue = num.tryParse(value.toString()) ?? 0;
     if (numValue is int) {
@@ -85,7 +91,7 @@ class FormulaEngine {
     }
   }
 
-  /// Formatta come data
+  /// Formats as date
   static String _formatDate(dynamic value) {
     try {
       DateTime date;
@@ -98,31 +104,31 @@ class FormulaEngine {
       } else {
         return value.toString();
       }
-      
+
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     } catch (e) {
       return value.toString();
     }
   }
 
-  /// Estrae le variabili da una formula
+  /// Extracts the variables of a formula
   static List<String> extractVariables(String formula) {
     final regex = RegExp(r'\{([^}]+)\}');
     final matches = regex.allMatches(formula);
     return matches.map((match) => match.group(1)!).toList();
   }
 
-  /// Valida la sintassi di una formula
+  /// Validates the syntax of a formula
   static bool validateSyntax(String formula) {
     try {
-      // Rimuovi temporaneamente le variabili per la validazione
+      // Temporarily remove the variables for the validation
       String testFormula = formula;
       final variables = extractVariables(formula);
-      
+
       for (final variable in variables) {
         testFormula = testFormula.replaceAll('{$variable}', '1');
       }
-      
+
       _FormulaExpressionParser(testFormula).parse();
       return true;
     } catch (e) {
@@ -130,18 +136,21 @@ class FormulaEngine {
     }
   }
 
-  /// Ottiene i campi dati richiesti da una formula
-  static List<String> getRequiredFields(String formula, Map<String, String> variables) {
+  /// Returns the data fields a formula needs
+  static List<String> getRequiredFields(
+    String formula,
+    Map<String, String> variables,
+  ) {
     final fields = <String>[];
     final formulaVariables = extractVariables(formula);
-    
+
     for (final formulaVar in formulaVariables) {
       final dataPath = variables[formulaVar];
       if (dataPath != null) {
         fields.add(dataPath);
       }
     }
-    
+
     return fields;
   }
 }
@@ -156,7 +165,7 @@ class _FormulaExpressionParser {
     final value = _parseExpression();
     _skipWhitespace();
     if (!_isAtEnd) {
-      throw FormatException('Carattere non valido: ${_source[_index]}');
+      throw FormatException('Invalid character: ${_source[_index]}');
     }
     return value;
   }
@@ -184,7 +193,7 @@ class _FormulaExpressionParser {
       } else if (_match('/')) {
         final divisor = _parseFactor();
         if (divisor == 0) {
-          throw const FormatException('Divisione per zero');
+          throw const FormatException('Division by zero');
         }
         value /= divisor;
       } else {
@@ -202,7 +211,7 @@ class _FormulaExpressionParser {
       final value = _parseExpression();
       _skipWhitespace();
       if (!_match(')')) {
-        throw const FormatException('Parentesi chiusa mancante');
+        throw const FormatException('Missing closing parenthesis');
       }
       return value;
     }
@@ -226,13 +235,13 @@ class _FormulaExpressionParser {
     }
 
     if (start == _index) {
-      throw const FormatException('Numero atteso');
+      throw const FormatException('Number expected');
     }
 
     final token = _source.substring(start, _index).replaceAll(',', '.');
     final value = num.tryParse(token);
     if (value == null) {
-      throw FormatException('Numero non valido: $token');
+      throw FormatException('Invalid number: $token');
     }
     return value;
   }
@@ -249,7 +258,8 @@ class _FormulaExpressionParser {
     }
   }
 
-  bool _isDigit(String char) => char.codeUnitAt(0) >= 48 && char.codeUnitAt(0) <= 57;
+  bool _isDigit(String char) =>
+      char.codeUnitAt(0) >= 48 && char.codeUnitAt(0) <= 57;
 
   bool get _isAtEnd => _index >= _source.length;
 }

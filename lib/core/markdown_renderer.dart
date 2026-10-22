@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import '../models/report_element.dart';
 
-/// Servizio per il rendering di contenuto Markdown
+/// Service that renders Markdown content
 class MarkdownRenderer {
-  /// Renderizza il contenuto Markdown in un Widget
-  static Widget render(String data, Map<String, dynamic> config, {TextStyle? baseStyle}) {
+  /// Renders Markdown content as a Widget
+  static Widget render(
+    String data,
+    Map<String, dynamic> config, {
+    TextStyle? baseStyle,
+  }) {
     final enableToc = config['enableToc'] ?? false;
     final theme = config['theme'] ?? 'light';
     final isDark = theme == 'dark';
-    
-    // Usa la configurazione predefinita basata sul tema
-    final markdownConfig = isDark ? MarkdownConfig.darkConfig : MarkdownConfig.defaultConfig;
-    
+
+    // Default configuration based on the theme
+    final markdownConfig = isDark
+        ? MarkdownConfig.darkConfig
+        : MarkdownConfig.defaultConfig;
+
     return MarkdownWidget(
       data: data,
       config: markdownConfig,
@@ -20,37 +26,42 @@ class MarkdownRenderer {
     );
   }
 
-  /// Verifica se un elemento ha il Markdown abilitato
+  /// Whether an element has Markdown enabled
   static bool isMarkdownEnabled(ReportElement element) {
     return element.properties['useMarkdown'] == true;
   }
 
-  /// Ottiene i dati Markdown da un elemento
+  /// Returns the Markdown data of an element
   static String getMarkdownData(ReportElement element) {
     return element.properties['markdownData'] ?? '';
   }
 
-  /// Ottiene la configurazione Markdown da un elemento
+  /// Returns the Markdown configuration of an element
   static Map<String, dynamic> getMarkdownConfig(ReportElement element) {
-    return Map<String, dynamic>.from(element.properties['markdownConfig'] ?? {});
+    return Map<String, dynamic>.from(
+      element.properties['markdownConfig'] ?? {},
+    );
   }
 
-  /// Abilita il Markdown per un elemento
+  /// Enables Markdown for an element
   static void enableMarkdown(ReportElement element, bool enabled) {
     element.properties['useMarkdown'] = enabled;
   }
 
-  /// Imposta i dati Markdown per un elemento
+  /// Sets the Markdown data of an element
   static void setMarkdownData(ReportElement element, String data) {
     element.properties['markdownData'] = data;
   }
 
-  /// Imposta la configurazione Markdown per un elemento
-  static void setMarkdownConfig(ReportElement element, Map<String, dynamic> config) {
+  /// Sets the Markdown configuration of an element
+  static void setMarkdownConfig(
+    ReportElement element,
+    Map<String, dynamic> config,
+  ) {
     element.properties['markdownConfig'] = config;
   }
 
-  /// Renderizza un'anteprima del contenuto Markdown
+  /// Renders a preview of the Markdown content
   static Widget renderPreview(String data, {double maxHeight = 200}) {
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
@@ -70,70 +81,67 @@ class MarkdownRenderer {
     );
   }
 
-  /// Estrae il testo puro dal contenuto Markdown
+  /// Extracts the plain text from the Markdown content
   static String extractPlainText(String markdown) {
-    // Rimuovi la sintassi Markdown di base
     String plain = markdown;
-    
-    // Rimuovi headers
+
+    // Remove headers
     plain = plain.replaceAll(RegExp(r'^#+\s*', multiLine: true), '');
-    
-    // Rimuovi grassetto e corsivo
+
     plain = plain.replaceAll(RegExp(r'\*\*(.*?)\*\*'), r'\1');
     plain = plain.replaceAll(RegExp(r'\*(.*?)\*'), r'\1');
     plain = plain.replaceAll(RegExp(r'__(.*?)__'), r'\1');
     plain = plain.replaceAll(RegExp(r'_(.*?)_'), r'\1');
-    
-    // Rimuovi codice inline
+
+    // Remove inline code
     plain = plain.replaceAll(RegExp(r'`(.*?)`'), r'\1');
-    
-    // Rimuovi link
+
+    // Remove links
     plain = plain.replaceAll(RegExp(r'\[([^\]]+)\]\([^)]+\)'), r'\1');
-    
-    // Rimuovi immagini
+
+    // Remove images
     plain = plain.replaceAll(RegExp(r'!\[([^\]]*)\]\([^)]+\)'), r'\1');
-    
-    // Rimuovi blocchi di codice
+
     plain = plain.replaceAll(RegExp(r'```[\s\S]*?```'), '');
-    
-    // Rimuovi blockquote
+
+    // Remove blockquotes
     plain = plain.replaceAll(RegExp(r'^>\s*', multiLine: true), '');
-    
-    // Rimuovi linee orizzontali
+
+    // Remove horizontal rules
     plain = plain.replaceAll(RegExp(r'^---+$', multiLine: true), '');
-    
-    // Rimuovi liste
+
+    // Remove lists
     plain = plain.replaceAll(RegExp(r'^[\s]*[-*+]\s*', multiLine: true), '');
     plain = plain.replaceAll(RegExp(r'^[\s]*\d+\.\s*', multiLine: true), '');
-    
-    // Pulisci spazi multipli
+
+    // Collapse multiple spaces
     plain = plain.replaceAll(RegExp(r'\n\s*\n'), '\n\n');
     plain = plain.trim();
-    
+
     return plain;
   }
 
-  /// Conta i caratteri nel testo puro del Markdown
+  /// Counts the characters of the plain Markdown text
   static int countPlainTextCharacters(String markdown) {
     return extractPlainText(markdown).length;
   }
 
-  /// Verifica se il contenuto contiene sintassi Markdown valida
+  /// Whether the content contains valid Markdown syntax
   static bool containsMarkdownSyntax(String text) {
     final markdownPatterns = [
       RegExp(r'^#+\s*', multiLine: true), // Headers
       RegExp(r'\*\*.*?\*\*'), // Grassetto
       RegExp(r'\*.*?\*'), // Corsivo
-      RegExp(r'`.*?`'), // Codice inline
-      RegExp(r'```[\s\S]*?```'), // Blocchi di codice
+      RegExp(r'`.*?`'), // Inline code
+      RegExp(r'```[\s\S]*?```'), // Code blocks
       RegExp(r'\[.*?\]\(.*?\)'), // Link
       RegExp(r'!\[.*?\]\(.*?\)'), // Immagini
       RegExp(r'^>\s*', multiLine: true), // Blockquote
-      RegExp(r'^---+$', multiLine: true), // Linee orizzontali
-      RegExp(r'^[\s]*[-*+]\s*', multiLine: true), // Liste non ordinate
-      RegExp(r'^[\s]*\d+\.\s*', multiLine: true), // Liste ordinate
+      RegExp(r'^---+$', multiLine: true), // Horizontal rules
+      RegExp(r'^[\s]*[-*+]\s*', multiLine: true), // Unordered lists
+      RegExp(r'^[\s]*\d+\.\s*', multiLine: true), // Ordered lists
     ];
-    
+
     return markdownPatterns.any((pattern) => pattern.hasMatch(text));
   }
 }

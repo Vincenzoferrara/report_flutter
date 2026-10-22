@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Tipo di elemento che può essere aggiunto al report
+/// Type of element that can be added to the report
 enum ReportElementType {
-  // Testo
+  // Text
   text,
   dynamicField,
 
@@ -24,7 +24,7 @@ enum ReportElementType {
   barChart,
   lineChart,
 
-  // Controlli form
+  // Form controls
   checkbox,
   textbox,
 
@@ -32,13 +32,12 @@ enum ReportElementType {
   pageNumber,
   date,
   logo,
-  
-  // 🆕 Nuovi elementi
-  formula,     // Calcoli Excel-like
-  markdown,    // Testo Markdown
+
+  formula, // Excel-like calculations
+  markdown, // Markdown text
 }
 
-/// Elemento singolo nel template del report
+/// Single element of the report template
 class ReportElement {
   final String id;
   final ReportElementType type;
@@ -47,7 +46,7 @@ class ReportElement {
   double width; // larghezza in mm
   double height; // altezza in mm
   double rotation; // rotazione in gradi
-  int zIndex; // ordine di sovrapposizione
+  int zIndex; // stacking order
   Map<String, dynamic> properties;
 
   ReportElement({
@@ -74,15 +73,13 @@ class ReportElement {
           'verticalAlignment': 'center',
           'color': '#000000',
           'backgroundColor': null,
-          // 🆕 Formattazione Condizionale
-          'conditionalFormatting': {
-            'enabled': false,
-            'rules': [],
-          },
+          // Conditional formatting
+          'conditionalFormatting': {'enabled': false, 'rules': []},
         };
       case ReportElementType.dynamicField:
         return {
-          'fieldName': '', // nome del campo dati (es: 'product.name', 'price', 'sku')
+          'fieldName':
+              '', // data field name (e.g. 'product.name', 'price', 'sku')
           'fontSize': 5.0,
           'fontWeight': 'normal',
           'alignment': 'center',
@@ -90,14 +87,11 @@ class ReportElement {
           'color': '#000000',
           'prefix': '',
           'suffix': '',
-          'format': null, // formato opzionale (es: 'currency', 'date', 'number')
+          'format': null, // optional format (e.g. 'currency', 'date', 'number')
           'maxLines': 1,
-          // 🆕 Formattazione Condizionale
-          'conditionalFormatting': {
-            'enabled': false,
-            'rules': [],
-          },
-          // 🆕 Supporto Markdown
+          // Conditional formatting
+          'conditionalFormatting': {'enabled': false, 'rules': []},
+          // Markdown support
           'useMarkdown': false,
           'markdownConfig': {
             'enableToc': false,
@@ -107,33 +101,33 @@ class ReportElement {
         };
       case ReportElementType.barcode:
         return {
-          'fieldName': 'sku', // campo da cui prendere il valore
+          'fieldName': 'sku', // field that holds the value
           'barcodeType': 'code128', // code128, ean13, ean8, upc, code39
           'showText': true,
           'textSize': 8.0,
         };
       case ReportElementType.qrCode:
         return {
-          'fieldName': '', // campo o template per il contenuto
+          'fieldName': '', // field or template for the content
           'errorCorrection': 'M', // L, M, Q, H
         };
       case ReportElementType.image:
         return {
           'source': 'field', // 'field', 'asset', 'url', 'conditional'
-          'fieldName': 'image', // se source è 'field'
-          'assetPath': '', // se source è 'asset'
-          'url': '', // se source è 'url'
+          'fieldName': 'image', // when source is 'field'
+          'assetPath': '', // when source is 'asset'
+          'url': '', // when source is 'url'
           'fit': 'contain', // contain, cover, fill, fitWidth, fitHeight
-          // 🆕 Immagini Condizionali
+          // Conditional images
           'conditionalImages': [],
-          'classImageField': 'image', // campo che contiene immagine dalla classe
-          'classImageMethod': 'getImage()', // metodo che restituisce immagine
+          'classImageField': 'image', // class field that holds the image
+          'classImageMethod': 'getImage()', // method that returns the image
         };
       case ReportElementType.line:
         return {
           'strokeWidth': 1.0,
           'color': '#000000',
-          'dashPattern': null, // es: [5, 3] per linea tratteggiata
+          'dashPattern': null, // e.g. [5, 3] for a dashed line
         };
       case ReportElementType.rectangle:
         return {
@@ -150,8 +144,8 @@ class ReportElement {
         };
       case ReportElementType.table:
         return {
-          'columns': [], // lista di definizioni colonne
-          'dataSource': '', // nome della lista dati
+          'columns': [], // list of column definitions
+          'dataSource': '', // name of the data list
           'headerStyle': {
             'fontSize': 5.0,
             'fontWeight': 'bold',
@@ -170,23 +164,30 @@ class ReportElement {
         };
       case ReportElementType.pieChart:
         return {
-          'dataSource': '', // nome della lista dati
-          'valueField': '', // campo numerico per i valori
-          'labelField': '', // campo per le etichette
+          'dataSource': '', // name of the data list
+          'valueField': '', // numeric field of the values
+          'labelField': '', // field of the labels
           'showLabels': true,
           'showPercentage': true,
           'showLegend': true,
-          'colors': ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+          'colors': [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+          ],
           'title': '',
         };
       case ReportElementType.barChart:
         return {
-          'dataSource': '', // nome della lista dati
-          'valueField': '', // campo numerico per i valori
-          'labelField': '', // campo per le etichette delle barre
+          'dataSource': '', // name of the data list
+          'valueField': '', // numeric field of the values
+          'labelField': '', // field of the bar labels
           'showValues': true,
           'showGrid': true,
-          'horizontal': false, // true per barre orizzontali
+          'horizontal': false, // true for horizontal bars
           'barColor': '#36A2EB',
           'title': '',
           'axisLabelX': '',
@@ -194,12 +195,12 @@ class ReportElement {
         };
       case ReportElementType.lineChart:
         return {
-          'dataSource': '', // nome della lista dati
-          'valueField': '', // campo numerico per i valori Y
-          'labelField': '', // campo per le etichette X
+          'dataSource': '', // name of the data list
+          'valueField': '', // numeric field of the Y values
+          'labelField': '', // field of the X labels
           'showPoints': true,
           'showGrid': true,
-          'showArea': false, // riempimento sotto la linea
+          'showArea': false, // fill below the line
           'lineColor': '#FF6384',
           'lineWidth': 2.0,
           'title': '',
@@ -223,13 +224,10 @@ class ReportElement {
           'color': '#000000',
         };
       case ReportElementType.logo:
-        return {
-          'assetPath': '',
-          'fit': 'contain',
-        };
+        return {'assetPath': '', 'fit': 'contain'};
       case ReportElementType.checkbox:
         return {
-          'fieldName': '', // campo booleano da cui prendere il valore
+          'fieldName': '', // boolean field that holds the value
           'label': '',
           'checkedByDefault': false,
           'size': 12.0,
@@ -237,7 +235,7 @@ class ReportElement {
         };
       case ReportElementType.textbox:
         return {
-          'fieldName': '', // campo da cui prendere il valore
+          'fieldName': '', // field that holds the value
           'placeholder': '',
           'fontSize': 5.0,
           'fontWeight': 'normal',
@@ -251,20 +249,17 @@ class ReportElement {
         };
       case ReportElementType.formula:
         return {
-          'formula': '', // formula Excel-like
-          'variables': {}, // mappatura variabili -> campi dati
+          'formula': '', // Excel-like formula
+          'variables': {}, // variable -> data field mapping
           'format': 'number', // 'number', 'currency', 'percentage', 'date'
-          'errorValue': '0', // valore in caso di errore
+          'errorValue': '0', // value on error
           'fontSize': 5.0,
           'fontWeight': 'normal',
           'alignment': 'center',
           'verticalAlignment': 'center',
           'color': '#000000',
-          // 🆕 Formattazione Condizionale
-          'conditionalFormatting': {
-            'enabled': false,
-            'rules': [],
-          },
+          // Conditional formatting
+          'conditionalFormatting': {'enabled': false, 'rules': []},
         };
       case ReportElementType.markdown:
         return {
@@ -283,7 +278,7 @@ class ReportElement {
     }
   }
 
-  /// Nome visualizzato per il tipo di elemento
+  /// Display name of the element type
   String get displayName {
     switch (type) {
       case ReportElementType.text:
@@ -327,7 +322,7 @@ class ReportElement {
     }
   }
 
-  /// Icona per il tipo di elemento
+  /// Icon of the element type
   IconData get icon {
     switch (type) {
       case ReportElementType.text:
