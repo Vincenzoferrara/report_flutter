@@ -1,0 +1,51 @@
+name: Publish to pub.dev
+
+# pub.dev automated publishing: the job proves with a GitHub OIDC token that it
+# runs in this repository on a matching tag, so no pub.dev secret is stored.
+# pub.dev accepts it only after "Automated publishing" is enabled on the
+# package admin page with the tag pattern v{{version}}. The first version of a
+# package must be published by hand.
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    name: Publish report_flutter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches pubspec.yaml
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match pubspec.yaml version $version."
+            exit 1
+          fi
+
+      # setup-dart writes the pub.dev credentials from the OIDC token; the
+      # Flutter SDK is still needed because this is a Flutter package.
+      - uses: dart-lang/setup-dart@v1
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Dry run
+        run: flutter pub publish --dry-run
+
+      - name: Publish
+        run: flutter pub publish --force
