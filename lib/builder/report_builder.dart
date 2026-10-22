@@ -14,6 +14,7 @@ import '../export/pdf_exporter.dart';
 import '../formats/template_loader.dart';
 import '../viewer/report_viewer.dart';
 import '../viewer/renderers/report_renderer.dart';
+import '../l10n/report_l10n.dart';
 
 /// Main widget of the drag-and-drop report/label designer
 class ReportBuilder extends StatefulWidget {
@@ -222,7 +223,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             )
             .toList();
 
-        const sourceName = 'Dati';
+        const sourceName = 'Data';
         _fieldsBySource[sourceName] = fields;
         _availableFields.addAll(fields);
       }
@@ -301,9 +302,15 @@ class _ReportBuilderState extends State<ReportBuilder>
               color: AppTheme.panelBackground,
               child: TabBar(
                 controller: _tabController,
-                tabs: const [
-                  Tab(icon: Icon(Icons.edit), text: 'Designer'),
-                  Tab(icon: Icon(Icons.preview), text: 'Anteprima'),
+                tabs: [
+                  Tab(
+                    icon: Icon(Icons.edit),
+                    text: context.reportL10n.builderTabDesigner,
+                  ),
+                  Tab(
+                    icon: Icon(Icons.preview),
+                    text: context.reportL10n.printPreviewTitle,
+                  ),
                 ],
                 labelColor: AppTheme.primary,
                 unselectedLabelColor: AppTheme.textSecondary,
@@ -360,12 +367,12 @@ class _ReportBuilderState extends State<ReportBuilder>
               Icon(Icons.preview, size: 64, color: Colors.grey.shade400),
               const SizedBox(height: 16),
               Text(
-                'Nessun elemento nel template',
+                context.reportL10n.builderNoElements,
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Text(
-                'Aggiungi elementi nel Designer per vedere l\'anteprima',
+                context.reportL10n.builderNoElementsHelp,
                 style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
               ),
             ],
@@ -457,7 +464,10 @@ class _ReportBuilderState extends State<ReportBuilder>
                   color: AppTheme.primary,
                 ),
                 const SizedBox(width: AppTheme.paddingMedium),
-                Text('Elementi', style: AppTheme.titleStyle),
+                Text(
+                  context.reportL10n.builderElements,
+                  style: AppTheme.titleStyle,
+                ),
               ],
             ),
           ),
@@ -466,40 +476,57 @@ class _ReportBuilderState extends State<ReportBuilder>
             child: ListView(
               padding: const EdgeInsets.all(AppTheme.paddingMedium),
               children: [
-                _buildSectionHeader('Testo'),
-                _buildDraggableElement(ReportElementType.text, 'Testo Statico'),
+                _buildSectionHeader(context.reportL10n.builderText),
+                _buildDraggableElement(
+                  ReportElementType.text,
+                  context.reportL10n.builderStaticText,
+                ),
                 _buildDraggableElement(ReportElementType.formula, 'Formula'),
                 _buildDraggableElement(ReportElementType.markdown, 'Markdown'),
 
-                _buildSectionHeader('Codici'),
+                _buildSectionHeader(context.reportL10n.builderGroupCodes),
                 _buildDraggableElement(ReportElementType.barcode, 'Barcode'),
                 _buildDraggableElement(ReportElementType.qrCode, 'QR Code'),
 
-                _buildSectionHeader('Forme'),
-                _buildDraggableElement(ReportElementType.line, 'Linea'),
+                _buildSectionHeader(context.reportL10n.builderGroupShapes),
+                _buildDraggableElement(
+                  ReportElementType.line,
+                  context.reportL10n.builderLine,
+                ),
                 _buildDraggableElement(
                   ReportElementType.rectangle,
-                  'Rettangolo',
+                  context.reportL10n.builderRectangle,
                 ),
-                _buildDraggableElement(ReportElementType.circle, 'Cerchio'),
+                _buildDraggableElement(
+                  ReportElementType.circle,
+                  context.reportL10n.builderCircle,
+                ),
 
-                _buildSectionHeader('Controlli'),
+                _buildSectionHeader(context.reportL10n.builderGroupControls),
                 _buildDraggableElement(ReportElementType.checkbox, 'Checkbox'),
                 _buildDraggableElement(
                   ReportElementType.textbox,
-                  'Casella Testo',
+                  context.reportL10n.builderTextbox,
                 ),
 
-                _buildSectionHeader('Altri'),
-                _buildDraggableElement(ReportElementType.image, 'Immagine'),
-                _buildDraggableElement(ReportElementType.date, 'Data'),
+                _buildSectionHeader(context.reportL10n.builderGroupOther),
+                _buildDraggableElement(
+                  ReportElementType.image,
+                  context.reportL10n.builderImage,
+                ),
+                _buildDraggableElement(
+                  ReportElementType.date,
+                  context.reportL10n.builderDate,
+                ),
 
                 // Fields from the data schema (only with an associated schema)
                 if (_availableFields.isNotEmpty) ...[
-                  _buildSectionHeader('Campi Dati'),
+                  _buildSectionHeader(
+                    context.reportL10n.builderGroupDataFields,
+                  ),
                   _buildDraggableElement(
                     ReportElementType.dynamicField,
-                    'Campo Generico',
+                    context.reportL10n.builderGenericField,
                   ),
                   ..._availableFields
                       .where((f) => !f.isNested)
@@ -775,7 +802,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                 }
               });
             },
-            tooltip: 'Adatta allo schermo',
+            tooltip: context.reportL10n.reportFitToScreen,
             color: AppTheme.textSecondary,
           ),
 
@@ -786,7 +813,7 @@ class _ReportBuilderState extends State<ReportBuilder>
               _scale = 1.0;
               _isManualZoom = true;
             }),
-            tooltip: 'Dimensione reale',
+            tooltip: context.reportL10n.reportActualSize,
             color: AppTheme.textSecondary,
           ),
 
@@ -834,13 +861,13 @@ class _ReportBuilderState extends State<ReportBuilder>
               IconButton(
                 icon: const Icon(Icons.undo, size: AppTheme.iconSize),
                 onPressed: _canUndo ? _undo : null,
-                tooltip: 'Undo (Ctrl+Z)',
+                tooltip: context.reportL10n.builderUndo,
                 color: _canUndo ? AppTheme.textSecondary : AppTheme.textHint,
               ),
               IconButton(
                 icon: const Icon(Icons.redo, size: AppTheme.iconSize),
                 onPressed: _canRedo ? _redo : null,
-                tooltip: 'Redo (Ctrl+Y)',
+                tooltip: context.reportL10n.builderRedo,
                 color: _canRedo ? AppTheme.textSecondary : AppTheme.textHint,
               ),
             ],
@@ -855,19 +882,19 @@ class _ReportBuilderState extends State<ReportBuilder>
               IconButton(
                 icon: const Icon(Icons.folder_open, size: AppTheme.iconSize),
                 onPressed: _loadTemplate,
-                tooltip: 'Carica Template',
+                tooltip: context.reportL10n.builderLoadTemplate,
                 color: AppTheme.textSecondary,
               ),
               IconButton(
                 icon: const Icon(Icons.save, size: AppTheme.iconSize),
                 onPressed: () => widget.onSave?.call(_template),
-                tooltip: 'Salva Template',
+                tooltip: context.reportL10n.builderSaveTemplate,
                 color: AppTheme.primary,
               ),
               IconButton(
                 icon: const Icon(Icons.picture_as_pdf, size: AppTheme.iconSize),
                 onPressed: _exportToPdf,
-                tooltip: 'Esporta PDF',
+                tooltip: context.reportL10n.builderExportPdf,
                 color: AppTheme.error,
               ),
             ],
@@ -879,7 +906,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             IconButton(
               icon: const Icon(Icons.delete, size: AppTheme.iconSize),
               onPressed: _deleteSelectedElement,
-              tooltip: 'Elimina',
+              tooltip: context.reportL10n.printDelete,
               color: AppTheme.error,
             ),
         ],
@@ -1251,7 +1278,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             element.properties['verticalAlignment'],
           ),
           child: Text(
-            element.properties['text'] ?? 'Testo',
+            element.properties['text'] ?? context.reportL10n.builderText,
             style: TextStyle(
               fontSize: scaledFontSize,
               color: AppTheme.textPrimary,
@@ -1333,7 +1360,8 @@ class _ReportBuilderState extends State<ReportBuilder>
           ),
           padding: const EdgeInsets.all(2),
           child: Text(
-            element.properties['placeholder'] ?? 'Casella testo',
+            element.properties['placeholder'] ??
+                context.reportL10n.builderTextbox,
             style: TextStyle(
               fontSize: scaledFontSize * 0.8,
               color: AppTheme.textHint,
@@ -1367,7 +1395,7 @@ class _ReportBuilderState extends State<ReportBuilder>
               ),
               const SizedBox(width: 4),
               Text(
-                useMarkdown ? 'Markdown' : 'Testo',
+                useMarkdown ? 'Markdown' : context.reportL10n.builderText,
                 style: TextStyle(fontSize: scaledFontSize * 0.8),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -1408,7 +1436,10 @@ class _ReportBuilderState extends State<ReportBuilder>
                   color: AppTheme.primary,
                 ),
                 const SizedBox(width: AppTheme.paddingMedium),
-                Text('Proprietà', style: AppTheme.titleStyle),
+                Text(
+                  context.reportL10n.builderProperties,
+                  style: AppTheme.titleStyle,
+                ),
               ],
             ),
           ),
@@ -1418,7 +1449,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             child: selectedElement == null
                 ? Center(
                     child: Text(
-                      'Seleziona un elemento',
+                      context.reportL10n.builderSelectElement,
                       style: TextStyle(color: AppTheme.textHint),
                     ),
                   )
@@ -1437,7 +1468,7 @@ class _ReportBuilderState extends State<ReportBuilder>
         const SizedBox(height: AppTheme.paddingLarge),
 
         // Editable ID
-        _buildPropertySection('Identificativo', [
+        _buildPropertySection(context.reportL10n.builderSectionId, [
           TextFormField(
             initialValue: element.id,
             decoration: const InputDecoration(labelText: 'ID'),
@@ -1466,7 +1497,7 @@ class _ReportBuilderState extends State<ReportBuilder>
         ]),
 
         // Posizione
-        _buildPropertySection('Posizione', [
+        _buildPropertySection(context.reportL10n.builderSectionPosition, [
           _buildNumberField('X (mm)', element.x, (v) {
             element.x = v;
             _notifyChange();
@@ -1478,15 +1509,21 @@ class _ReportBuilderState extends State<ReportBuilder>
         ]),
 
         // Dimensioni
-        _buildPropertySection('Dimensioni', [
-          _buildNumberField('Larghezza (mm)', element.width, (v) {
+        _buildPropertySection(context.reportL10n.builderSectionSize, [
+          _buildNumberField(context.reportL10n.builderWidthMm, element.width, (
+            v,
+          ) {
             element.width = v;
             _notifyChange();
           }),
-          _buildNumberField('Altezza (mm)', element.height, (v) {
-            element.height = v;
-            _notifyChange();
-          }),
+          _buildNumberField(
+            context.reportL10n.builderHeightMm,
+            element.height,
+            (v) {
+              element.height = v;
+              _notifyChange();
+            },
+          ),
         ]),
 
         ..._buildTypeSpecificProperties(element),
@@ -1550,10 +1587,10 @@ class _ReportBuilderState extends State<ReportBuilder>
         element.type == ReportElementType.date ||
         element.type == ReportElementType.pageNumber) {
       widgets.add(
-        _buildPropertySection('Formattazione', [
+        _buildPropertySection(context.reportL10n.builderSectionFormatting, [
           // Font Size
           _buildNumberField(
-            'Dimensione Font (mm)',
+            context.reportL10n.builderFontSizeMm,
             (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0,
             (v) {
               element.properties['fontSize'] = v;
@@ -1562,7 +1599,7 @@ class _ReportBuilderState extends State<ReportBuilder>
           ),
           // Font Weight
           _buildDropdownField(
-            'Peso Font',
+            context.reportL10n.builderFontWeight,
             element.properties['fontWeight'] ?? 'normal',
             ['normal', 'bold'],
             (v) {
@@ -1572,7 +1609,7 @@ class _ReportBuilderState extends State<ReportBuilder>
           ),
           // Horizontal alignment
           _buildDropdownField(
-            'Allineamento Orizzontale',
+            context.reportL10n.builderHorizontalAlignment,
             element.properties['alignment'] ?? 'center',
             ['left', 'center', 'right'],
             (v) {
@@ -1582,7 +1619,7 @@ class _ReportBuilderState extends State<ReportBuilder>
           ),
           // Vertical alignment
           _buildDropdownField(
-            'Allineamento Verticale',
+            context.reportL10n.builderVerticalAlignment,
             element.properties['verticalAlignment'] ?? 'center',
             ['top', 'center', 'bottom'],
             (v) {
@@ -1591,7 +1628,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             },
           ),
           _buildColorField(
-            'Colore Testo',
+            context.reportL10n.builderTextColor,
             element.properties['color'] ?? '#000000',
             (v) {
               element.properties['color'] = v;
@@ -1599,7 +1636,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             },
           ),
           _buildColorField(
-            'Colore Sfondo',
+            context.reportL10n.builderBackgroundColor,
             element.properties['backgroundColor'],
             (v) {
               element.properties['backgroundColor'] = v;
@@ -1609,7 +1646,10 @@ class _ReportBuilderState extends State<ReportBuilder>
           ),
           // Markdown
           CheckboxListTile(
-            title: Text('Usa Markdown', style: AppTheme.labelStyle),
+            title: Text(
+              context.reportL10n.builderUseMarkdown,
+              style: AppTheme.labelStyle,
+            ),
             value: element.properties['useMarkdown'] ?? false,
             onChanged: (v) {
               element.properties['useMarkdown'] = v ?? false;
@@ -1624,9 +1664,9 @@ class _ReportBuilderState extends State<ReportBuilder>
     }
 
     widgets.add(
-      _buildPropertySection('Bordo', [
+      _buildPropertySection(context.reportL10n.builderSectionBorder, [
         _buildNumberField(
-          'Spessore Bordo (mm)',
+          context.reportL10n.builderBorderWidthMm,
           (element.properties['borderWidth'] as num?)?.toDouble() ?? 0,
           (v) {
             element.properties['borderWidth'] = v;
@@ -1634,7 +1674,7 @@ class _ReportBuilderState extends State<ReportBuilder>
           },
         ),
         _buildColorField(
-          'Colore Bordo',
+          context.reportL10n.builderBorderColor,
           element.properties['borderColor'] ?? '#000000',
           (v) {
             element.properties['borderColor'] = v;
@@ -1655,11 +1695,13 @@ class _ReportBuilderState extends State<ReportBuilder>
       case ReportElementType.text:
         widgets.insert(
           0,
-          _buildPropertySection('Contenuto', [
+          _buildPropertySection(context.reportL10n.builderSectionContent, [
             TextFormField(
               initialValue: element.properties['text'] ?? '',
               maxLines: 3,
-              decoration: const InputDecoration(labelText: 'Testo'),
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderText,
+              ),
               onChanged: (v) {
                 element.properties['text'] = v;
                 _notifyChange();
@@ -1672,7 +1714,7 @@ class _ReportBuilderState extends State<ReportBuilder>
       case ReportElementType.dynamicField:
         widgets.insert(
           0,
-          _buildPropertySection('Campo Dati', [
+          _buildPropertySection(context.reportL10n.builderDataField, [
             if (_availableFields.isEmpty)
               Container(
                 padding: const EdgeInsets.all(8),
@@ -1687,7 +1729,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Nessun campo dati disponibile. Associare uno schema dati al template.',
+                        context.reportL10n.builderNoDataFieldsSchema,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.orange.shade800,
@@ -1703,7 +1745,9 @@ class _ReportBuilderState extends State<ReportBuilder>
                     element.properties['fieldName']?.toString().isEmpty ?? true
                     ? null
                     : element.properties['fieldName'],
-                decoration: const InputDecoration(labelText: 'Campo'),
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderField,
+                ),
                 items: _availableFields
                     .where((f) => !f.isNested)
                     .map(
@@ -1721,7 +1765,9 @@ class _ReportBuilderState extends State<ReportBuilder>
             const SizedBox(height: AppTheme.paddingMedium),
             TextFormField(
               initialValue: element.properties['prefix'] ?? '',
-              decoration: const InputDecoration(labelText: 'Prefisso'),
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderPrefix,
+              ),
               onChanged: (v) {
                 element.properties['prefix'] = v;
                 _notifyChange();
@@ -1730,7 +1776,9 @@ class _ReportBuilderState extends State<ReportBuilder>
             const SizedBox(height: AppTheme.paddingMedium),
             TextFormField(
               initialValue: element.properties['suffix'] ?? '',
-              decoration: const InputDecoration(labelText: 'Suffisso'),
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderSuffix,
+              ),
               onChanged: (v) {
                 element.properties['suffix'] = v;
                 _notifyChange();
@@ -1750,7 +1798,7 @@ class _ReportBuilderState extends State<ReportBuilder>
           0,
           _buildPropertySection('Barcode', [
             _buildDropdownField(
-              'Tipo',
+              context.reportL10n.builderType,
               element.properties['barcodeType'] ?? 'code128',
               ['code128', 'ean13', 'ean8', 'upc', 'code39'],
               (v) {
@@ -1759,7 +1807,7 @@ class _ReportBuilderState extends State<ReportBuilder>
               },
             ),
             SwitchListTile(
-              title: const Text('Mostra Testo'),
+              title: Text(context.reportL10n.builderShowText),
               value: element.properties['showText'] ?? true,
               onChanged: (v) {
                 setState(() {
@@ -1775,9 +1823,9 @@ class _ReportBuilderState extends State<ReportBuilder>
       case ReportElementType.rectangle:
         widgets.insert(
           0,
-          _buildPropertySection('Rettangolo', [
+          _buildPropertySection(context.reportL10n.builderRectangle, [
             _buildNumberField(
-              'Raggio Bordo (mm)',
+              context.reportL10n.builderBorderRadiusMm,
               (element.properties['borderRadius'] as num?)?.toDouble() ?? 0,
               (v) {
                 element.properties['borderRadius'] = v;
@@ -1785,7 +1833,7 @@ class _ReportBuilderState extends State<ReportBuilder>
               },
             ),
             _buildColorField(
-              'Colore Riempimento',
+              context.reportL10n.builderFillColor,
               element.properties['fillColor'],
               (v) {
                 element.properties['fillColor'] = v;
@@ -1800,9 +1848,9 @@ class _ReportBuilderState extends State<ReportBuilder>
       case ReportElementType.line:
         widgets.insert(
           0,
-          _buildPropertySection('Linea', [
+          _buildPropertySection(context.reportL10n.builderLine, [
             _buildNumberField(
-              'Spessore (mm)',
+              context.reportL10n.builderThicknessMm,
               (element.properties['strokeWidth'] as num?)?.toDouble() ?? 1,
               (v) {
                 element.properties['strokeWidth'] = v;
@@ -1811,7 +1859,7 @@ class _ReportBuilderState extends State<ReportBuilder>
               },
             ),
             _buildColorField(
-              'Colore',
+              context.reportL10n.builderColor,
               element.properties['color'] ?? '#000000',
               (v) {
                 element.properties['color'] = v;
@@ -1825,9 +1873,9 @@ class _ReportBuilderState extends State<ReportBuilder>
       case ReportElementType.image:
         widgets.insert(
           0,
-          _buildPropertySection('Immagine', [
+          _buildPropertySection(context.reportL10n.builderImage, [
             _buildDropdownField(
-              'Sorgente',
+              context.reportL10n.builderSource,
               element.properties['source'] ?? 'field',
               ['field', 'asset', 'url', 'conditional'],
               (v) {
@@ -1850,7 +1898,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Nessun campo dati disponibile.',
+                          context.reportL10n.builderNoDataFields,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.orange.shade800,
@@ -1867,8 +1915,8 @@ class _ReportBuilderState extends State<ReportBuilder>
                           true
                       ? null
                       : element.properties['fieldName'],
-                  decoration: const InputDecoration(
-                    labelText: 'Campo Immagine',
+                  decoration: InputDecoration(
+                    labelText: context.reportL10n.builderImageField,
                   ),
                   items: _availableFields
                       .where((f) => !f.isNested)
@@ -1888,7 +1936,9 @@ class _ReportBuilderState extends State<ReportBuilder>
             if (element.properties['source'] == 'asset')
               TextFormField(
                 initialValue: element.properties['assetPath'] ?? '',
-                decoration: const InputDecoration(labelText: 'Percorso Asset'),
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderAssetPath,
+                ),
                 onChanged: (v) {
                   element.properties['assetPath'] = v;
                   _notifyChange();
@@ -1897,7 +1947,9 @@ class _ReportBuilderState extends State<ReportBuilder>
             if (element.properties['source'] == 'url')
               TextFormField(
                 initialValue: element.properties['url'] ?? '',
-                decoration: const InputDecoration(labelText: 'URL Immagine'),
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderImageUrl,
+                ),
                 onChanged: (v) {
                   element.properties['url'] = v;
                   _notifyChange();
@@ -1906,7 +1958,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             if (element.properties['source'] == 'conditional')
               _buildConditionalImageSection(element),
             _buildDropdownField(
-              'Adattamento',
+              context.reportL10n.builderFit,
               element.properties['fit'] ?? 'contain',
               ['contain', 'cover', 'fill', 'fitWidth', 'fitHeight'],
               (v) {
@@ -1936,7 +1988,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Nessun campo dati disponibile. Associare uno schema dati al template.',
+                        context.reportL10n.builderNoDataFieldsSchema,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.orange.shade800,
@@ -1952,7 +2004,9 @@ class _ReportBuilderState extends State<ReportBuilder>
                     element.properties['fieldName']?.toString().isEmpty ?? true
                     ? null
                     : element.properties['fieldName'],
-                decoration: const InputDecoration(labelText: 'Campo Booleano'),
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderBooleanField,
+                ),
                 items: _availableFields
                     .where((f) => !f.isNested)
                     .map(
@@ -1970,7 +2024,9 @@ class _ReportBuilderState extends State<ReportBuilder>
             const SizedBox(height: AppTheme.paddingMedium),
             TextFormField(
               initialValue: element.properties['label'] ?? '',
-              decoration: const InputDecoration(labelText: 'Etichetta'),
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderLabel,
+              ),
               onChanged: (v) {
                 element.properties['label'] = v;
                 _notifyChange();
@@ -1978,7 +2034,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             _buildNumberField(
-              'Dimensione (mm)',
+              context.reportL10n.builderSizeMm,
               (element.properties['size'] as num?)?.toDouble() ?? 12,
               (v) {
                 element.properties['size'] = v;
@@ -1992,7 +2048,7 @@ class _ReportBuilderState extends State<ReportBuilder>
       case ReportElementType.textbox:
         widgets.insert(
           0,
-          _buildPropertySection('Casella Testo', [
+          _buildPropertySection(context.reportL10n.builderTextbox, [
             if (_availableFields.isEmpty)
               Container(
                 padding: const EdgeInsets.all(8),
@@ -2007,7 +2063,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Nessun campo dati disponibile. Associare uno schema dati al template.',
+                        context.reportL10n.builderNoDataFieldsSchema,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.orange.shade800,
@@ -2023,7 +2079,9 @@ class _ReportBuilderState extends State<ReportBuilder>
                     element.properties['fieldName']?.toString().isEmpty ?? true
                     ? null
                     : element.properties['fieldName'],
-                decoration: const InputDecoration(labelText: 'Campo'),
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderField,
+                ),
                 items: _availableFields
                     .where((f) => !f.isNested)
                     .map(
@@ -2049,7 +2107,7 @@ class _ReportBuilderState extends State<ReportBuilder>
             ),
             const SizedBox(height: AppTheme.paddingMedium),
             _buildNumberField(
-              'Righe Max',
+              context.reportL10n.builderMaxLines,
               (element.properties['maxLines'] as num?)?.toDouble() ?? 1,
               (v) {
                 element.properties['maxLines'] = v.toInt();
@@ -2129,7 +2187,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    value ?? 'Nessuno',
+                    value ?? context.reportL10n.builderNone,
                     style: AppTheme.labelStyle,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -2169,7 +2227,7 @@ class _ReportBuilderState extends State<ReportBuilder>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Seleziona Colore'),
+        title: Text(context.reportL10n.builderSelectColor),
         content: Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -2685,7 +2743,7 @@ class _ReportBuilderState extends State<ReportBuilder>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Dimensioni Pagina'),
+        title: Text(context.reportL10n.builderPageSize),
         content: SizedBox(
           width: 400,
           child: StatefulBuilder(
@@ -2697,12 +2755,12 @@ class _ReportBuilderState extends State<ReportBuilder>
                   children: [
                     Expanded(
                       child: ChoiceChip(
-                        label: const Row(
+                        label: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.stay_current_portrait, size: 16),
                             SizedBox(width: 4),
-                            Text('Verticale'),
+                            Text(context.reportL10n.builderPortrait),
                           ],
                         ),
                         selected: !isLandscape,
@@ -2726,12 +2784,12 @@ class _ReportBuilderState extends State<ReportBuilder>
                     const SizedBox(width: 8),
                     Expanded(
                       child: ChoiceChip(
-                        label: const Row(
+                        label: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.stay_current_landscape, size: 16),
                             SizedBox(width: 4),
-                            Text('Orizzontale'),
+                            Text(context.reportL10n.builderLandscape),
                           ],
                         ),
                         selected: isLandscape,
@@ -2782,14 +2840,14 @@ class _ReportBuilderState extends State<ReportBuilder>
                       heightController,
                     ),
                     _buildSizePreset(
-                      'Etichetta',
+                      context.reportL10n.builderLabel,
                       50,
                       30,
                       widthController,
                       heightController,
                     ),
                     _buildSizePreset(
-                      'Biglietto',
+                      context.reportL10n.builderCard,
                       85,
                       55,
                       widthController,
@@ -2808,8 +2866,8 @@ class _ReportBuilderState extends State<ReportBuilder>
                         controller: widthController,
                         keyboardType: TextInputType.number,
                         focusNode: _dialogFocusNode,
-                        decoration: const InputDecoration(
-                          labelText: 'Larghezza (mm)',
+                        decoration: InputDecoration(
+                          labelText: context.reportL10n.builderWidthMm,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -2820,8 +2878,8 @@ class _ReportBuilderState extends State<ReportBuilder>
                         controller: heightController,
                         keyboardType: TextInputType.number,
                         focusNode: _dialogFocusNode,
-                        decoration: const InputDecoration(
-                          labelText: 'Altezza (mm)',
+                        decoration: InputDecoration(
+                          labelText: context.reportL10n.builderHeightMm,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -2835,7 +2893,7 @@ class _ReportBuilderState extends State<ReportBuilder>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annulla'),
+            child: Text(context.reportL10n.printCancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -2850,7 +2908,7 @@ class _ReportBuilderState extends State<ReportBuilder>
                 Navigator.pop(context);
               }
             },
-            child: const Text('Applica'),
+            child: Text(context.reportL10n.builderApply),
           ),
         ],
       ),
@@ -2899,8 +2957,8 @@ extension ReportBuilderMethods on _ReportBuilderState {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Template caricato con successo'),
+            SnackBar(
+              content: Text(context.reportL10n.builderTemplateLoaded),
               backgroundColor: Colors.green,
             ),
           );
@@ -2910,7 +2968,7 @@ extension ReportBuilderMethods on _ReportBuilderState {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Errore nel caricare il template: $e'),
+            content: Text(context.reportL10n.builderTemplateLoadError('$e')),
             backgroundColor: Colors.red,
           ),
         );
@@ -2920,6 +2978,7 @@ extension ReportBuilderMethods on _ReportBuilderState {
 
   /// Exports the template to PDF
   Future<void> _exportToPdf() async {
+    final l10n = context.reportL10n;
     try {
       // Generates the PDF and saves it through the native file picker dialog.
       final sampleData = _template.getSampleData();
@@ -2930,7 +2989,7 @@ extension ReportBuilderMethods on _ReportBuilderState {
       );
 
       final result = await FilePicker.saveFile(
-        dialogTitle: 'Esporta PDF',
+        dialogTitle: l10n.builderExportPdf,
         fileName:
             '${_template.name}_${DateTime.now().millisecondsSinceEpoch}.pdf',
         bytes: bytes,
@@ -2942,8 +3001,8 @@ extension ReportBuilderMethods on _ReportBuilderState {
       if (result != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('PDF esportato con successo'),
+            SnackBar(
+              content: Text(l10n.builderPdfExported),
               backgroundColor: Colors.green,
             ),
           );
@@ -2953,7 +3012,7 @@ extension ReportBuilderMethods on _ReportBuilderState {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Errore nell\'esportare PDF: $e'),
+            content: Text(l10n.builderPdfExportError('$e')),
             backgroundColor: Colors.red,
           ),
         );
@@ -3128,10 +3187,10 @@ extension ReportBuilderExtensions on _ReportBuilderState {
     return _buildPropertySection('Formula', [
       TextFormField(
         initialValue: element.properties['formula'] ?? '',
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           labelText: 'Formula',
-          hintText: 'Es: SUM({price}, {tax}) * 0.22',
-          helperText: 'Usa sintassi Excel-like con {campo} per i dati',
+          hintText: 'SUM({price}, {tax}) * 0.22',
+          helperText: context.reportL10n.builderFormulaHelp('{field}'),
         ),
         maxLines: 3,
         onChanged: (v) {
@@ -3140,12 +3199,12 @@ extension ReportBuilderExtensions on _ReportBuilderState {
         },
       ),
       const SizedBox(height: AppTheme.paddingMedium),
-      Text('Variabili:', style: AppTheme.labelStyle),
+      Text(context.reportL10n.builderVariables, style: AppTheme.labelStyle),
       const SizedBox(height: AppTheme.paddingSmall),
       _buildVariablesMapper(element),
       const SizedBox(height: AppTheme.paddingMedium),
       _buildDropdownField(
-        'Formato Output',
+        context.reportL10n.builderOutputFormat,
         element.properties['format'] ?? 'number',
         ['number', 'currency', 'percentage', 'date'],
         (v) {
@@ -3156,9 +3215,9 @@ extension ReportBuilderExtensions on _ReportBuilderState {
       const SizedBox(height: AppTheme.paddingMedium),
       TextFormField(
         initialValue: element.properties['errorValue'] ?? '0',
-        decoration: const InputDecoration(
-          labelText: 'Valore Errore',
-          hintText: 'Valore da mostrare in caso di errore',
+        decoration: InputDecoration(
+          labelText: context.reportL10n.builderErrorValue,
+          hintText: context.reportL10n.builderErrorValueHint,
         ),
         onChanged: (v) {
           element.properties['errorValue'] = v;
@@ -3196,16 +3255,16 @@ extension ReportBuilderExtensions on _ReportBuilderState {
                 Expanded(
                   flex: 2,
                   child: _availableFields.isEmpty
-                      ? const Text(
-                          'Nessun campo disponibile',
+                      ? Text(
+                          context.reportL10n.builderNoFields,
                           style: TextStyle(color: Colors.orange),
                         )
                       : DropdownButtonFormField<String>(
                           initialValue: variables[varName]?.isEmpty ?? true
                               ? null
                               : variables[varName],
-                          decoration: const InputDecoration(
-                            labelText: 'Campo Dati',
+                          decoration: InputDecoration(
+                            labelText: context.reportL10n.builderDataField,
                           ),
                           items: _availableFields
                               .where((f) => !f.isNested)
@@ -3243,7 +3302,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             _notifyChange();
           },
           icon: const Icon(Icons.add),
-          label: const Text('Aggiungi Variabile'),
+          label: Text(context.reportL10n.builderAddVariable),
         ),
       ],
     );
@@ -3253,8 +3312,8 @@ extension ReportBuilderExtensions on _ReportBuilderState {
   Widget _buildMarkdownSection(ReportElement element) {
     return _buildPropertySection('Markdown', [
       SwitchListTile(
-        title: const Text('Usa Markdown'),
-        subtitle: const Text('Abilita il rendering Markdown'),
+        title: Text(context.reportL10n.builderUseMarkdown),
+        subtitle: Text(context.reportL10n.builderEnableMarkdown),
         value: element.properties['useMarkdown'] ?? false,
         onChanged: (v) {
           setState(() {
@@ -3266,9 +3325,9 @@ extension ReportBuilderExtensions on _ReportBuilderState {
       if (element.properties['useMarkdown'] ?? false) ...[
         TextFormField(
           initialValue: element.properties['markdownData'] ?? '',
-          decoration: const InputDecoration(
-            labelText: 'Contenuto Markdown',
-            hintText: '# Titolo\n\nTesto **grassetto**',
+          decoration: InputDecoration(
+            labelText: context.reportL10n.builderMarkdownContent,
+            hintText: context.reportL10n.builderMarkdownHint,
           ),
           maxLines: 8,
           onChanged: (v) {
@@ -3278,8 +3337,8 @@ extension ReportBuilderExtensions on _ReportBuilderState {
         ),
         const SizedBox(height: AppTheme.paddingMedium),
         SwitchListTile(
-          title: const Text('Indice Automatico'),
-          subtitle: const Text('Genera indice dai headers'),
+          title: Text(context.reportL10n.builderAutoToc),
+          subtitle: Text(context.reportL10n.builderAutoTocHelp),
           value: element.properties['markdownConfig']?['enableToc'] ?? false,
           onChanged: (v) {
             final config = Map<String, dynamic>.from(
@@ -3291,8 +3350,8 @@ extension ReportBuilderExtensions on _ReportBuilderState {
           },
         ),
         SwitchListTile(
-          title: const Text('Syntax Highlighting'),
-          subtitle: const Text('Evidenziazione codice'),
+          title: Text(context.reportL10n.builderSyntaxHighlighting),
+          subtitle: Text(context.reportL10n.builderSyntaxHighlightingHelp),
           value:
               element.properties['markdownConfig']?['enableCodeHighlighting'] ??
               true,
@@ -3306,7 +3365,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
           },
         ),
         _buildDropdownField(
-          'Tema',
+          context.reportL10n.builderTheme,
           element.properties['markdownConfig']?['theme'] ?? 'light',
           ['light', 'dark'],
           (v) {
@@ -3332,45 +3391,50 @@ extension ReportBuilderExtensions on _ReportBuilderState {
       conditionalFormatting['rules'] ?? [],
     );
 
-    return _buildPropertySection('Formattazione Condizionale', [
-      SwitchListTile(
-        title: const Text('Abilita Formattazione Condizionale'),
-        subtitle: const Text('Cambia stile in base al valore'),
-        value: conditionalFormatting['enabled'] ?? false,
-        onChanged: (v) {
-          setState(() {
-            conditionalFormatting['enabled'] = v;
-            element.properties['conditionalFormatting'] = conditionalFormatting;
-            _notifyChange();
-          });
-        },
-      ),
-      if (conditionalFormatting['enabled'] ?? false) ...[
-        ...rules.asMap().entries.map((entry) {
-          final index = entry.key;
-          final rule = entry.value;
-          return _buildConditionalRule(element, rule, index);
-        }),
-        TextButton.icon(
-          onPressed: () {
-            rules.add({
-              'type': 'threshold',
-              'condition': 'greater',
-              'value': 100,
-              'foregroundColor': '#FF0000',
-              'backgroundColor': '#FFFF00',
-              'fontWeight': 'bold',
-              'fontSize': 12.0,
+    return _buildPropertySection(
+      context.reportL10n.builderConditionalFormatting,
+      [
+        SwitchListTile(
+          title: Text(context.reportL10n.builderEnableConditionalFormatting),
+          subtitle: Text(context.reportL10n.builderConditionalFormattingHelp),
+          value: conditionalFormatting['enabled'] ?? false,
+          onChanged: (v) {
+            setState(() {
+              conditionalFormatting['enabled'] = v;
+              element.properties['conditionalFormatting'] =
+                  conditionalFormatting;
+              _notifyChange();
             });
-            conditionalFormatting['rules'] = rules;
-            element.properties['conditionalFormatting'] = conditionalFormatting;
-            _notifyChange();
           },
-          icon: const Icon(Icons.add),
-          label: const Text('Aggiungi Regola'),
         ),
+        if (conditionalFormatting['enabled'] ?? false) ...[
+          ...rules.asMap().entries.map((entry) {
+            final index = entry.key;
+            final rule = entry.value;
+            return _buildConditionalRule(element, rule, index);
+          }),
+          TextButton.icon(
+            onPressed: () {
+              rules.add({
+                'type': 'threshold',
+                'condition': 'greater',
+                'value': 100,
+                'foregroundColor': '#FF0000',
+                'backgroundColor': '#FFFF00',
+                'fontWeight': 'bold',
+                'fontSize': 12.0,
+              });
+              conditionalFormatting['rules'] = rules;
+              element.properties['conditionalFormatting'] =
+                  conditionalFormatting;
+              _notifyChange();
+            },
+            icon: const Icon(Icons.add),
+            label: Text(context.reportL10n.builderAddRule),
+          ),
+        ],
       ],
-    ]);
+    );
   }
 
   /// Builds a single conditional formatting rule
@@ -3398,7 +3462,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
               children: [
                 Expanded(
                   child: Text(
-                    'Regola ${index + 1}',
+                    context.reportL10n.builderRuleNumber(index + 1),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -3415,7 +3479,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
               ],
             ),
             _buildDropdownField(
-              'Tipo',
+              context.reportL10n.builderType,
               rule['type'] ?? 'threshold',
               ['threshold', 'contains', 'range', 'expression'],
               (v) {
@@ -3428,7 +3492,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             ),
             if (rule['type'] == 'threshold') ...[
               _buildDropdownField(
-                'Condizione',
+                context.reportL10n.builderCondition,
                 rule['condition'] ?? 'greater',
                 ['greater', 'less', 'equal', 'greater_equal', 'less_equal'],
                 (v) {
@@ -3441,7 +3505,9 @@ extension ReportBuilderExtensions on _ReportBuilderState {
               ),
               TextFormField(
                 initialValue: rule['value']?.toString() ?? '100',
-                decoration: const InputDecoration(labelText: 'Valore'),
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderValue,
+                ),
                 keyboardType: TextInputType.number,
                 onChanged: (v) {
                   rule['value'] = num.tryParse(v) ?? 100;
@@ -3455,8 +3521,8 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             if (rule['type'] == 'contains') ...[
               TextFormField(
                 initialValue: rule['text'] ?? '',
-                decoration: const InputDecoration(
-                  labelText: 'Testo da cercare',
+                decoration: InputDecoration(
+                  labelText: context.reportL10n.builderSearchText,
                 ),
                 onChanged: (v) {
                   rule['text'] = v;
@@ -3468,7 +3534,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
               ),
             ],
             _buildColorField(
-              'Colore Testo',
+              context.reportL10n.builderTextColor,
               rule['foregroundColor'] ?? '#000000',
               (v) {
                 rule['foregroundColor'] = v;
@@ -3478,13 +3544,18 @@ extension ReportBuilderExtensions on _ReportBuilderState {
                 _notifyChange();
               },
             ),
-            _buildColorField('Colore Sfondo', rule['backgroundColor'], (v) {
-              rule['backgroundColor'] = v;
-              conditionalFormatting['rules'] = rules;
-              element.properties['conditionalFormatting'] =
-                  conditionalFormatting;
-              _notifyChange();
-            }, allowNull: true),
+            _buildColorField(
+              context.reportL10n.builderBackgroundColor,
+              rule['backgroundColor'],
+              (v) {
+                rule['backgroundColor'] = v;
+                conditionalFormatting['rules'] = rules;
+                element.properties['conditionalFormatting'] =
+                    conditionalFormatting;
+                _notifyChange();
+              },
+              allowNull: true,
+            ),
             _buildDropdownField(
               'Peso Font',
               rule['fontWeight'] ?? 'normal',
@@ -3512,7 +3583,10 @@ extension ReportBuilderExtensions on _ReportBuilderState {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Immagini Condizionali:', style: AppTheme.labelStyle),
+        Text(
+          context.reportL10n.builderConditionalImages,
+          style: AppTheme.labelStyle,
+        ),
         const SizedBox(height: AppTheme.paddingSmall),
         ...conditionalImages.asMap().entries.map((entry) {
           final index = entry.key;
@@ -3530,7 +3604,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             _notifyChange();
           },
           icon: const Icon(Icons.add),
-          label: const Text('Aggiungi Regola Immagine'),
+          label: Text(context.reportL10n.builderAddImageRule),
         ),
       ],
     );
@@ -3557,7 +3631,7 @@ extension ReportBuilderExtensions on _ReportBuilderState {
               children: [
                 Expanded(
                   child: Text(
-                    'Regola Immagine ${index + 1}',
+                    context.reportL10n.builderImageRuleNumber(index + 1),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -3573,9 +3647,9 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             ),
             TextFormField(
               initialValue: rule['condition'] ?? '',
-              decoration: const InputDecoration(
-                labelText: 'Condizione',
-                hintText: 'Es: status == "active"',
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderCondition,
+                hintText: 'status == "active"',
               ),
               onChanged: (v) {
                 rule['condition'] = v;
@@ -3586,9 +3660,9 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             const SizedBox(height: AppTheme.paddingMedium),
             TextFormField(
               initialValue: rule['imageField'] ?? '',
-              decoration: const InputDecoration(
-                labelText: 'Campo Immagine (se vero)',
-                hintText: 'Campo dati contenente l\'immagine',
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderImageFieldIfTrue,
+                hintText: context.reportL10n.builderImageFieldIfTrueHint,
               ),
               onChanged: (v) {
                 rule['imageField'] = v;
@@ -3599,9 +3673,9 @@ extension ReportBuilderExtensions on _ReportBuilderState {
             const SizedBox(height: AppTheme.paddingMedium),
             TextFormField(
               initialValue: rule['fallbackAsset'] ?? '',
-              decoration: const InputDecoration(
-                labelText: 'Immagine Fallback (se falso)',
-                hintText: 'Percorso asset di default',
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderFallbackImage,
+                hintText: context.reportL10n.builderFallbackImageHint,
               ),
               onChanged: (v) {
                 rule['fallbackAsset'] = v;

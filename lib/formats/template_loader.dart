@@ -80,7 +80,7 @@ class TemplateLoader {
 
     if (json['format'] != 'rpt') {
       throw Exception(
-        'Formato file non supportato. Atteso "rpt", trovato "${json['format']}"',
+        'Unsupported file format. Expected "rpt", found "${json['format']}"',
       );
     }
 

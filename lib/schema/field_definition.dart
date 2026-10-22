@@ -137,7 +137,7 @@ class FieldDefinition {
   ValidationResult validate(dynamic value) {
     // Check required
     if (isRequired && (value == null || value.toString().trim().isEmpty)) {
-      return ValidationResult.error('Il campo "$displayName" è obbligatorio');
+      return ValidationResult.error('The field "$displayName" is required');
     }
 
     // Skip validation if value is null and not required
@@ -148,7 +148,7 @@ class FieldDefinition {
     // Type validation
     if (!_isValidType(value)) {
       return ValidationResult.error(
-        'Il campo "$displayName" deve essere di tipo ${_getTypeName()}',
+        'The field "$displayName" must be of type ${_getTypeName()}',
       );
     }
 
@@ -186,11 +186,11 @@ class FieldDefinition {
   }
 
   String _getTypeName() {
-    if (type == String) return 'testo';
-    if (type == int) return 'numero intero';
-    if (type == double) return 'numero decimale';
+    if (type == String) return 'text';
+    if (type == int) return 'integer';
+    if (type == double) return 'decimal number';
     if (type == bool) return 'booleano';
-    if (type == DateTime) return 'data';
+    if (type == DateTime) return 'date';
     return type.toString();
   }
 
@@ -204,7 +204,7 @@ class FieldDefinition {
         final minLength = int.tryParse(ruleParam ?? '0') ?? 0;
         if (value.toString().length < minLength) {
           return ValidationResult.error(
-            'Il campo "$displayName" deve avere almeno $minLength caratteri',
+            'The field "$displayName" must have at least $minLength characters',
           );
         }
         break;
@@ -212,7 +212,7 @@ class FieldDefinition {
         final maxLength = int.tryParse(ruleParam ?? '999') ?? 999;
         if (value.toString().length > maxLength) {
           return ValidationResult.error(
-            'Il campo "$displayName" non può superare $maxLength caratteri',
+            'The field "$displayName" cannot exceed $maxLength characters',
           );
         }
         break;
@@ -221,7 +221,7 @@ class FieldDefinition {
         final numValue = double.tryParse(value.toString()) ?? 0;
         if (numValue < min) {
           return ValidationResult.error(
-            'Il campo "$displayName" deve essere almeno $min',
+            'The field "$displayName" must be at least $min',
           );
         }
         break;
@@ -230,7 +230,7 @@ class FieldDefinition {
         final numValue = double.tryParse(value.toString()) ?? 0;
         if (numValue > max) {
           return ValidationResult.error(
-            'Il campo "$displayName" non può superare $max',
+            'The field "$displayName" cannot exceed $max',
           );
         }
         break;
@@ -239,7 +239,7 @@ class FieldDefinition {
         final regex = RegExp(pattern);
         if (!regex.hasMatch(value.toString())) {
           return ValidationResult.error(
-            'Il campo "$displayName" non ha un formato valido',
+            'The field "$displayName" does not have a valid format',
           );
         }
         break;

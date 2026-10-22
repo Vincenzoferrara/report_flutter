@@ -499,7 +499,7 @@ class PdfExporter {
 
   /// Builds the PDF page number
   static pw.Widget _buildPdfPageNumber(ReportElement element) {
-    final format = element.properties['format'] ?? 'Pagina {current}';
+    final format = element.properties['format'] ?? 'Page {current}';
     final fontSize =
         (element.properties['fontSize'] as num?)?.toDouble() ?? 8.0;
     final color = _parsePdfColor(element.properties['color'] ?? '#666666');

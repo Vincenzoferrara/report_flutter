@@ -23,7 +23,7 @@ abstract class DataSchema {
   /// Validates a data object against this schema
   ValidationResult validate(dynamic data) {
     if (data == null) {
-      return ValidationResult.error('I dati sono null');
+      return ValidationResult.error('The data is null');
     }
 
     // Convert to a Map if needed
@@ -37,7 +37,7 @@ abstract class DataSchema {
         dataMap = (data as dynamic).toJson() as Map<String, dynamic>;
       } catch (_) {
         return ValidationResult.error(
-          'Impossibile convertire i dati in formato valido',
+          'Unable to convert the data to a valid format',
         );
       }
     }
@@ -57,14 +57,14 @@ abstract class DataSchema {
   /// Validates a list of data objects
   ValidationResult validateList(List<dynamic> dataList) {
     if (dataList.isEmpty) {
-      return ValidationResult.error('La lista di dati è vuota');
+      return ValidationResult.error('The data list is empty');
     }
 
     for (int i = 0; i < dataList.length; i++) {
       final result = validate(dataList[i]);
       if (!result.isValid) {
         return ValidationResult.error(
-          'Errore alla riga ${i + 1}: ${result.errorMessage}',
+          'Error at row ${i + 1}: ${result.errorMessage}',
         );
       }
     }

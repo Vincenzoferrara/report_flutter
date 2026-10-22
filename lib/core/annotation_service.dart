@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/report_l10n.dart';
 
 /// Temporary annotation model (session only)
 class SessionAnnotation {
@@ -355,7 +356,9 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
       text: widget.annotation?.content ?? '',
     );
     _authorController = TextEditingController(
-      text: widget.annotation?.author ?? 'Utente',
+      text:
+          widget.annotation?.author ??
+          context.reportL10n.annotationDefaultAuthor,
     );
     _selectedType = widget.annotation?.type ?? AnnotationType.note;
   }
@@ -372,8 +375,8 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
     return AlertDialog(
       title: Text(
         widget.isNew
-            ? 'Nuova Annotazione (Temporanea)'
-            : 'Modifica Annotazione',
+            ? context.reportL10n.annotationNewTitle
+            : context.reportL10n.annotationEditTitle,
       ),
       content: SizedBox(
         width: 400,
@@ -393,7 +396,7 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Questa annotazione è temporanea e sarà persa alla chiusura',
+                      context.reportL10n.annotationTemporaryNotice,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.orange.shade700,
@@ -409,8 +412,8 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
             // Annotation type
             DropdownButtonFormField<AnnotationType>(
               initialValue: _selectedType,
-              decoration: const InputDecoration(
-                labelText: 'Tipo',
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderType,
                 border: OutlineInputBorder(),
               ),
               items: AnnotationType.values.map((type) {
@@ -437,10 +440,10 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
             // Contenuto
             TextField(
               controller: _contentController,
-              decoration: const InputDecoration(
-                labelText: 'Contenuto',
+              decoration: InputDecoration(
+                labelText: context.reportL10n.builderSectionContent,
                 border: OutlineInputBorder(),
-                hintText: 'Inserisci qui la tua annotazione...',
+                hintText: context.reportL10n.annotationContentHint,
               ),
               maxLines: 4,
             ),
@@ -450,8 +453,8 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
             // Autore
             TextField(
               controller: _authorController,
-              decoration: const InputDecoration(
-                labelText: 'Autore',
+              decoration: InputDecoration(
+                labelText: context.reportL10n.annotationAuthor,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -462,12 +465,22 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
         if (!widget.isNew)
           TextButton(
             onPressed: widget.onDelete,
-            child: const Text('Elimina', style: TextStyle(color: Colors.red)),
+            child: Text(
+              context.reportL10n.printDelete,
+              style: TextStyle(color: Colors.red),
+            ),
           ),
-        TextButton(onPressed: widget.onCancel, child: const Text('Annulla')),
+        TextButton(
+          onPressed: widget.onCancel,
+          child: Text(context.reportL10n.printCancel),
+        ),
         ElevatedButton(
           onPressed: _saveAnnotation,
-          child: Text(widget.isNew ? 'Aggiungi' : 'Salva'),
+          child: Text(
+            widget.isNew
+                ? context.reportL10n.annotationAdd
+                : context.reportL10n.printSave,
+          ),
         ),
       ],
     );
@@ -476,7 +489,7 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
   void _saveAnnotation() {
     if (_contentController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Il contenuto non può essere vuoto')),
+        SnackBar(content: Text(context.reportL10n.annotationContentRequired)),
       );
       return;
     }
@@ -514,15 +527,15 @@ class _SessionAnnotationDialogState extends State<_SessionAnnotationDialog> {
   String _getAnnotationLabel(AnnotationType type) {
     switch (type) {
       case AnnotationType.note:
-        return 'Nota';
+        return context.reportL10n.annotationTypeNote;
       case AnnotationType.highlight:
-        return 'Evidenziazione';
+        return context.reportL10n.annotationTypeHighlight;
       case AnnotationType.comment:
-        return 'Commento';
+        return context.reportL10n.annotationTypeComment;
       case AnnotationType.question:
-        return 'Domanda';
+        return context.reportL10n.annotationTypeQuestion;
       case AnnotationType.issue:
-        return 'Problema';
+        return context.reportL10n.annotationTypeIssue;
     }
   }
 }

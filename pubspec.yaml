@@ -13,6 +13,28 @@ topics:
   - report
   - barcode
 
+screenshots:
+  - description: 'Print preview of a sheet of labels'
+    path: doc/screenshots/preview_sheet.png
+  - description: 'Print preview of a single label'
+    path: doc/screenshots/preview_label.png
+  - description: 'Print center with the templates by category'
+    path: doc/screenshots/print_center.png
+  - description: 'Paper format choice in the print screen'
+    path: doc/screenshots/paper_choice.png
+  - description: 'Templates tab'
+    path: doc/screenshots/templates.png
+  - description: 'Template menu: edit, rename, duplicate, move, delete'
+    path: doc/screenshots/template_menu.png
+  - description: 'Template designer with rulers and element palette'
+    path: doc/screenshots/designer.png
+  - description: 'Properties panel of a selected element'
+    path: doc/screenshots/designer_properties.png
+  - description: 'Ready-made paper formats'
+    path: doc/screenshots/paper_formats.png
+  - description: 'New paper format dialog'
+    path: doc/screenshots/new_paper_format.png
+
 environment:
   sdk: '>=3.12.0 <4.0.0'
   flutter: '>=3.44.0'

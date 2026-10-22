@@ -37,7 +37,7 @@ class DataImporter {
           schema: _createEmptySchema(schemaName ?? 'ImportedData'),
           data: [],
           rowCount: 0,
-          error: 'File non trovato: $filePath',
+          error: 'File not found: $filePath',
         );
       }
 
@@ -53,7 +53,7 @@ class DataImporter {
         schema: _createEmptySchema(schemaName ?? 'ImportedData'),
         data: [],
         rowCount: 0,
-        error: 'Errore lettura file: $e',
+        error: 'Error reading the file: $e',
       );
     }
   }
@@ -77,7 +77,7 @@ class DataImporter {
           schema: _createEmptySchema(schemaName),
           data: [],
           rowCount: 0,
-          error: 'CSV vuoto',
+          error: 'Empty CSV',
         );
       }
 
@@ -125,7 +125,7 @@ class DataImporter {
       final schema = _ImportedDataSchema(
         name: schemaName,
         displayName: schemaName,
-        description: 'Schema importato da CSV',
+        description: 'Schema imported from CSV',
         fields: fields,
         sampleData: data.isNotEmpty ? data.first : {},
       );
@@ -136,7 +136,7 @@ class DataImporter {
         schema: _createEmptySchema(schemaName),
         data: [],
         rowCount: 0,
-        error: 'Errore parsing CSV: $e',
+        error: 'Error parsing the CSV: $e',
       );
     }
   }
@@ -153,7 +153,7 @@ class DataImporter {
           schema: _createEmptySchema(schemaName ?? 'ImportedData'),
           data: [],
           rowCount: 0,
-          error: 'File non trovato: $filePath',
+          error: 'File not found: $filePath',
         );
       }
 
@@ -167,7 +167,7 @@ class DataImporter {
         schema: _createEmptySchema(schemaName ?? 'ImportedData'),
         data: [],
         rowCount: 0,
-        error: 'Errore lettura file: $e',
+        error: 'Error reading the file: $e',
       );
     }
   }
@@ -192,7 +192,7 @@ class DataImporter {
           schema: _createEmptySchema(schemaName),
           data: [],
           rowCount: 0,
-          error: 'Formato JSON non valido',
+          error: 'Invalid JSON format',
         );
       }
 
@@ -201,7 +201,7 @@ class DataImporter {
           schema: _createEmptySchema(schemaName),
           data: [],
           rowCount: 0,
-          error: 'JSON vuoto',
+          error: 'Empty JSON',
         );
       }
 
@@ -223,7 +223,7 @@ class DataImporter {
       final schema = _ImportedDataSchema(
         name: schemaName,
         displayName: schemaName,
-        description: 'Schema importato da JSON',
+        description: 'Schema imported from JSON',
         fields: fields,
         sampleData: firstItem,
       );
@@ -238,7 +238,7 @@ class DataImporter {
         schema: _createEmptySchema(schemaName),
         data: [],
         rowCount: 0,
-        error: 'Errore parsing JSON: $e',
+        error: 'Error parsing the JSON: $e',
       );
     }
   }
@@ -331,7 +331,7 @@ class DataImporter {
     return _ImportedDataSchema(
       name: name,
       displayName: name,
-      description: 'Schema vuoto',
+      description: 'Empty schema',
       fields: [],
       sampleData: {},
     );

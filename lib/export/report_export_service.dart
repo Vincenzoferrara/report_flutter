@@ -72,7 +72,7 @@ class ReportExportService {
       }
 
       final excel = Excel.createExcel();
-      final sheet = excel['Dati'];
+      final sheet = excel['Data'];
 
       final fields = selectedFields ?? _extractFieldsFromData(data);
 
@@ -212,12 +212,12 @@ class ReportExportService {
     summarySheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
         .value = TextCellValue(
-      'Data esportazione: ${DateTime.now().toString().split('.')[0]}',
+      'Export date: ${DateTime.now().toString().split('.')[0]}',
     );
     summarySheet
         .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
         .value = TextCellValue(
-      'Numero record: ${data.length}',
+      'Records: ${data.length}',
     );
 
     // Numeric statistics
@@ -283,18 +283,18 @@ class ReportExportService {
       // Metadati
       if (includeMetadata) {
         sink.writeln('# Report: ${template.name}');
-        sink.writeln('# Data esportazione: ${DateTime.now()}');
-        sink.writeln('# Numero record: ${data.length}');
+        sink.writeln('# Export date: ${DateTime.now()}');
+        sink.writeln('# Records: ${data.length}');
 
         if (parameters != null && parameters.isNotEmpty) {
-          sink.writeln('# Parametri:');
+          sink.writeln('# Parameters:');
           parameters.forEach((key, value) {
             sink.writeln('#   $key: $value');
           });
         }
 
         if (filters != null && filters.isNotEmpty) {
-          sink.writeln('# Filtri:');
+          sink.writeln('# Filters:');
           for (final filter in filters) {
             if (filter.enabled) {
               sink.writeln(
@@ -356,12 +356,12 @@ class ReportExportService {
       metadataSheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1))
           .value = TextCellValue(
-        'Data esportazione: ${DateTime.now()}',
+        'Export date: ${DateTime.now()}',
       );
       metadataSheet
           .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2))
           .value = TextCellValue(
-        'Numero record: ${data.length}',
+        'Records: ${data.length}',
       );
 
       int rowIndex = 4;
@@ -372,7 +372,7 @@ class ReportExportService {
               CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex),
             )
             .value = TextCellValue(
-          'Parametri:',
+          'Parameters:',
         );
         rowIndex++;
 
@@ -402,7 +402,7 @@ class ReportExportService {
               CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex),
             )
             .value = TextCellValue(
-          'Filtri:',
+          'Filters:',
         );
         rowIndex++;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'chart_painters.dart';
+import '../../l10n/report_l10n.dart';
 
 /// Supported chart types
 enum ChartType { bar, line, pie, area, scatter }
@@ -108,7 +109,7 @@ class _InteractiveChartState extends State<InteractiveChart> {
         padding: EdgeInsets.all(16 * widget.scale),
         child: Center(
           child: Text(
-            'Nessun dato disponibile',
+            context.reportL10n.chartNoData,
             style: TextStyle(
               fontSize: 5.0 * widget.scale,
               color: Colors.grey.shade600,
@@ -239,15 +240,15 @@ class _InteractiveChartState extends State<InteractiveChart> {
   String _getChartTitle() {
     switch (widget.type) {
       case ChartType.bar:
-        return 'Grafico a Barre';
+        return context.reportL10n.chartBar;
       case ChartType.line:
-        return 'Grafico a Linee';
+        return context.reportL10n.chartLine;
       case ChartType.pie:
-        return 'Grafico a Torta';
+        return context.reportL10n.chartPie;
       case ChartType.area:
-        return 'Grafico ad Area';
+        return context.reportL10n.chartArea;
       case ChartType.scatter:
-        return 'Grafico a Dispersione';
+        return context.reportL10n.chartScatter;
     }
   }
 
@@ -281,7 +282,9 @@ class _InteractiveChartState extends State<InteractiveChart> {
 
   String _getDataLabel(dynamic item) {
     if (item is Map<String, dynamic>) {
-      return item['label']?.toString() ?? item['name']?.toString() ?? 'Dato';
+      return item['label']?.toString() ??
+          item['name']?.toString() ??
+          context.reportL10n.chartDataPoint;
     }
     return item.toString();
   }

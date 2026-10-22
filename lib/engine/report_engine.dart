@@ -46,21 +46,21 @@ class ReportEngine {
       case ReportElementType.pieChart:
         return _renderChartPlaceholder(
           element,
-          'Grafico Torta',
+          'Pie chart',
           Icons.pie_chart,
           scale,
         );
       case ReportElementType.barChart:
         return _renderChartPlaceholder(
           element,
-          'Grafico Barre',
+          'Bar chart',
           Icons.bar_chart,
           scale,
         );
       case ReportElementType.lineChart:
         return _renderChartPlaceholder(
           element,
-          'Grafico Linee',
+          'Line chart',
           Icons.show_chart,
           scale,
         );
@@ -385,7 +385,7 @@ class ReportEngine {
   }
 
   static Widget _renderPageNumberElement(ReportElement element, double scale) {
-    final format = element.properties['format'] ?? 'Pagina {current}';
+    final format = element.properties['format'] ?? 'Page {current}';
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 8;
     final color = _parseColor(element.properties['color'] ?? '#666666');
 
@@ -410,7 +410,7 @@ class ReportEngine {
       decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
       child: Center(
         child: Text(
-          'Tabella',
+          'Table',
           style: TextStyle(fontSize: 10 * scale, color: Colors.grey),
         ),
       ),
@@ -474,7 +474,7 @@ class ReportEngine {
             ),
             const SizedBox(width: 4),
             Text(
-              useMarkdown ? 'Markdown' : 'Testo',
+              useMarkdown ? 'Markdown' : 'Text',
               style: TextStyle(fontSize: fontSize * scale * 0.8, color: color),
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/data_extractor.dart';
+import '../../l10n/report_l10n.dart';
 
 /// Interactive table with sorting, selection and drill-down
 class InteractiveTable extends StatefulWidget {
@@ -124,7 +125,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
         children: [
           if (widget.enableSelection) ...[
             Text(
-              '${_selectedRows.length} selezionati',
+              context.reportL10n.tableSelected(_selectedRows.length),
               style: TextStyle(
                 fontSize: 10 * widget.scale,
                 color: Colors.grey.shade600,
@@ -135,7 +136,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
               TextButton(
                 onPressed: _clearSelection,
                 child: Text(
-                  'Cancella',
+                  context.reportL10n.sidebarClear,
                   style: TextStyle(fontSize: 10 * widget.scale),
                 ),
               ),
@@ -149,7 +150,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
             ),
             const SizedBox(width: 4),
             Text(
-              'Ordinato per $_sortColumn',
+              context.reportL10n.tableSortedBy('$_sortColumn'),
               style: TextStyle(
                 fontSize: 10 * widget.scale,
                 color: Colors.grey.shade600,
@@ -178,7 +179,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
       child: Row(
         children: [
           Text(
-            '${_sortedData.length} righe totali',
+            context.reportL10n.tableTotalRows(_sortedData.length),
             style: TextStyle(
               fontSize: 10 * widget.scale,
               color: Colors.grey.shade600,
@@ -190,7 +191,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
               onPressed: _exportSelected,
               icon: Icon(Icons.download, size: 12 * widget.scale),
               label: Text(
-                'Esporta selezionati',
+                context.reportL10n.tableExportSelected,
                 style: TextStyle(fontSize: 10 * widget.scale),
               ),
             ),
@@ -232,7 +233,9 @@ class _InteractiveTableState extends State<InteractiveTable> {
                 _sortData(field, ascending);
               }
             : null,
-        tooltip: widget.enableSorting ? 'Clicca per ordinare' : null,
+        tooltip: widget.enableSorting
+            ? context.reportL10n.tableClickToSort
+            : null,
       );
     }).toList();
   }
@@ -373,7 +376,7 @@ class _InteractiveTableState extends State<InteractiveTable> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Esportazione di ${selectedData.length} record in sviluppo',
+          context.reportL10n.tableExportNotReady(selectedData.length),
         ),
         duration: const Duration(seconds: 2),
       ),

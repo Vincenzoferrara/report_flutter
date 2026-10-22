@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../renderers/report_renderer.dart';
 import '../../models/report_template.dart';
 import '../../schema/data_schema.dart';
+import '../../l10n/report_l10n.dart';
 
 /// Sidebar widget of the report viewer
 class ReportSidebar extends StatefulWidget {
@@ -101,7 +102,7 @@ class _ReportSidebarState extends State<ReportSidebar>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Pannello Report',
+                context.reportL10n.sidebarTitle,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -128,10 +129,16 @@ class _ReportSidebarState extends State<ReportSidebar>
   Widget _buildTabBar() {
     return TabBar(
       controller: _tabController,
-      tabs: const [
-        Tab(icon: Icon(Icons.filter_list), text: 'Filtri'),
-        Tab(icon: Icon(Icons.tune), text: 'Parametri'),
-        Tab(icon: Icon(Icons.view_carousel), text: 'Pagine'),
+      tabs: [
+        Tab(
+          icon: Icon(Icons.filter_list),
+          text: context.reportL10n.sidebarFilters,
+        ),
+        Tab(icon: Icon(Icons.tune), text: context.reportL10n.sidebarParameters),
+        Tab(
+          icon: Icon(Icons.view_carousel),
+          text: context.reportL10n.sidebarPages,
+        ),
       ],
       labelStyle: const TextStyle(fontSize: 10),
       unselectedLabelStyle: const TextStyle(fontSize: 10),
@@ -148,7 +155,7 @@ class _ReportSidebarState extends State<ReportSidebar>
 
   Widget _buildFiltersTab() {
     if (!widget.options.enableFilters) {
-      return const Center(child: Text('Filtri non abilitati'));
+      return Center(child: Text(context.reportL10n.sidebarFiltersDisabled));
     }
 
     return Column(
@@ -160,14 +167,14 @@ class _ReportSidebarState extends State<ReportSidebar>
               const Icon(Icons.filter_alt_outlined, size: 16),
               const SizedBox(width: 8),
               Text(
-                'Filtri Dati',
+                context.reportL10n.sidebarDataFilters,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const Spacer(),
               if (_filters.isNotEmpty)
                 TextButton(
                   onPressed: _clearAllFilters,
-                  child: const Text('Cancella'),
+                  child: Text(context.reportL10n.sidebarClear),
                 ),
             ],
           ),
@@ -188,7 +195,7 @@ class _ReportSidebarState extends State<ReportSidebar>
           child: ElevatedButton.icon(
             onPressed: _addFilter,
             icon: const Icon(Icons.add, size: 16),
-            label: const Text('Aggiungi Filtro'),
+            label: Text(context.reportL10n.sidebarAddFilter),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(36),
             ),
@@ -210,12 +217,12 @@ class _ReportSidebarState extends State<ReportSidebar>
           ),
           const SizedBox(height: 16),
           Text(
-            'Nessun filtro configurato',
+            context.reportL10n.sidebarNoFilters,
             style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
-            'Aggiungi filtri per filtrare i dati del report',
+            context.reportL10n.sidebarNoFiltersHelp,
             style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
             textAlign: TextAlign.center,
           ),
@@ -290,7 +297,7 @@ class _ReportSidebarState extends State<ReportSidebar>
 
   Widget _buildParametersTab() {
     if (!widget.options.enableParameters) {
-      return const Center(child: Text('Parametri non abilitati'));
+      return Center(child: Text(context.reportL10n.sidebarParametersDisabled));
     }
 
     return Column(
@@ -302,7 +309,7 @@ class _ReportSidebarState extends State<ReportSidebar>
               const Icon(Icons.tune, size: 16),
               const SizedBox(width: 8),
               Text(
-                'Parametri Report',
+                context.reportL10n.sidebarReportParameters,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
             ],
@@ -326,7 +333,7 @@ class _ReportSidebarState extends State<ReportSidebar>
           child: ElevatedButton.icon(
             onPressed: _addParameter,
             icon: const Icon(Icons.add, size: 16),
-            label: const Text('Aggiungi Parametro'),
+            label: Text(context.reportL10n.sidebarAddParameter),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(36),
             ),
@@ -344,12 +351,12 @@ class _ReportSidebarState extends State<ReportSidebar>
           Icon(Icons.tune, size: 48, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
-            'Nessun parametro configurato',
+            context.reportL10n.sidebarNoParameters,
             style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
-            'Aggiungi parametri per personalizzare il report',
+            context.reportL10n.sidebarNoParametersHelp,
             style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
             textAlign: TextAlign.center,
           ),
@@ -384,7 +391,7 @@ class _ReportSidebarState extends State<ReportSidebar>
               const Icon(Icons.view_carousel, size: 16),
               const SizedBox(width: 8),
               Text(
-                'Miniature Pagine',
+                context.reportL10n.sidebarPageThumbnails,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               const Spacer(),
@@ -417,7 +424,7 @@ class _ReportSidebarState extends State<ReportSidebar>
   }
 
   Widget _buildEmptyPages() {
-    return const Center(child: Text('Nessuna pagina disponibile'));
+    return Center(child: Text(context.reportL10n.sidebarNoPages));
   }
 
   Widget _buildPageThumbnail(int pageIndex) {
@@ -461,7 +468,7 @@ class _ReportSidebarState extends State<ReportSidebar>
               height: 24,
               alignment: Alignment.center,
               child: Text(
-                'Pagina ${pageIndex + 1}',
+                context.reportL10n.sidebarPageNumber(pageIndex + 1),
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -480,15 +487,15 @@ class _ReportSidebarState extends State<ReportSidebar>
   String _getOperatorLabel(String operator) {
     switch (operator) {
       case 'equals':
-        return 'Uguale';
+        return context.reportL10n.sidebarOpEquals;
       case 'contains':
-        return 'Contiene';
+        return context.reportL10n.sidebarOpContains;
       case 'greater':
-        return 'Maggiore';
+        return context.reportL10n.sidebarOpGreater;
       case 'less':
-        return 'Minore';
+        return context.reportL10n.sidebarOpLess;
       case 'between':
-        return 'Tra';
+        return context.reportL10n.sidebarOpBetween;
       default:
         return operator;
     }
@@ -499,12 +506,12 @@ class _ReportSidebarState extends State<ReportSidebar>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Aggiungi Filtro'),
-        content: const Text('Funzionalità da implementare'),
+        title: Text(context.reportL10n.sidebarAddFilter),
+        content: Text(context.reportL10n.sidebarNotReady),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(context.reportL10n.printClose),
           ),
         ],
       ),
@@ -537,12 +544,12 @@ class _ReportSidebarState extends State<ReportSidebar>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Aggiungi Parametro'),
-        content: const Text('Funzionalità da implementare'),
+        title: Text(context.reportL10n.sidebarAddParameter),
+        content: Text(context.reportL10n.sidebarNotReady),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(context.reportL10n.printClose),
           ),
         ],
       ),
@@ -554,12 +561,12 @@ class _ReportSidebarState extends State<ReportSidebar>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Modifica $key'),
-        content: Text('Valore attuale: $value'),
+        title: Text(context.reportL10n.sidebarEditParameter(key)),
+        content: Text(context.reportL10n.sidebarCurrentValue('$value')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(context.reportL10n.printClose),
           ),
         ],
       ),

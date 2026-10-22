@@ -1,64 +1,134 @@
-# report_flutter
+[![pub package](https://img.shields.io/pub/v/report_flutter.svg)](https://pub.dev/packages/report_flutter)
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](https://github.com/Vincenzoferrara/report_flutter/blob/main/LICENSE)
 
-[![pub package](https://img.shields.io/pub/v/report_flutter.svg?style=for-the-badge)](https://pub.dev/packages/report_flutter)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-report__flutter-181717?style=for-the-badge&logo=github)](https://github.com/Vincenzoferrara/report_flutter)
+Design, preview and print labels and reports in Flutter: a drag-and-drop
+designer, ready-made paper formats, barcodes, QR codes and PDF printing.
 
-A Flutter library to design, preview and print reports and labels, with a drag-and-drop designer, paper formats, barcodes, QR codes and PDF export.
+- **Platforms:** Android, iOS, Linux, macOS and Windows. Web is not
+  supported, because file import and export use `dart:io`.
+- **Multilingual:** every screen, designer and viewer included, ships in
+  **English** and **Italian** and follows the app locale. See
+  [Translations](#translations).
+- **License:** GPL-3.0. An app that uses this package and is distributed
+  must use a GPL-3.0 compatible license.
 
-Source code and issues: <https://github.com/Vincenzoferrara/report_flutter>
+![Print preview of a sheet of 24 labels](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/preview_sheet.png)
 
-## ✨ Features
+## Contents
 
-### 🎨 Report builder
-- **Drag-and-drop designer** to build custom templates
-- **Many elements**: text, data fields, barcodes, QR codes, shapes, images, tables, charts
-- **Alignment guides** with snapping
-- **Per-element properties** (font, colors, borders, conditional formatting, Markdown)
-- **Undo/redo** with keyboard shortcuts
-- **Zoom and pan** with millimetre rulers
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Getting started](#getting-started)
+- [Translations](#translations)
+- [Usage](#usage)
+- [Supported elements](#supported-elements)
+- [Additional information](#additional-information)
 
-### 📊 Data schema
-- **Validation** of the data against a schema
-- **Runtime type checks**
-- **Required/optional fields** with validation rules
-- **Schema registry** for reusable schemas
+## Features
 
-### 📄 Report viewer
-- **Standalone viewer** for existing templates
-- **Pagination** for multi-page reports
-- **Interactive zoom and pan**
-- Templates from a **file, an asset or an object**
+- **Print center**: one screen to pick a template, preview it and print
+  it, with templates grouped by category.
+- **Template designer**: drag-and-drop editor with millimetre rulers,
+  alignment guides, snapping, undo/redo, zoom and pan.
+- **Paper formats**: adhesive A4 sheets, thermal label rolls and A4, A5
+  and A6 pages, plus custom formats.
+- **PDF printing**: the PDF uses the same millimetre measures as the
+  designer. Text shrinks to fit its box.
+- **Barcodes and QR codes**: Code 128, EAN-13, EAN-8, UPC, Code 39 and QR.
+- **Your storage**: templates are saved through a `PrintStore` that you
+  implement (server, database, files).
+- **Data schema**: validate the data of a report against typed fields.
+- **Report viewer**: show reports with pagination, zoom and pan.
+- **Import and export**: CSV and JSON import; PDF, CSV and Excel export.
+- **Template files**: a versioned `.rpt` JSON format that holds the
+  template, its schema and its metadata.
 
-### 🖨️ Print system
-- **Template library** with categories, stored wherever the app wants (server, database, files)
-- **Ready-made paper formats**: adhesive A4 sheets, thermal rolls, A4/A5/A6 pages
-- **Print center** with preview, positions already used on each sheet and rows to print
-- **PDF printing** with the same millimetre measures as the designer
+## Screenshots
 
-### 💾 Template format (.rpt)
-- **Versioned JSON format**
-- Holds the **template, the schema and the metadata** in a single file
-- Can embed **sample data**
+All screenshots come from the
+[example app](https://github.com/Vincenzoferrara/report_flutter/tree/main/example).
 
-## 🚀 Getting started
+### Print
 
-### Installation
+Pick a template from the print center:
+
+![Print center with the templates grouped by category](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/print_center.png)
+
+Choose how many copies to print and preview the whole sheet:
+
+![Print preview of a sheet of 24 labels](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/preview_sheet.png)
+
+Or preview one label at full size:
+
+![Print preview of a single label](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/preview_label.png)
+
+Pick the paper format:
+
+![Paper format choice in the print screen](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/paper_choice.png)
+
+### Templates
+
+Manage templates, categories and paper formats:
+
+![Templates tab with the template list](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/templates.png)
+
+Edit, rename, duplicate, move or delete a template:
+
+![Template menu with edit, rename, duplicate, move and delete](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/template_menu.png)
+
+Create a template:
+
+![New template dialog with name, category and paper format](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/new_template.png)
+
+### Designer
+
+Drag elements on a canvas with millimetre rulers:
+
+![Template designer with the element palette and the canvas](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/designer.png)
+
+Select an element to change its properties:
+
+![Properties panel of a selected data field](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/designer_properties.png)
+
+Check the result with sample data in the report viewer:
+
+![Report viewer with filters, parameters and pages](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/report_viewer.png)
+
+### Paper formats
+
+Use the ready-made sheets and rolls:
+
+![Paper formats page with adhesive A4 sheets](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/paper_formats.png)
+
+Or create your own format:
+
+![New paper format dialog with sizes, columns, rows and margins](https://raw.githubusercontent.com/Vincenzoferrara/report_flutter/main/doc/screenshots/new_paper_format.png)
+
+## Getting started
+
+Add the package:
 
 ```bash
 flutter pub add report_flutter
 ```
 
-or add it to `pubspec.yaml`:
+Import it:
 
-```yaml
-dependencies:
-  report_flutter: ^1.0.0
+```dart
+import 'package:report_flutter/report_flutter.dart';
 ```
 
-### Translations
+## Translations
 
-The library screens are available in English and Italian. Add `ReportLocalizations.delegate` to the app delegates; without it the texts are shown in English.
+The library is multilingual. It ships these languages:
+
+| Language | Locale |
+|----------|--------|
+| English  | `en`   |
+| Italian  | `it`   |
+
+Register `ReportLocalizations.delegate` in your app. The library screens
+then follow the app locale. Without the delegate, they are in English.
 
 ```dart
 MaterialApp(
@@ -69,222 +139,171 @@ MaterialApp(
     GlobalWidgetsLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
   ],
-  home: const MyHomePage(),
+  home: const HomePage(),
 );
 ```
 
-### Report builder
+To force one language, set `locale`, for example `const Locale('en')`.
+
+To add a language, copy `lib/l10n/report_en.arb` to a new file such as
+`report_de.arb`, translate it and open a pull request.
+
+## Usage
+
+### Print center
+
+The print center is the main entry point. Give it a `PrintLibrary`, which
+stores the templates, and a `PrintDataProvider`, which describes your data.
 
 ```dart
-import 'package:report_flutter/report_flutter.dart';
+final library = PrintLibrary(
+  store: InMemoryPrintStore(), // or your own PrintStore
+  options: PrintLibraryOptions(
+    loadDefaultPaperFormats: true,
+    defaultCategories: (_) => const [
+      PrintCategory(id: 'labels', name: 'Labels', position: 0),
+    ],
+  ),
+);
 
-class MyReportBuilder extends StatelessWidget {
-  const MyReportBuilder({super.key});
+class ProductDataProvider extends PrintDataProvider {
+  const ProductDataProvider();
 
   @override
-  Widget build(BuildContext context) {
-    return ReportBuilder(
-      template: myTemplate,
-      sampleData: productData,
-      onTemplateChanged: (template) {
-        // Called on every change of the template
-      },
-      onSave: (template) => saveTemplate(template),
-    );
-  }
+  Map<String, dynamic> sampleData(
+    BuildContext context,
+    PrintTemplate template,
+  ) => const {
+    'name': 'Basic cotton T-shirt',
+    'price': '€ 29.90',
+    'code': '8001234567890',
+  };
 }
+
+PrintCenter(library: library, dataProvider: const ProductDataProvider());
 ```
 
-### Report viewer
+The main classes of the print system:
+
+| Class | Role |
+|-------|------|
+| `PrintLibrary` | Templates, categories and paper formats on a `PrintStore`. |
+| `PrintStore` | Storage you implement. `InMemoryPrintStore` is for demos. |
+| `PrintCenter` | Print and Templates tabs, preview and print. |
+| `PrintDataProvider` | Sample data, rows to print, designer settings. |
+| `PrintJob`, `PrintRow` | Real rows to print, passed as `pendingJob`. |
+| `PrintDesign` | Builds millimetre designs in code. |
+| `PrintPdfRenderer` | Renders templates to PDF. |
+
+### Templates in code
+
+`PrintDesign` builds a template with measures in millimetres:
 
 ```dart
-class MyReportViewer extends StatelessWidget {
-  const MyReportViewer({super.key});
+final design = PrintDesign(70, 37)
+  ..field('name', 2.5, 2.5, 65, 5.5, size: 3.2, bold: true)
+  ..field('price', 2.5, 24, 33, 10, size: 5.6, bold: true)
+  ..barcode('code', 37, 21, 30.5, 13.5);
 
-  @override
-  Widget build(BuildContext context) {
-    return ReportViewer(
-      templateAsset: 'assets/templates/product_label.rpt',
-      data: productList,
-      options: const ReportViewerOptions(scale: 2.0, showGrid: true),
-      enablePagination: true,
-    );
-  }
-}
+final template = PrintTemplate(
+  id: 'price_label',
+  name: 'Price label',
+  categoryId: 'labels',
+  paperFormatId: 'a4_3x8',
+  design: design.build(id: 'price_label', name: 'Price label'),
+);
 ```
 
-### Custom data schema
+### Report builder and viewer
+
+`ReportBuilder` is the drag-and-drop editor of a `ReportTemplate`.
+`ReportViewer` shows a template filled with data.
 
 ```dart
-class MyProductSchema extends DataSchema {
+ReportBuilder(
+  template: myTemplate,
+  sampleData: product,
+  onSave: (template) => saveTemplate(template),
+);
+
+ReportViewer(
+  templateAsset: 'assets/templates/product_label.rpt',
+  data: products,
+  options: const ReportViewerOptions(scale: 2.0, showGrid: true),
+);
+```
+
+### Data schema
+
+A `DataSchema` lists the fields of your data and validates them:
+
+```dart
+class ProductSchema extends DataSchema {
   @override
-  String get name => 'MyProduct';
+  String get name => 'Product';
 
   @override
-  String get displayName => 'Custom product';
+  String get displayName => 'Product';
 
   @override
   String get description => 'Products of the shop';
 
   @override
   List<FieldDefinition> get fields => [
-        FieldDefinition(
-          name: 'id',
-          displayName: 'ID',
-          type: int,
-          isRequired: true,
-        ),
-        FieldDefinition(
-          name: 'name',
-          displayName: 'Name',
-          type: String,
-          isRequired: true,
-          validationRules: ['minLength:2', 'maxLength:100'],
-        ),
-      ];
+    FieldDefinition(
+      name: 'name',
+      displayName: 'Name',
+      type: String,
+      isRequired: true,
+      validationRules: ['minLength:2', 'maxLength:100'],
+    ),
+  ];
 
   @override
-  Map<String, dynamic> get sampleData => {'id': 1, 'name': 'Sample product'};
+  Map<String, dynamic> get sampleData => {'name': 'Sample product'};
 
   @override
   Map<String, dynamic> get metadata => const {};
 }
 
-SchemaRegistry.register('MyProduct', () => MyProductSchema());
+SchemaRegistry.register('Product', () => ProductSchema());
 ```
 
-## 🖨️ Print system (`lib/print/`)
-
-Manages print templates (labels, signs, reports), paper formats and PDF printing. The app only provides where the templates are stored and its own data.
-
-- **`PrintLibrary`**: manages templates, categories and paper formats on a `PrintStore`, an interface the app implements (server, database, files). Every change goes through the store first. `InMemoryPrintStore` keeps everything in memory for demos and tests.
-- **`PrintLibraryOptions`**: `loadDefaultPaperFormats` loads the ready-made paper formats once (`PaperFormatDefaults`); with `false` the formats are created by hand. `defaultTemplates` and `defaultCategories` are the ready-made templates and categories of the app.
-- **`PrintCenter`**: screen with the Print and Template tabs. Templates have no types: they all live in one screen, grouped by category, and paper formats apply to all of them. It covers new, rename, duplicate, move and delete for templates and categories, paper format management, an always-visible preview, the positions already used on each sheet and the rows to print.
-- **`PrintDataProvider`**: what the app says about its data: sample data, the footer of the reports, which templates accept real rows, how to pick new rows, and extra settings in the designer bar (saved in `PrintTemplate.settings`).
-- **`PrintJob` / `PrintRow`**: rows with real data (title, subtitle, fixed quantity, fields for the chosen template), passed to the print center with `pendingJob`.
-- **`openPrintTemplateDesigner`**: designer page with the paper format (the canvas takes the size of one cell) and the app settings.
-- **`PrintPdfRenderer`**: prints the designer elements with the same millimetre measures; text shrinks to fit its box; tables, barcodes, QR codes and shapes are supported. It uses the bundled Noto fonts for the euro sign.
-- **`PrintDesign`**: builder of millimetre designs, to create ready-made templates in code.
-
-```dart
-final library = PrintLibrary(
-  store: MyServerPrintStore(),
-  options: PrintLibraryOptions(
-    loadDefaultPaperFormats: true,
-    defaultTemplates: (context) => myTemplates(context),
-  ),
-);
-
-PrintCenter(library: library, dataProvider: MyDataProvider());
-```
-
-## 📦 Project structure
-
-```
-lib/
-├── builder/   # Drag-and-drop report builder
-├── viewer/    # Report viewer
-├── engine/    # Rendering engine
-├── models/    # Data models (templates, elements)
-├── schema/    # Data schema and validation
-├── core/      # Utilities (formulas, conditional formatting, cache)
-├── formats/   # .rpt file handling
-├── import/    # CSV/JSON import
-├── export/    # PDF, CSV and Excel export
-├── print/     # Print system
-├── theme/     # Theme of the library screens
-└── l10n/      # Translations
-```
-
-## 🎯 Supported elements
+## Supported elements
 
 | Element | Description | Main properties |
 |---------|-------------|-----------------|
-| **Text** | Static text | font, alignment, color |
-| **DynamicField** | Data field | fieldName, format |
-| **Barcode** | Barcode | barcodeType (code128, EAN, ...), showText |
-| **QR Code** | QR code | errorCorrection, content |
-| **Image** | Image | source (field/asset/url), fit |
-| **Shapes** | Lines, rectangles, circles | stroke, fill, size |
-| **Table** | Data table | columns, dataSource |
-| **Charts** | Pie, bar and line charts | dataSource, valueField, labelField |
-| **Controls** | Checkbox, textbox | fieldName |
-| **Formula** | Excel-like calculation | formula, variables, format |
-| **Markdown** | Markdown text | content |
+| Text | Static text | font, alignment, color |
+| Dynamic field | Value from the data | `fieldName`, `format` |
+| Barcode | Code 128, EAN, UPC, Code 39 | `barcodeType`, `showText` |
+| QR code | QR code | `errorCorrection` |
+| Image | Image from a field, asset or URL | `source`, `fit` |
+| Shapes | Line, rectangle, circle | stroke, fill |
+| Table | Data table | `columns`, `dataSource` |
+| Charts | Pie, bar and line charts | `valueField`, `labelField` |
+| Controls | Checkbox, text box | `fieldName` |
+| Formula | Excel-like calculation | `formula`, `variables` |
+| Markdown | Markdown text | content |
 
-## 🔧 Examples
+## Additional information
 
-### Product label
+- **Example:** the
+  [example app](https://github.com/Vincenzoferrara/report_flutter/tree/main/example)
+  opens the print center with a demo label template.
+- **Issues and ideas:**
+  [GitHub issues](https://github.com/Vincenzoferrara/report_flutter/issues).
+- **Contributing:** pull requests are welcome, including new translations.
+  Contributions are released under GPL-3.0.
+- **Changelog:**
+  [CHANGELOG.md](https://github.com/Vincenzoferrara/report_flutter/blob/main/CHANGELOG.md).
 
-```dart
-final productLabel = ReportTemplate(
-  id: 'product_label',
-  name: 'Product label',
-  itemWidth: 50,
-  itemHeight: 30,
-  dataSchema: MyProductSchema(),
-  elements: [
-    ReportElement(
-      id: 'name',
-      type: ReportElementType.dynamicField,
-      x: 5, y: 5,
-      width: 40, height: 8,
-      properties: {'fieldName': 'name', 'fontSize': 8},
-    ),
-    ReportElement(
-      id: 'barcode',
-      type: ReportElementType.barcode,
-      x: 5, y: 15,
-      width: 40, height: 10,
-      properties: {'fieldName': 'sku', 'barcodeType': 'code128'},
-    ),
-  ],
-);
-```
+### License
 
-### Document report
+Copyright © 2025-2026 Vincenzo Ferrara.
 
-```dart
-final invoice = ReportTemplate(
-  id: 'invoice',
-  name: 'Invoice',
-  reportType: ReportType.document,
-  pageWidth: 210,
-  pageHeight: 297,
-  dataSchema: InvoiceSchema(),
-  elements: [
-    // Header, item table, totals, ...
-  ],
-);
-```
+This package is free software under the
+[GNU General Public License v3.0](https://github.com/Vincenzoferrara/report_flutter/blob/main/LICENSE).
+It comes with no warranty.
 
-## 📱 Example app
-
-The [`example/`](example) folder contains a demo that opens the print center (`PrintCenter`) on an in-memory store, with one example label template, the default paper formats and sample data.
-
-```bash
-cd example
-flutter run
-```
-
-## 🤝 Contributing
-
-Contributions are welcome and are released under the same license as the project (GPL-3.0). Please open an [issue](https://github.com/Vincenzoferrara/report_flutter/issues) or a pull request on [GitHub](https://github.com/Vincenzoferrara/report_flutter):
-
-1. **Fork** the repository
-2. **Create a branch** (`git checkout -b feature/my-feature`)
-3. **Commit** your changes
-4. **Push** the branch (`git push origin feature/my-feature`)
-5. **Open a pull request**
-
-## 📄 License
-
-Copyright © 2025-2026 Vincenzo Ferrara
-
-report_flutter is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3, as published by the Free Software Foundation. The full text is in the [LICENSE](LICENSE) file.
-
-It is distributed in the hope that it will be useful, but **without any warranty**, without even the implied warranty of merchantability or fitness for a particular purpose.
-
-An app that uses this library and is distributed must also be released under a GPL-3.0 compatible license.
-
-The Noto Sans and Noto Serif fonts in `assets/fonts/` are distributed under the SIL Open Font License 1.1 (see [`assets/fonts/OFL.txt`](assets/fonts/OFL.txt)).
+The bundled Noto Sans and Noto Serif fonts use the
+[SIL Open Font License 1.1](https://github.com/Vincenzoferrara/report_flutter/blob/main/assets/fonts/OFL.txt).

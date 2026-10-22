@@ -580,5 +580,930 @@
   "printAddLabels": "Add label",
   "@printAddLabels": {
     "description": "Opens the product picker to add products to the labels"
+  },
+  "builderTabDesigner": "Designer",
+  "@builderTabDesigner": {
+    "description": "builderTabDesigner (report_builder.dart)"
+  },
+  "builderNoElements": "No elements in the template",
+  "@builderNoElements": {
+    "description": "builderNoElements (report_builder.dart)"
+  },
+  "builderNoElementsHelp": "Add elements in the Designer to see the preview",
+  "@builderNoElementsHelp": {
+    "description": "builderNoElementsHelp (report_builder.dart)"
+  },
+  "builderElements": "Elements",
+  "@builderElements": {
+    "description": "builderElements (report_builder.dart)"
+  },
+  "builderText": "Text",
+  "@builderText": {
+    "description": "builderText (report_builder.dart)"
+  },
+  "builderStaticText": "Static text",
+  "@builderStaticText": {
+    "description": "builderStaticText (report_builder.dart)"
+  },
+  "builderGroupCodes": "Codes",
+  "@builderGroupCodes": {
+    "description": "builderGroupCodes (report_builder.dart)"
+  },
+  "builderGroupShapes": "Shapes",
+  "@builderGroupShapes": {
+    "description": "builderGroupShapes (report_builder.dart)"
+  },
+  "builderLine": "Line",
+  "@builderLine": {
+    "description": "builderLine (report_builder.dart)"
+  },
+  "builderRectangle": "Rectangle",
+  "@builderRectangle": {
+    "description": "builderRectangle (report_builder.dart)"
+  },
+  "builderCircle": "Circle",
+  "@builderCircle": {
+    "description": "builderCircle (report_builder.dart)"
+  },
+  "builderGroupControls": "Controls",
+  "@builderGroupControls": {
+    "description": "builderGroupControls (report_builder.dart)"
+  },
+  "builderTextbox": "Text box",
+  "@builderTextbox": {
+    "description": "builderTextbox (report_builder.dart)"
+  },
+  "builderGroupOther": "Other",
+  "@builderGroupOther": {
+    "description": "builderGroupOther (report_builder.dart)"
+  },
+  "builderImage": "Image",
+  "@builderImage": {
+    "description": "builderImage (report_builder.dart)"
+  },
+  "builderDate": "Date",
+  "@builderDate": {
+    "description": "builderDate (report_builder.dart)"
+  },
+  "builderGroupDataFields": "Data fields",
+  "@builderGroupDataFields": {
+    "description": "builderGroupDataFields (report_builder.dart)"
+  },
+  "builderGenericField": "Generic field",
+  "@builderGenericField": {
+    "description": "builderGenericField (report_builder.dart)"
+  },
+  "reportFitToScreen": "Fit to screen",
+  "@reportFitToScreen": {
+    "description": "reportFitToScreen (report_builder.dart)"
+  },
+  "reportActualSize": "Actual size",
+  "@reportActualSize": {
+    "description": "reportActualSize (report_builder.dart)"
+  },
+  "builderUndo": "Undo (Ctrl+Z)",
+  "@builderUndo": {
+    "description": "builderUndo (report_builder.dart)"
+  },
+  "builderRedo": "Redo (Ctrl+Y)",
+  "@builderRedo": {
+    "description": "builderRedo (report_builder.dart)"
+  },
+  "builderLoadTemplate": "Load template",
+  "@builderLoadTemplate": {
+    "description": "builderLoadTemplate (report_builder.dart)"
+  },
+  "builderSaveTemplate": "Save template",
+  "@builderSaveTemplate": {
+    "description": "builderSaveTemplate (report_builder.dart)"
+  },
+  "builderExportPdf": "Export PDF",
+  "@builderExportPdf": {
+    "description": "builderExportPdf (report_builder.dart)"
+  },
+  "builderProperties": "Properties",
+  "@builderProperties": {
+    "description": "builderProperties (report_builder.dart)"
+  },
+  "builderSelectElement": "Select an element",
+  "@builderSelectElement": {
+    "description": "builderSelectElement (report_builder.dart)"
+  },
+  "builderSectionId": "Identifier",
+  "@builderSectionId": {
+    "description": "builderSectionId (report_builder.dart)"
+  },
+  "builderSectionPosition": "Position",
+  "@builderSectionPosition": {
+    "description": "builderSectionPosition (report_builder.dart)"
+  },
+  "builderSectionSize": "Size",
+  "@builderSectionSize": {
+    "description": "builderSectionSize (report_builder.dart)"
+  },
+  "builderWidthMm": "Width (mm)",
+  "@builderWidthMm": {
+    "description": "builderWidthMm (report_builder.dart)"
+  },
+  "builderHeightMm": "Height (mm)",
+  "@builderHeightMm": {
+    "description": "builderHeightMm (report_builder.dart)"
+  },
+  "builderSectionFormatting": "Formatting",
+  "@builderSectionFormatting": {
+    "description": "builderSectionFormatting (report_builder.dart)"
+  },
+  "builderFontSizeMm": "Font size (mm)",
+  "@builderFontSizeMm": {
+    "description": "builderFontSizeMm (report_builder.dart)"
+  },
+  "builderFontWeight": "Font weight",
+  "@builderFontWeight": {
+    "description": "builderFontWeight (report_builder.dart)"
+  },
+  "builderHorizontalAlignment": "Horizontal alignment",
+  "@builderHorizontalAlignment": {
+    "description": "builderHorizontalAlignment (report_builder.dart)"
+  },
+  "builderVerticalAlignment": "Vertical alignment",
+  "@builderVerticalAlignment": {
+    "description": "builderVerticalAlignment (report_builder.dart)"
+  },
+  "builderTextColor": "Text color",
+  "@builderTextColor": {
+    "description": "builderTextColor (report_builder.dart)"
+  },
+  "builderBackgroundColor": "Background color",
+  "@builderBackgroundColor": {
+    "description": "builderBackgroundColor (report_builder.dart)"
+  },
+  "builderUseMarkdown": "Use Markdown",
+  "@builderUseMarkdown": {
+    "description": "builderUseMarkdown (report_builder.dart)"
+  },
+  "builderSectionBorder": "Border",
+  "@builderSectionBorder": {
+    "description": "builderSectionBorder (report_builder.dart)"
+  },
+  "builderBorderWidthMm": "Border width (mm)",
+  "@builderBorderWidthMm": {
+    "description": "builderBorderWidthMm (report_builder.dart)"
+  },
+  "builderBorderColor": "Border color",
+  "@builderBorderColor": {
+    "description": "builderBorderColor (report_builder.dart)"
+  },
+  "builderSectionContent": "Content",
+  "@builderSectionContent": {
+    "description": "builderSectionContent (report_builder.dart)"
+  },
+  "builderDataField": "Data field",
+  "@builderDataField": {
+    "description": "builderDataField (report_builder.dart)"
+  },
+  "builderNoDataFieldsSchema": "No data fields available. Link a data schema to the template.",
+  "@builderNoDataFieldsSchema": {
+    "description": "builderNoDataFieldsSchema (report_builder.dart)"
+  },
+  "builderField": "Field",
+  "@builderField": {
+    "description": "builderField (report_builder.dart)"
+  },
+  "builderPrefix": "Prefix",
+  "@builderPrefix": {
+    "description": "builderPrefix (report_builder.dart)"
+  },
+  "builderSuffix": "Suffix",
+  "@builderSuffix": {
+    "description": "builderSuffix (report_builder.dart)"
+  },
+  "builderType": "Type",
+  "@builderType": {
+    "description": "builderType (report_builder.dart)"
+  },
+  "builderShowText": "Show text",
+  "@builderShowText": {
+    "description": "builderShowText (report_builder.dart)"
+  },
+  "builderBorderRadiusMm": "Corner radius (mm)",
+  "@builderBorderRadiusMm": {
+    "description": "builderBorderRadiusMm (report_builder.dart)"
+  },
+  "builderFillColor": "Fill color",
+  "@builderFillColor": {
+    "description": "builderFillColor (report_builder.dart)"
+  },
+  "builderThicknessMm": "Thickness (mm)",
+  "@builderThicknessMm": {
+    "description": "builderThicknessMm (report_builder.dart)"
+  },
+  "builderColor": "Color",
+  "@builderColor": {
+    "description": "builderColor (report_builder.dart)"
+  },
+  "builderSource": "Source",
+  "@builderSource": {
+    "description": "builderSource (report_builder.dart)"
+  },
+  "builderNoDataFields": "No data fields available.",
+  "@builderNoDataFields": {
+    "description": "builderNoDataFields (report_builder.dart)"
+  },
+  "builderImageField": "Image field",
+  "@builderImageField": {
+    "description": "builderImageField (report_builder.dart)"
+  },
+  "builderAssetPath": "Asset path",
+  "@builderAssetPath": {
+    "description": "builderAssetPath (report_builder.dart)"
+  },
+  "builderImageUrl": "Image URL",
+  "@builderImageUrl": {
+    "description": "builderImageUrl (report_builder.dart)"
+  },
+  "builderFit": "Fit",
+  "@builderFit": {
+    "description": "builderFit (report_builder.dart)"
+  },
+  "builderBooleanField": "Boolean field",
+  "@builderBooleanField": {
+    "description": "builderBooleanField (report_builder.dart)"
+  },
+  "builderLabel": "Label",
+  "@builderLabel": {
+    "description": "builderLabel (report_builder.dart)"
+  },
+  "builderSizeMm": "Size (mm)",
+  "@builderSizeMm": {
+    "description": "builderSizeMm (report_builder.dart)"
+  },
+  "builderMaxLines": "Max lines",
+  "@builderMaxLines": {
+    "description": "builderMaxLines (report_builder.dart)"
+  },
+  "builderNone": "None",
+  "@builderNone": {
+    "description": "builderNone (report_builder.dart)"
+  },
+  "builderSelectColor": "Select color",
+  "@builderSelectColor": {
+    "description": "builderSelectColor (report_builder.dart)"
+  },
+  "builderPageSize": "Page size",
+  "@builderPageSize": {
+    "description": "builderPageSize (report_builder.dart)"
+  },
+  "builderPortrait": "Portrait",
+  "@builderPortrait": {
+    "description": "builderPortrait (report_builder.dart)"
+  },
+  "builderLandscape": "Landscape",
+  "@builderLandscape": {
+    "description": "builderLandscape (report_builder.dart)"
+  },
+  "builderCard": "Card",
+  "@builderCard": {
+    "description": "builderCard (report_builder.dart)"
+  },
+  "builderApply": "Apply",
+  "@builderApply": {
+    "description": "builderApply (report_builder.dart)"
+  },
+  "builderTemplateLoaded": "Template loaded",
+  "@builderTemplateLoaded": {
+    "description": "builderTemplateLoaded (report_builder.dart)"
+  },
+  "builderTemplateLoadError": "Could not load the template: {error}",
+  "@builderTemplateLoadError": {
+    "description": "builderTemplateLoadError (report_builder.dart)",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "builderPdfExported": "PDF exported",
+  "@builderPdfExported": {
+    "description": "builderPdfExported (report_builder.dart)"
+  },
+  "builderPdfExportError": "Could not export the PDF: {error}",
+  "@builderPdfExportError": {
+    "description": "builderPdfExportError (report_builder.dart)",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "builderFormulaHelp": "Excel-like syntax, with {example} for the data",
+  "@builderFormulaHelp": {
+    "description": "builderFormulaHelp (report_builder.dart)",
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "builderVariables": "Variables:",
+  "@builderVariables": {
+    "description": "builderVariables (report_builder.dart)"
+  },
+  "builderOutputFormat": "Output format",
+  "@builderOutputFormat": {
+    "description": "builderOutputFormat (report_builder.dart)"
+  },
+  "builderErrorValue": "Error value",
+  "@builderErrorValue": {
+    "description": "builderErrorValue (report_builder.dart)"
+  },
+  "builderErrorValueHint": "Value shown on error",
+  "@builderErrorValueHint": {
+    "description": "builderErrorValueHint (report_builder.dart)"
+  },
+  "builderNoFields": "No fields available",
+  "@builderNoFields": {
+    "description": "builderNoFields (report_builder.dart)"
+  },
+  "builderAddVariable": "Add variable",
+  "@builderAddVariable": {
+    "description": "builderAddVariable (report_builder.dart)"
+  },
+  "builderEnableMarkdown": "Enable Markdown rendering",
+  "@builderEnableMarkdown": {
+    "description": "builderEnableMarkdown (report_builder.dart)"
+  },
+  "builderMarkdownContent": "Markdown content",
+  "@builderMarkdownContent": {
+    "description": "builderMarkdownContent (report_builder.dart)"
+  },
+  "builderMarkdownHint": "# Title\n\n**Bold** text",
+  "@builderMarkdownHint": {
+    "description": "builderMarkdownHint (report_builder.dart)"
+  },
+  "builderAutoToc": "Automatic table of contents",
+  "@builderAutoToc": {
+    "description": "builderAutoToc (report_builder.dart)"
+  },
+  "builderAutoTocHelp": "Builds a table of contents from the headings",
+  "@builderAutoTocHelp": {
+    "description": "builderAutoTocHelp (report_builder.dart)"
+  },
+  "builderSyntaxHighlighting": "Syntax highlighting",
+  "@builderSyntaxHighlighting": {
+    "description": "builderSyntaxHighlighting (report_builder.dart)"
+  },
+  "builderSyntaxHighlightingHelp": "Highlights code blocks",
+  "@builderSyntaxHighlightingHelp": {
+    "description": "builderSyntaxHighlightingHelp (report_builder.dart)"
+  },
+  "builderTheme": "Theme",
+  "@builderTheme": {
+    "description": "builderTheme (report_builder.dart)"
+  },
+  "builderConditionalFormatting": "Conditional formatting",
+  "@builderConditionalFormatting": {
+    "description": "builderConditionalFormatting (report_builder.dart)"
+  },
+  "builderEnableConditionalFormatting": "Enable conditional formatting",
+  "@builderEnableConditionalFormatting": {
+    "description": "builderEnableConditionalFormatting (report_builder.dart)"
+  },
+  "builderConditionalFormattingHelp": "Changes the style based on the value",
+  "@builderConditionalFormattingHelp": {
+    "description": "builderConditionalFormattingHelp (report_builder.dart)"
+  },
+  "builderAddRule": "Add rule",
+  "@builderAddRule": {
+    "description": "builderAddRule (report_builder.dart)"
+  },
+  "builderRuleNumber": "Rule {number}",
+  "@builderRuleNumber": {
+    "description": "builderRuleNumber (report_builder.dart)",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "builderCondition": "Condition",
+  "@builderCondition": {
+    "description": "builderCondition (report_builder.dart)"
+  },
+  "builderValue": "Value",
+  "@builderValue": {
+    "description": "builderValue (report_builder.dart)"
+  },
+  "builderSearchText": "Text to find",
+  "@builderSearchText": {
+    "description": "builderSearchText (report_builder.dart)"
+  },
+  "builderConditionalImages": "Conditional images:",
+  "@builderConditionalImages": {
+    "description": "builderConditionalImages (report_builder.dart)"
+  },
+  "builderAddImageRule": "Add image rule",
+  "@builderAddImageRule": {
+    "description": "builderAddImageRule (report_builder.dart)"
+  },
+  "builderImageRuleNumber": "Image rule {number}",
+  "@builderImageRuleNumber": {
+    "description": "builderImageRuleNumber (report_builder.dart)",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "builderImageFieldIfTrue": "Image field (if true)",
+  "@builderImageFieldIfTrue": {
+    "description": "builderImageFieldIfTrue (report_builder.dart)"
+  },
+  "builderImageFieldIfTrueHint": "Data field that holds the image",
+  "@builderImageFieldIfTrueHint": {
+    "description": "builderImageFieldIfTrueHint (report_builder.dart)"
+  },
+  "builderFallbackImage": "Fallback image (if false)",
+  "@builderFallbackImage": {
+    "description": "builderFallbackImage (report_builder.dart)"
+  },
+  "builderFallbackImageHint": "Default asset path",
+  "@builderFallbackImageHint": {
+    "description": "builderFallbackImageHint (report_builder.dart)"
+  },
+  "viewerValidationFailed": "Data validation failed: {error}",
+  "@viewerValidationFailed": {
+    "description": "viewerValidationFailed (report_viewer.dart)",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerLoadingTemplate": "Loading template...",
+  "@viewerLoadingTemplate": {
+    "description": "viewerLoadingTemplate (report_viewer.dart)"
+  },
+  "viewerError": "Error",
+  "@viewerError": {
+    "description": "viewerError (report_viewer.dart)"
+  },
+  "viewerRetry": "Retry",
+  "@viewerRetry": {
+    "description": "viewerRetry (report_viewer.dart)"
+  },
+  "viewerNoTemplate": "No template loaded",
+  "@viewerNoTemplate": {
+    "description": "viewerNoTemplate (report_viewer.dart)"
+  },
+  "viewerNoData": "No data to display",
+  "@viewerNoData": {
+    "description": "viewerNoData (report_viewer.dart)"
+  },
+  "viewerPreviousPage": "Previous page",
+  "@viewerPreviousPage": {
+    "description": "viewerPreviousPage (report_viewer.dart)"
+  },
+  "viewerNextPage": "Next page",
+  "@viewerNextPage": {
+    "description": "viewerNextPage (report_viewer.dart)"
+  },
+  "viewerZoomOut": "Zoom out",
+  "@viewerZoomOut": {
+    "description": "viewerZoomOut (report_viewer.dart)"
+  },
+  "viewerZoomIn": "Zoom in",
+  "@viewerZoomIn": {
+    "description": "viewerZoomIn (report_viewer.dart)"
+  },
+  "viewerMenu": "Menu",
+  "@viewerMenu": {
+    "description": "viewerMenu (report_viewer.dart)"
+  },
+  "viewerRefreshData": "Refresh data",
+  "@viewerRefreshData": {
+    "description": "viewerRefreshData (report_viewer.dart)"
+  },
+  "viewerExportReport": "Export report",
+  "@viewerExportReport": {
+    "description": "viewerExportReport (report_viewer.dart)"
+  },
+  "viewerSettings": "Settings",
+  "@viewerSettings": {
+    "description": "viewerSettings (report_viewer.dart)"
+  },
+  "viewerSinglePage": "Single page",
+  "@viewerSinglePage": {
+    "description": "viewerSinglePage (report_viewer.dart)"
+  },
+  "viewerContinuousScroll": "Continuous scroll",
+  "@viewerContinuousScroll": {
+    "description": "viewerContinuousScroll (report_viewer.dart)"
+  },
+  "viewerTwoPages": "Two-page view",
+  "@viewerTwoPages": {
+    "description": "viewerTwoPages (report_viewer.dart)"
+  },
+  "viewerRefreshing": "Refreshing...",
+  "@viewerRefreshing": {
+    "description": "viewerRefreshing (report_viewer.dart)"
+  },
+  "viewerExport": "Export",
+  "@viewerExport": {
+    "description": "viewerExport (report_viewer.dart)"
+  },
+  "viewerAnnotations": "Annotations",
+  "@viewerAnnotations": {
+    "description": "viewerAnnotations (report_viewer.dart)"
+  },
+  "viewerSidebar": "Sidebar",
+  "@viewerSidebar": {
+    "description": "viewerSidebar (report_viewer.dart)"
+  },
+  "viewerRecordCount": "{count, plural, =1{1 record} other{{count} records}}",
+  "@viewerRecordCount": {
+    "description": "viewerRecordCount (report_viewer.dart)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerActiveFilters": "{count, plural, =1{1 active filter} other{{count} active filters}}",
+  "@viewerActiveFilters": {
+    "description": "viewerActiveFilters (report_viewer.dart)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerFirstPage": "First page",
+  "@viewerFirstPage": {
+    "description": "viewerFirstPage (report_viewer.dart)"
+  },
+  "viewerLastPage": "Last page",
+  "@viewerLastPage": {
+    "description": "viewerLastPage (report_viewer.dart)"
+  },
+  "viewerDataRefreshed": "Data refreshed from {source}",
+  "@viewerDataRefreshed": {
+    "description": "viewerDataRefreshed (report_viewer.dart)",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerRefreshError": "Could not refresh the data: {error}",
+  "@viewerRefreshError": {
+    "description": "viewerRefreshError (report_viewer.dart)",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerExportPdfHelp": "Export as a PDF document",
+  "@viewerExportPdfHelp": {
+    "description": "viewerExportPdfHelp (report_viewer.dart)"
+  },
+  "viewerExportExcelHelp": "Export as a spreadsheet",
+  "@viewerExportExcelHelp": {
+    "description": "viewerExportExcelHelp (report_viewer.dart)"
+  },
+  "viewerExportCsvHelp": "Export as a CSV file",
+  "@viewerExportCsvHelp": {
+    "description": "viewerExportCsvHelp (report_viewer.dart)"
+  },
+  "viewerPdfExportNotReady": "PDF export is not available yet",
+  "@viewerPdfExportNotReady": {
+    "description": "viewerPdfExportNotReady (report_viewer.dart)"
+  },
+  "viewerExportDone": "{format} export completed",
+  "@viewerExportDone": {
+    "description": "viewerExportDone (report_viewer.dart)",
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerOpen": "Open",
+  "@viewerOpen": {
+    "description": "viewerOpen (report_viewer.dart)"
+  },
+  "viewerExportError": "{format} export failed: {error}",
+  "@viewerExportError": {
+    "description": "viewerExportError (report_viewer.dart)",
+    "placeholders": {
+      "format": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerPrintNotReady": "Printing is not available yet",
+  "@viewerPrintNotReady": {
+    "description": "viewerPrintNotReady (report_viewer.dart)"
+  },
+  "viewerSettingsTitle": "Viewer settings",
+  "@viewerSettingsTitle": {
+    "description": "viewerSettingsTitle (report_viewer.dart)"
+  },
+  "viewerSettingsNotReady": "Settings are not available yet",
+  "@viewerSettingsNotReady": {
+    "description": "viewerSettingsNotReady (report_viewer.dart)"
+  },
+  "viewerActiveAnnotations": "Active annotations ({count})",
+  "@viewerActiveAnnotations": {
+    "description": "viewerActiveAnnotations (report_viewer.dart)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewerManage": "Manage",
+  "@viewerManage": {
+    "description": "viewerManage (report_viewer.dart)"
+  },
+  "viewerReportAnnotations": "Report annotations",
+  "@viewerReportAnnotations": {
+    "description": "viewerReportAnnotations (report_viewer.dart)"
+  },
+  "viewerNoAnnotations": "No annotations",
+  "@viewerNoAnnotations": {
+    "description": "viewerNoAnnotations (report_viewer.dart)"
+  },
+  "viewerAnnotationDeleted": "Annotation deleted",
+  "@viewerAnnotationDeleted": {
+    "description": "viewerAnnotationDeleted (report_viewer.dart)"
+  },
+  "viewerDeleteError": "Could not delete: {error}",
+  "@viewerDeleteError": {
+    "description": "viewerDeleteError (report_viewer.dart)",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerErrorDetail": "Error: {error}",
+  "@viewerErrorDetail": {
+    "description": "viewerErrorDetail (report_viewer.dart)",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerTemplateNotFound": "Template not found",
+  "@viewerTemplateNotFound": {
+    "description": "viewerTemplateNotFound (report_viewer.dart)"
+  },
+  "sidebarTitle": "Report panel",
+  "@sidebarTitle": {
+    "description": "sidebarTitle (report_sidebar.dart)"
+  },
+  "sidebarFilters": "Filters",
+  "@sidebarFilters": {
+    "description": "sidebarFilters (report_sidebar.dart)"
+  },
+  "sidebarParameters": "Parameters",
+  "@sidebarParameters": {
+    "description": "sidebarParameters (report_sidebar.dart)"
+  },
+  "sidebarPages": "Pages",
+  "@sidebarPages": {
+    "description": "sidebarPages (report_sidebar.dart)"
+  },
+  "sidebarFiltersDisabled": "Filters are not enabled",
+  "@sidebarFiltersDisabled": {
+    "description": "sidebarFiltersDisabled (report_sidebar.dart)"
+  },
+  "sidebarDataFilters": "Data filters",
+  "@sidebarDataFilters": {
+    "description": "sidebarDataFilters (report_sidebar.dart)"
+  },
+  "sidebarClear": "Clear",
+  "@sidebarClear": {
+    "description": "sidebarClear (report_sidebar.dart)"
+  },
+  "sidebarAddFilter": "Add filter",
+  "@sidebarAddFilter": {
+    "description": "sidebarAddFilter (report_sidebar.dart)"
+  },
+  "sidebarNoFilters": "No filters set",
+  "@sidebarNoFilters": {
+    "description": "sidebarNoFilters (report_sidebar.dart)"
+  },
+  "sidebarNoFiltersHelp": "Add filters to narrow the report data",
+  "@sidebarNoFiltersHelp": {
+    "description": "sidebarNoFiltersHelp (report_sidebar.dart)"
+  },
+  "sidebarParametersDisabled": "Parameters are not enabled",
+  "@sidebarParametersDisabled": {
+    "description": "sidebarParametersDisabled (report_sidebar.dart)"
+  },
+  "sidebarReportParameters": "Report parameters",
+  "@sidebarReportParameters": {
+    "description": "sidebarReportParameters (report_sidebar.dart)"
+  },
+  "sidebarAddParameter": "Add parameter",
+  "@sidebarAddParameter": {
+    "description": "sidebarAddParameter (report_sidebar.dart)"
+  },
+  "sidebarNoParameters": "No parameters set",
+  "@sidebarNoParameters": {
+    "description": "sidebarNoParameters (report_sidebar.dart)"
+  },
+  "sidebarNoParametersHelp": "Add parameters to customize the report",
+  "@sidebarNoParametersHelp": {
+    "description": "sidebarNoParametersHelp (report_sidebar.dart)"
+  },
+  "sidebarPageThumbnails": "Page thumbnails",
+  "@sidebarPageThumbnails": {
+    "description": "sidebarPageThumbnails (report_sidebar.dart)"
+  },
+  "sidebarNoPages": "No pages available",
+  "@sidebarNoPages": {
+    "description": "sidebarNoPages (report_sidebar.dart)"
+  },
+  "sidebarPageNumber": "Page {number}",
+  "@sidebarPageNumber": {
+    "description": "sidebarPageNumber (report_sidebar.dart)",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "sidebarOpEquals": "Equals",
+  "@sidebarOpEquals": {
+    "description": "sidebarOpEquals (report_sidebar.dart)"
+  },
+  "sidebarOpContains": "Contains",
+  "@sidebarOpContains": {
+    "description": "sidebarOpContains (report_sidebar.dart)"
+  },
+  "sidebarOpGreater": "Greater than",
+  "@sidebarOpGreater": {
+    "description": "sidebarOpGreater (report_sidebar.dart)"
+  },
+  "sidebarOpLess": "Less than",
+  "@sidebarOpLess": {
+    "description": "sidebarOpLess (report_sidebar.dart)"
+  },
+  "sidebarOpBetween": "Between",
+  "@sidebarOpBetween": {
+    "description": "sidebarOpBetween (report_sidebar.dart)"
+  },
+  "sidebarNotReady": "Not available yet",
+  "@sidebarNotReady": {
+    "description": "sidebarNotReady (report_sidebar.dart)"
+  },
+  "sidebarEditParameter": "Edit {name}",
+  "@sidebarEditParameter": {
+    "description": "sidebarEditParameter (report_sidebar.dart)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarCurrentValue": "Current value: {value}",
+  "@sidebarCurrentValue": {
+    "description": "sidebarCurrentValue (report_sidebar.dart)",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "tableSelected": "{count} selected",
+  "@tableSelected": {
+    "description": "tableSelected (interactive_table.dart)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tableSortedBy": "Sorted by {column}",
+  "@tableSortedBy": {
+    "description": "tableSortedBy (interactive_table.dart)",
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "tableTotalRows": "{count, plural, =1{1 row} other{{count} rows}}",
+  "@tableTotalRows": {
+    "description": "tableTotalRows (interactive_table.dart)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tableExportSelected": "Export selected",
+  "@tableExportSelected": {
+    "description": "tableExportSelected (interactive_table.dart)"
+  },
+  "tableClickToSort": "Click to sort",
+  "@tableClickToSort": {
+    "description": "tableClickToSort (interactive_table.dart)"
+  },
+  "tableExportNotReady": "Exporting {count} records is not available yet",
+  "@tableExportNotReady": {
+    "description": "tableExportNotReady (interactive_table.dart)",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chartNoData": "No data available",
+  "@chartNoData": {
+    "description": "chartNoData (interactive_chart.dart)"
+  },
+  "chartBar": "Bar chart",
+  "@chartBar": {
+    "description": "chartBar (interactive_chart.dart)"
+  },
+  "chartLine": "Line chart",
+  "@chartLine": {
+    "description": "chartLine (interactive_chart.dart)"
+  },
+  "chartPie": "Pie chart",
+  "@chartPie": {
+    "description": "chartPie (interactive_chart.dart)"
+  },
+  "chartArea": "Area chart",
+  "@chartArea": {
+    "description": "chartArea (interactive_chart.dart)"
+  },
+  "chartScatter": "Scatter chart",
+  "@chartScatter": {
+    "description": "chartScatter (interactive_chart.dart)"
+  },
+  "chartDataPoint": "Data point",
+  "@chartDataPoint": {
+    "description": "chartDataPoint (interactive_chart.dart)"
+  },
+  "annotationDefaultAuthor": "User",
+  "@annotationDefaultAuthor": {
+    "description": "annotationDefaultAuthor (annotation_service.dart)"
+  },
+  "annotationNewTitle": "New annotation (temporary)",
+  "@annotationNewTitle": {
+    "description": "annotationNewTitle (annotation_service.dart)"
+  },
+  "annotationEditTitle": "Edit annotation",
+  "@annotationEditTitle": {
+    "description": "annotationEditTitle (annotation_service.dart)"
+  },
+  "annotationTemporaryNotice": "This annotation is temporary and is lost when you close the report",
+  "@annotationTemporaryNotice": {
+    "description": "annotationTemporaryNotice (annotation_service.dart)"
+  },
+  "annotationContentHint": "Write your annotation here...",
+  "@annotationContentHint": {
+    "description": "annotationContentHint (annotation_service.dart)"
+  },
+  "annotationAuthor": "Author",
+  "@annotationAuthor": {
+    "description": "annotationAuthor (annotation_service.dart)"
+  },
+  "annotationAdd": "Add",
+  "@annotationAdd": {
+    "description": "annotationAdd (annotation_service.dart)"
+  },
+  "annotationContentRequired": "The content cannot be empty",
+  "@annotationContentRequired": {
+    "description": "annotationContentRequired (annotation_service.dart)"
+  },
+  "annotationTypeNote": "Note",
+  "@annotationTypeNote": {
+    "description": "annotationTypeNote (annotation_service.dart)"
+  },
+  "annotationTypeHighlight": "Highlight",
+  "@annotationTypeHighlight": {
+    "description": "annotationTypeHighlight (annotation_service.dart)"
+  },
+  "annotationTypeComment": "Comment",
+  "@annotationTypeComment": {
+    "description": "annotationTypeComment (annotation_service.dart)"
+  },
+  "annotationTypeQuestion": "Question",
+  "@annotationTypeQuestion": {
+    "description": "annotationTypeQuestion (annotation_service.dart)"
+  },
+  "annotationTypeIssue": "Issue",
+  "@annotationTypeIssue": {
+    "description": "annotationTypeIssue (annotation_service.dart)"
   }
 }

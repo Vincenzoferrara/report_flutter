@@ -8,6 +8,7 @@ import 'widgets/report_sidebar.dart';
 import '../export/report_export_service.dart';
 import '../core/data_cache_service.dart';
 import '../core/annotation_service.dart';
+import '../l10n/report_l10n.dart';
 
 /// Main widget to view reports on their own
 class ReportViewer extends StatefulWidget {
@@ -158,7 +159,9 @@ class _ReportViewerState extends State<ReportViewer> {
     final validation = _template!.validateData(widget.data);
     if (!validation.isValid) {
       setState(() {
-        _error = 'Validazione dati fallita: ${validation.errorMessage}';
+        _error = context.reportL10n.viewerValidationFailed(
+          '${validation.errorMessage}',
+        );
       });
     }
   }
@@ -204,13 +207,13 @@ class _ReportViewerState extends State<ReportViewer> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('Caricamento template...'),
+            Text(context.reportL10n.viewerLoadingTemplate),
           ],
         ),
       );
@@ -229,7 +232,10 @@ class _ReportViewerState extends State<ReportViewer> {
                 color: Theme.of(context).colorScheme.error,
               ),
               const SizedBox(height: 16),
-              Text('Errore', style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                context.reportL10n.viewerError,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: 8),
               Text(
                 _error!,
@@ -241,7 +247,7 @@ class _ReportViewerState extends State<ReportViewer> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadTemplate,
-                child: const Text('Riprova'),
+                child: Text(context.reportL10n.viewerRetry),
               ),
             ],
           ),
@@ -250,18 +256,18 @@ class _ReportViewerState extends State<ReportViewer> {
     }
 
     if (_template == null) {
-      return const Center(child: Text('Nessun template caricato'));
+      return Center(child: Text(context.reportL10n.viewerNoTemplate));
     }
 
     if (widget.data.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.data_array, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'Nessun dato da visualizzare',
+              context.reportL10n.viewerNoData,
               style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
           ],
@@ -332,7 +338,7 @@ class _ReportViewerState extends State<ReportViewer> {
             IconButton(
               onPressed: _currentPage > 0 ? _previousPage : null,
               icon: const Icon(Icons.chevron_left, size: 20),
-              tooltip: 'Pagina precedente',
+              tooltip: context.reportL10n.viewerPreviousPage,
               visualDensity: VisualDensity.compact,
             ),
             Container(
@@ -356,7 +362,7 @@ class _ReportViewerState extends State<ReportViewer> {
             IconButton(
               onPressed: _currentPage < _totalPages - 1 ? _nextPage : null,
               icon: const Icon(Icons.chevron_right, size: 20),
-              tooltip: 'Pagina successiva',
+              tooltip: context.reportL10n.viewerNextPage,
               visualDensity: VisualDensity.compact,
             ),
             const VerticalDivider(width: 16, indent: 8, endIndent: 8),
@@ -371,7 +377,7 @@ class _ReportViewerState extends State<ReportViewer> {
             IconButton(
               onPressed: () => _updateZoom(_currentOptions.scale - 0.25),
               icon: const Icon(Icons.remove, size: 18),
-              tooltip: 'Zoom indietro',
+              tooltip: context.reportL10n.viewerZoomOut,
               visualDensity: VisualDensity.compact,
             ),
             GestureDetector(
@@ -403,20 +409,20 @@ class _ReportViewerState extends State<ReportViewer> {
             IconButton(
               onPressed: () => _updateZoom(_currentOptions.scale + 0.25),
               icon: const Icon(Icons.add, size: 18),
-              tooltip: 'Zoom avanti',
+              tooltip: context.reportL10n.viewerZoomIn,
               visualDensity: VisualDensity.compact,
             ),
             const SizedBox(width: 4),
             IconButton(
               onPressed: _fitToScreen,
               icon: const Icon(Icons.fit_screen, size: 18),
-              tooltip: 'Adatta allo schermo',
+              tooltip: context.reportL10n.reportFitToScreen,
               visualDensity: VisualDensity.compact,
             ),
             IconButton(
               onPressed: _actualSize,
               icon: const Icon(Icons.crop_free, size: 18),
-              tooltip: 'Dimensione reale',
+              tooltip: context.reportL10n.reportActualSize,
               visualDensity: VisualDensity.compact,
             ),
           ],
@@ -458,12 +464,24 @@ class _ReportViewerState extends State<ReportViewer> {
       children: [
         PopupMenuButton<String>(
           icon: const Icon(Icons.menu, size: 20),
-          tooltip: 'Menu',
+          tooltip: context.reportL10n.viewerMenu,
           itemBuilder: (context) => [
-            const PopupMenuItem(value: 'refresh', child: Text('Aggiorna dati')),
-            const PopupMenuItem(value: 'export', child: Text('Esporta report')),
-            const PopupMenuItem(value: 'print', child: Text('Stampa')),
-            const PopupMenuItem(value: 'settings', child: Text('Impostazioni')),
+            PopupMenuItem(
+              value: 'refresh',
+              child: Text(context.reportL10n.viewerRefreshData),
+            ),
+            PopupMenuItem(
+              value: 'export',
+              child: Text(context.reportL10n.viewerExportReport),
+            ),
+            PopupMenuItem(
+              value: 'print',
+              child: Text(context.reportL10n.printPrint),
+            ),
+            PopupMenuItem(
+              value: 'settings',
+              child: Text(context.reportL10n.viewerSettings),
+            ),
           ],
           onSelected: _handleMenuAction,
         ),
@@ -477,7 +495,7 @@ class _ReportViewerState extends State<ReportViewer> {
         IconButton(
           onPressed: () => _changeViewMode(ReportViewMode.singlePage),
           icon: const Icon(Icons.description, size: 18),
-          tooltip: 'Pagina singola',
+          tooltip: context.reportL10n.viewerSinglePage,
           color: _currentOptions.viewMode == ReportViewMode.singlePage
               ? Theme.of(context).colorScheme.primary
               : null,
@@ -486,7 +504,7 @@ class _ReportViewerState extends State<ReportViewer> {
         IconButton(
           onPressed: () => _changeViewMode(ReportViewMode.continuous),
           icon: const Icon(Icons.view_stream, size: 18),
-          tooltip: 'Scorrimento continuo',
+          tooltip: context.reportL10n.viewerContinuousScroll,
           color: _currentOptions.viewMode == ReportViewMode.continuous
               ? Theme.of(context).colorScheme.primary
               : null,
@@ -495,7 +513,7 @@ class _ReportViewerState extends State<ReportViewer> {
         IconButton(
           onPressed: () => _changeViewMode(ReportViewMode.twoPage),
           icon: const Icon(Icons.view_column, size: 18),
-          tooltip: 'Vista a due pagine',
+          tooltip: context.reportL10n.viewerTwoPages,
           color: _currentOptions.viewMode == ReportViewMode.twoPage
               ? Theme.of(context).colorScheme.primary
               : null,
@@ -524,15 +542,15 @@ class _ReportViewerState extends State<ReportViewer> {
                   )
                 : const Icon(Icons.refresh, size: 18),
             tooltip: _isRefreshing
-                ? 'Aggiornamento in corso...'
-                : 'Aggiorna dati',
+                ? context.reportL10n.viewerRefreshing
+                : context.reportL10n.viewerRefreshData,
             visualDensity: VisualDensity.compact,
           ),
         if (_currentOptions.enableExport)
           IconButton(
             onPressed: _exportReport,
             icon: const Icon(Icons.download, size: 18),
-            tooltip: 'Esporta',
+            tooltip: context.reportL10n.viewerExport,
             visualDensity: VisualDensity.compact,
           ),
         if (_currentOptions.enableAnnotations)
@@ -541,7 +559,7 @@ class _ReportViewerState extends State<ReportViewer> {
               IconButton(
                 onPressed: _toggleAnnotations,
                 icon: const Icon(Icons.comment, size: 18),
-                tooltip: 'Annotazioni',
+                tooltip: context.reportL10n.viewerAnnotations,
                 visualDensity: VisualDensity.compact,
               ),
               if (_annotations.isNotEmpty)
@@ -565,7 +583,7 @@ class _ReportViewerState extends State<ReportViewer> {
             _currentOptions.showSidebar ? Icons.menu_open : Icons.menu,
             size: 18,
           ),
-          tooltip: 'Barra laterale',
+          tooltip: context.reportL10n.viewerSidebar,
           visualDensity: VisualDensity.compact,
         ),
       ],
@@ -590,7 +608,7 @@ class _ReportViewerState extends State<ReportViewer> {
       child: Row(
         children: [
           Text(
-            '${widget.data.length} record',
+            context.reportL10n.viewerRecordCount(widget.data.length),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -601,7 +619,9 @@ class _ReportViewerState extends State<ReportViewer> {
             Icon(Icons.filter_alt, size: 14, color: colorScheme.primary),
             const SizedBox(width: 4),
             Text(
-              '${_currentOptions.filters.where((f) => f.enabled).length} filtri attivi',
+              context.reportL10n.viewerActiveFilters(
+                _currentOptions.filters.where((f) => f.enabled).length,
+              ),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.primary,
                 fontWeight: FontWeight.w500,
@@ -791,13 +811,13 @@ class _ReportViewerState extends State<ReportViewer> {
           IconButton(
             onPressed: _currentPage > 0 ? _firstPage : null,
             icon: const Icon(Icons.first_page),
-            tooltip: 'Prima pagina',
+            tooltip: context.reportL10n.viewerFirstPage,
           ),
 
           IconButton(
             onPressed: _currentPage > 0 ? _previousPage : null,
             icon: const Icon(Icons.keyboard_arrow_left),
-            tooltip: 'Pagina precedente',
+            tooltip: context.reportL10n.viewerPreviousPage,
           ),
 
           Container(
@@ -818,13 +838,13 @@ class _ReportViewerState extends State<ReportViewer> {
           IconButton(
             onPressed: _currentPage < _totalPages - 1 ? _nextPage : null,
             icon: const Icon(Icons.keyboard_arrow_right),
-            tooltip: 'Pagina successiva',
+            tooltip: context.reportL10n.viewerNextPage,
           ),
 
           IconButton(
             onPressed: _currentPage < _totalPages - 1 ? _lastPage : null,
             icon: const Icon(Icons.last_page),
-            tooltip: 'Ultima pagina',
+            tooltip: context.reportL10n.viewerLastPage,
           ),
         ],
       ),
@@ -932,6 +952,7 @@ class _ReportViewerState extends State<ReportViewer> {
         filters: _currentOptions.filters,
         refreshCallback: widget.onRefreshData,
       );
+      if (!mounted) return;
 
       setState(() {
         _dataSource = result.source;
@@ -941,7 +962,11 @@ class _ReportViewerState extends State<ReportViewer> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Dati aggiornati da ${_getSourceLabel(result.source)}'),
+          content: Text(
+            context.reportL10n.viewerDataRefreshed(
+              _getSourceLabel(result.source),
+            ),
+          ),
           backgroundColor: result.source == DataSource.cache
               ? Colors.orange
               : Colors.green,
@@ -949,17 +974,20 @@ class _ReportViewerState extends State<ReportViewer> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Errore aggiornamento dati: $e'),
+          content: Text(context.reportL10n.viewerRefreshError('$e')),
           backgroundColor: Theme.of(context).colorScheme.error,
           duration: const Duration(seconds: 5),
         ),
       );
     } finally {
-      setState(() {
-        _isRefreshing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
     }
   }
 
@@ -982,14 +1010,14 @@ class _ReportViewerState extends State<ReportViewer> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Esporta Report',
+              context.reportL10n.viewerExportReport,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.picture_as_pdf),
               title: const Text('PDF'),
-              subtitle: const Text('Esporta come documento PDF'),
+              subtitle: Text(context.reportL10n.viewerExportPdfHelp),
               onTap: () {
                 Navigator.pop(context);
                 _exportToPDF();
@@ -998,7 +1026,7 @@ class _ReportViewerState extends State<ReportViewer> {
             ListTile(
               leading: const Icon(Icons.table_chart),
               title: const Text('Excel'),
-              subtitle: const Text('Esporta come foglio di calcolo'),
+              subtitle: Text(context.reportL10n.viewerExportExcelHelp),
               onTap: () {
                 Navigator.pop(context);
                 _exportToExcel();
@@ -1007,7 +1035,7 @@ class _ReportViewerState extends State<ReportViewer> {
             ListTile(
               leading: const Icon(Icons.description),
               title: const Text('CSV'),
-              subtitle: const Text('Esporta come file CSV'),
+              subtitle: Text(context.reportL10n.viewerExportCsvHelp),
               onTap: () {
                 Navigator.pop(context);
                 _exportToCSV();
@@ -1023,8 +1051,8 @@ class _ReportViewerState extends State<ReportViewer> {
     try {
       // TODO: Implementare esportazione PDF completa
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Esportazione PDF in sviluppo...'),
+        SnackBar(
+          content: Text(context.reportL10n.viewerPdfExportNotReady),
           duration: Duration(seconds: 2),
         ),
       );
@@ -1063,9 +1091,9 @@ class _ReportViewerState extends State<ReportViewer> {
   void _showExportSuccess(String format, String filePath) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Esportazione $format completata!'),
+        content: Text(context.reportL10n.viewerExportDone(format)),
         action: SnackBarAction(
-          label: 'Apri',
+          label: context.reportL10n.viewerOpen,
           onPressed: () {
             // TODO: Implementare apertura file
           },
@@ -1078,7 +1106,7 @@ class _ReportViewerState extends State<ReportViewer> {
   void _showExportError(String format, dynamic error) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Errore esportazione $format: $error'),
+        content: Text(context.reportL10n.viewerExportError(format, '$error')),
         backgroundColor: Theme.of(context).colorScheme.error,
         duration: const Duration(seconds: 5),
       ),
@@ -1087,8 +1115,8 @@ class _ReportViewerState extends State<ReportViewer> {
 
   void _printReport() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Stampa in sviluppo...'),
+      SnackBar(
+        content: Text(context.reportL10n.viewerPrintNotReady),
         duration: Duration(seconds: 2),
       ),
     );
@@ -1098,12 +1126,12 @@ class _ReportViewerState extends State<ReportViewer> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Impostazioni Visualizzatore'),
-        content: const Text('Impostazioni in sviluppo...'),
+        title: Text(context.reportL10n.viewerSettingsTitle),
+        content: Text(context.reportL10n.viewerSettingsNotReady),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(context.reportL10n.printClose),
           ),
         ],
       ),
@@ -1118,9 +1146,11 @@ class _ReportViewerState extends State<ReportViewer> {
     if (_showAnnotations) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Annotazioni attive (${_annotations.length})'),
+          content: Text(
+            context.reportL10n.viewerActiveAnnotations(_annotations.length),
+          ),
           action: SnackBarAction(
-            label: 'Gestisci',
+            label: context.reportL10n.viewerManage,
             onPressed: _showAnnotationsManager,
           ),
           duration: const Duration(seconds: 3),
@@ -1133,12 +1163,12 @@ class _ReportViewerState extends State<ReportViewer> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Annotazioni Report'),
+        title: Text(context.reportL10n.viewerReportAnnotations),
         content: SizedBox(
           width: 500,
           height: 400,
           child: _annotations.isEmpty
-              ? const Center(child: Text('Nessuna annotazione presente'))
+              ? Center(child: Text(context.reportL10n.viewerNoAnnotations))
               : ListView.builder(
                   itemCount: _annotations.length,
                   itemBuilder: (context, index) {
@@ -1171,7 +1201,7 @@ class _ReportViewerState extends State<ReportViewer> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Chiudi'),
+            child: Text(context.reportL10n.printClose),
           ),
         ],
       ),
@@ -1184,13 +1214,13 @@ class _ReportViewerState extends State<ReportViewer> {
       setState(() {
         _annotations.removeWhere((a) => a.id == annotationId);
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Annotazione eliminata')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.reportL10n.viewerAnnotationDeleted)),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Errore eliminazione: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.reportL10n.viewerDeleteError('$e'))),
+      );
     }
   }
 
@@ -1245,11 +1275,11 @@ class _ReportViewerState extends State<ReportViewer> {
   String _getViewModeLabel(ReportViewMode mode) {
     switch (mode) {
       case ReportViewMode.singlePage:
-        return 'Pagina singola';
+        return context.reportL10n.viewerSinglePage;
       case ReportViewMode.continuous:
         return 'Scorrimento continuo';
       case ReportViewMode.twoPage:
-        return 'Vista a due pagine';
+        return context.reportL10n.viewerTwoPages;
       case ReportViewMode.dashboard:
         return 'Dashboard';
     }
@@ -1286,12 +1316,16 @@ class SingleReportViewer extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return Center(child: Text('Errore: ${snapshot.error}'));
+          return Center(
+            child: Text(
+              context.reportL10n.viewerErrorDetail('${snapshot.error}'),
+            ),
+          );
         }
 
         final templateWithSchema = snapshot.data;
         if (templateWithSchema == null) {
-          return const Center(child: Text('Template non trovato'));
+          return Center(child: Text(context.reportL10n.viewerTemplateNotFound));
         }
 
         return Container(

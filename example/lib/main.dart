@@ -58,7 +58,8 @@ class ReportFlutterApp extends StatelessWidget {
     return MaterialApp(
       title: 'Report Flutter',
       theme: AppTheme.themeData,
-      locale: const Locale('it'),
+      // The library also ships Italian: use Locale('it') to try it.
+      locale: const Locale('en'),
       supportedLocales: ReportLocalizations.supportedLocales,
       localizationsDelegates: const [
         ReportLocalizations.delegate,

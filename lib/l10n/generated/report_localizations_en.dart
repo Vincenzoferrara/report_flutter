@@ -437,4 +437,682 @@ class ReportLocalizationsEn extends ReportLocalizations {
 
   @override
   String get printAddLabels => 'Add label';
+
+  @override
+  String get builderTabDesigner => 'Designer';
+
+  @override
+  String get builderNoElements => 'No elements in the template';
+
+  @override
+  String get builderNoElementsHelp =>
+      'Add elements in the Designer to see the preview';
+
+  @override
+  String get builderElements => 'Elements';
+
+  @override
+  String get builderText => 'Text';
+
+  @override
+  String get builderStaticText => 'Static text';
+
+  @override
+  String get builderGroupCodes => 'Codes';
+
+  @override
+  String get builderGroupShapes => 'Shapes';
+
+  @override
+  String get builderLine => 'Line';
+
+  @override
+  String get builderRectangle => 'Rectangle';
+
+  @override
+  String get builderCircle => 'Circle';
+
+  @override
+  String get builderGroupControls => 'Controls';
+
+  @override
+  String get builderTextbox => 'Text box';
+
+  @override
+  String get builderGroupOther => 'Other';
+
+  @override
+  String get builderImage => 'Image';
+
+  @override
+  String get builderDate => 'Date';
+
+  @override
+  String get builderGroupDataFields => 'Data fields';
+
+  @override
+  String get builderGenericField => 'Generic field';
+
+  @override
+  String get reportFitToScreen => 'Fit to screen';
+
+  @override
+  String get reportActualSize => 'Actual size';
+
+  @override
+  String get builderUndo => 'Undo (Ctrl+Z)';
+
+  @override
+  String get builderRedo => 'Redo (Ctrl+Y)';
+
+  @override
+  String get builderLoadTemplate => 'Load template';
+
+  @override
+  String get builderSaveTemplate => 'Save template';
+
+  @override
+  String get builderExportPdf => 'Export PDF';
+
+  @override
+  String get builderProperties => 'Properties';
+
+  @override
+  String get builderSelectElement => 'Select an element';
+
+  @override
+  String get builderSectionId => 'Identifier';
+
+  @override
+  String get builderSectionPosition => 'Position';
+
+  @override
+  String get builderSectionSize => 'Size';
+
+  @override
+  String get builderWidthMm => 'Width (mm)';
+
+  @override
+  String get builderHeightMm => 'Height (mm)';
+
+  @override
+  String get builderSectionFormatting => 'Formatting';
+
+  @override
+  String get builderFontSizeMm => 'Font size (mm)';
+
+  @override
+  String get builderFontWeight => 'Font weight';
+
+  @override
+  String get builderHorizontalAlignment => 'Horizontal alignment';
+
+  @override
+  String get builderVerticalAlignment => 'Vertical alignment';
+
+  @override
+  String get builderTextColor => 'Text color';
+
+  @override
+  String get builderBackgroundColor => 'Background color';
+
+  @override
+  String get builderUseMarkdown => 'Use Markdown';
+
+  @override
+  String get builderSectionBorder => 'Border';
+
+  @override
+  String get builderBorderWidthMm => 'Border width (mm)';
+
+  @override
+  String get builderBorderColor => 'Border color';
+
+  @override
+  String get builderSectionContent => 'Content';
+
+  @override
+  String get builderDataField => 'Data field';
+
+  @override
+  String get builderNoDataFieldsSchema =>
+      'No data fields available. Link a data schema to the template.';
+
+  @override
+  String get builderField => 'Field';
+
+  @override
+  String get builderPrefix => 'Prefix';
+
+  @override
+  String get builderSuffix => 'Suffix';
+
+  @override
+  String get builderType => 'Type';
+
+  @override
+  String get builderShowText => 'Show text';
+
+  @override
+  String get builderBorderRadiusMm => 'Corner radius (mm)';
+
+  @override
+  String get builderFillColor => 'Fill color';
+
+  @override
+  String get builderThicknessMm => 'Thickness (mm)';
+
+  @override
+  String get builderColor => 'Color';
+
+  @override
+  String get builderSource => 'Source';
+
+  @override
+  String get builderNoDataFields => 'No data fields available.';
+
+  @override
+  String get builderImageField => 'Image field';
+
+  @override
+  String get builderAssetPath => 'Asset path';
+
+  @override
+  String get builderImageUrl => 'Image URL';
+
+  @override
+  String get builderFit => 'Fit';
+
+  @override
+  String get builderBooleanField => 'Boolean field';
+
+  @override
+  String get builderLabel => 'Label';
+
+  @override
+  String get builderSizeMm => 'Size (mm)';
+
+  @override
+  String get builderMaxLines => 'Max lines';
+
+  @override
+  String get builderNone => 'None';
+
+  @override
+  String get builderSelectColor => 'Select color';
+
+  @override
+  String get builderPageSize => 'Page size';
+
+  @override
+  String get builderPortrait => 'Portrait';
+
+  @override
+  String get builderLandscape => 'Landscape';
+
+  @override
+  String get builderCard => 'Card';
+
+  @override
+  String get builderApply => 'Apply';
+
+  @override
+  String get builderTemplateLoaded => 'Template loaded';
+
+  @override
+  String builderTemplateLoadError(String error) {
+    return 'Could not load the template: $error';
+  }
+
+  @override
+  String get builderPdfExported => 'PDF exported';
+
+  @override
+  String builderPdfExportError(String error) {
+    return 'Could not export the PDF: $error';
+  }
+
+  @override
+  String builderFormulaHelp(String example) {
+    return 'Excel-like syntax, with $example for the data';
+  }
+
+  @override
+  String get builderVariables => 'Variables:';
+
+  @override
+  String get builderOutputFormat => 'Output format';
+
+  @override
+  String get builderErrorValue => 'Error value';
+
+  @override
+  String get builderErrorValueHint => 'Value shown on error';
+
+  @override
+  String get builderNoFields => 'No fields available';
+
+  @override
+  String get builderAddVariable => 'Add variable';
+
+  @override
+  String get builderEnableMarkdown => 'Enable Markdown rendering';
+
+  @override
+  String get builderMarkdownContent => 'Markdown content';
+
+  @override
+  String get builderMarkdownHint => '# Title\n\n**Bold** text';
+
+  @override
+  String get builderAutoToc => 'Automatic table of contents';
+
+  @override
+  String get builderAutoTocHelp =>
+      'Builds a table of contents from the headings';
+
+  @override
+  String get builderSyntaxHighlighting => 'Syntax highlighting';
+
+  @override
+  String get builderSyntaxHighlightingHelp => 'Highlights code blocks';
+
+  @override
+  String get builderTheme => 'Theme';
+
+  @override
+  String get builderConditionalFormatting => 'Conditional formatting';
+
+  @override
+  String get builderEnableConditionalFormatting =>
+      'Enable conditional formatting';
+
+  @override
+  String get builderConditionalFormattingHelp =>
+      'Changes the style based on the value';
+
+  @override
+  String get builderAddRule => 'Add rule';
+
+  @override
+  String builderRuleNumber(int number) {
+    return 'Rule $number';
+  }
+
+  @override
+  String get builderCondition => 'Condition';
+
+  @override
+  String get builderValue => 'Value';
+
+  @override
+  String get builderSearchText => 'Text to find';
+
+  @override
+  String get builderConditionalImages => 'Conditional images:';
+
+  @override
+  String get builderAddImageRule => 'Add image rule';
+
+  @override
+  String builderImageRuleNumber(int number) {
+    return 'Image rule $number';
+  }
+
+  @override
+  String get builderImageFieldIfTrue => 'Image field (if true)';
+
+  @override
+  String get builderImageFieldIfTrueHint => 'Data field that holds the image';
+
+  @override
+  String get builderFallbackImage => 'Fallback image (if false)';
+
+  @override
+  String get builderFallbackImageHint => 'Default asset path';
+
+  @override
+  String viewerValidationFailed(String error) {
+    return 'Data validation failed: $error';
+  }
+
+  @override
+  String get viewerLoadingTemplate => 'Loading template...';
+
+  @override
+  String get viewerError => 'Error';
+
+  @override
+  String get viewerRetry => 'Retry';
+
+  @override
+  String get viewerNoTemplate => 'No template loaded';
+
+  @override
+  String get viewerNoData => 'No data to display';
+
+  @override
+  String get viewerPreviousPage => 'Previous page';
+
+  @override
+  String get viewerNextPage => 'Next page';
+
+  @override
+  String get viewerZoomOut => 'Zoom out';
+
+  @override
+  String get viewerZoomIn => 'Zoom in';
+
+  @override
+  String get viewerMenu => 'Menu';
+
+  @override
+  String get viewerRefreshData => 'Refresh data';
+
+  @override
+  String get viewerExportReport => 'Export report';
+
+  @override
+  String get viewerSettings => 'Settings';
+
+  @override
+  String get viewerSinglePage => 'Single page';
+
+  @override
+  String get viewerContinuousScroll => 'Continuous scroll';
+
+  @override
+  String get viewerTwoPages => 'Two-page view';
+
+  @override
+  String get viewerRefreshing => 'Refreshing...';
+
+  @override
+  String get viewerExport => 'Export';
+
+  @override
+  String get viewerAnnotations => 'Annotations';
+
+  @override
+  String get viewerSidebar => 'Sidebar';
+
+  @override
+  String viewerRecordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String viewerActiveFilters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count active filters',
+      one: '1 active filter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get viewerFirstPage => 'First page';
+
+  @override
+  String get viewerLastPage => 'Last page';
+
+  @override
+  String viewerDataRefreshed(String source) {
+    return 'Data refreshed from $source';
+  }
+
+  @override
+  String viewerRefreshError(String error) {
+    return 'Could not refresh the data: $error';
+  }
+
+  @override
+  String get viewerExportPdfHelp => 'Export as a PDF document';
+
+  @override
+  String get viewerExportExcelHelp => 'Export as a spreadsheet';
+
+  @override
+  String get viewerExportCsvHelp => 'Export as a CSV file';
+
+  @override
+  String get viewerPdfExportNotReady => 'PDF export is not available yet';
+
+  @override
+  String viewerExportDone(String format) {
+    return '$format export completed';
+  }
+
+  @override
+  String get viewerOpen => 'Open';
+
+  @override
+  String viewerExportError(String format, String error) {
+    return '$format export failed: $error';
+  }
+
+  @override
+  String get viewerPrintNotReady => 'Printing is not available yet';
+
+  @override
+  String get viewerSettingsTitle => 'Viewer settings';
+
+  @override
+  String get viewerSettingsNotReady => 'Settings are not available yet';
+
+  @override
+  String viewerActiveAnnotations(int count) {
+    return 'Active annotations ($count)';
+  }
+
+  @override
+  String get viewerManage => 'Manage';
+
+  @override
+  String get viewerReportAnnotations => 'Report annotations';
+
+  @override
+  String get viewerNoAnnotations => 'No annotations';
+
+  @override
+  String get viewerAnnotationDeleted => 'Annotation deleted';
+
+  @override
+  String viewerDeleteError(String error) {
+    return 'Could not delete: $error';
+  }
+
+  @override
+  String viewerErrorDetail(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get viewerTemplateNotFound => 'Template not found';
+
+  @override
+  String get sidebarTitle => 'Report panel';
+
+  @override
+  String get sidebarFilters => 'Filters';
+
+  @override
+  String get sidebarParameters => 'Parameters';
+
+  @override
+  String get sidebarPages => 'Pages';
+
+  @override
+  String get sidebarFiltersDisabled => 'Filters are not enabled';
+
+  @override
+  String get sidebarDataFilters => 'Data filters';
+
+  @override
+  String get sidebarClear => 'Clear';
+
+  @override
+  String get sidebarAddFilter => 'Add filter';
+
+  @override
+  String get sidebarNoFilters => 'No filters set';
+
+  @override
+  String get sidebarNoFiltersHelp => 'Add filters to narrow the report data';
+
+  @override
+  String get sidebarParametersDisabled => 'Parameters are not enabled';
+
+  @override
+  String get sidebarReportParameters => 'Report parameters';
+
+  @override
+  String get sidebarAddParameter => 'Add parameter';
+
+  @override
+  String get sidebarNoParameters => 'No parameters set';
+
+  @override
+  String get sidebarNoParametersHelp =>
+      'Add parameters to customize the report';
+
+  @override
+  String get sidebarPageThumbnails => 'Page thumbnails';
+
+  @override
+  String get sidebarNoPages => 'No pages available';
+
+  @override
+  String sidebarPageNumber(int number) {
+    return 'Page $number';
+  }
+
+  @override
+  String get sidebarOpEquals => 'Equals';
+
+  @override
+  String get sidebarOpContains => 'Contains';
+
+  @override
+  String get sidebarOpGreater => 'Greater than';
+
+  @override
+  String get sidebarOpLess => 'Less than';
+
+  @override
+  String get sidebarOpBetween => 'Between';
+
+  @override
+  String get sidebarNotReady => 'Not available yet';
+
+  @override
+  String sidebarEditParameter(String name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String sidebarCurrentValue(String value) {
+    return 'Current value: $value';
+  }
+
+  @override
+  String tableSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String tableSortedBy(String column) {
+    return 'Sorted by $column';
+  }
+
+  @override
+  String tableTotalRows(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '1 row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tableExportSelected => 'Export selected';
+
+  @override
+  String get tableClickToSort => 'Click to sort';
+
+  @override
+  String tableExportNotReady(int count) {
+    return 'Exporting $count records is not available yet';
+  }
+
+  @override
+  String get chartNoData => 'No data available';
+
+  @override
+  String get chartBar => 'Bar chart';
+
+  @override
+  String get chartLine => 'Line chart';
+
+  @override
+  String get chartPie => 'Pie chart';
+
+  @override
+  String get chartArea => 'Area chart';
+
+  @override
+  String get chartScatter => 'Scatter chart';
+
+  @override
+  String get chartDataPoint => 'Data point';
+
+  @override
+  String get annotationDefaultAuthor => 'User';
+
+  @override
+  String get annotationNewTitle => 'New annotation (temporary)';
+
+  @override
+  String get annotationEditTitle => 'Edit annotation';
+
+  @override
+  String get annotationTemporaryNotice =>
+      'This annotation is temporary and is lost when you close the report';
+
+  @override
+  String get annotationContentHint => 'Write your annotation here...';
+
+  @override
+  String get annotationAuthor => 'Author';
+
+  @override
+  String get annotationAdd => 'Add';
+
+  @override
+  String get annotationContentRequired => 'The content cannot be empty';
+
+  @override
+  String get annotationTypeNote => 'Note';
+
+  @override
+  String get annotationTypeHighlight => 'Highlight';
+
+  @override
+  String get annotationTypeComment => 'Comment';
+
+  @override
+  String get annotationTypeQuestion => 'Question';
+
+  @override
+  String get annotationTypeIssue => 'Issue';
 }

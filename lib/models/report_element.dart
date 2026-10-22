@@ -65,7 +65,7 @@ class ReportElement {
     switch (type) {
       case ReportElementType.text:
         return {
-          'text': 'Testo',
+          'text': 'Text',
           'fontSize': 5.0,
           'fontWeight': 'normal',
           'fontStyle': 'normal',
@@ -209,7 +209,7 @@ class ReportElement {
         };
       case ReportElementType.pageNumber:
         return {
-          'format': 'Pagina {current} di {total}',
+          'format': 'Page {current} of {total}',
           'fontSize': 5.0,
           'alignment': 'center',
           'verticalAlignment': 'center',
@@ -263,7 +263,7 @@ class ReportElement {
         };
       case ReportElementType.markdown:
         return {
-          'markdownData': '# Titolo\n\nTesto **grassetto**',
+          'markdownData': '# Title\n\n**Bold** text',
           'useMarkdown': true,
           'markdownConfig': {
             'enableToc': false,
@@ -282,39 +282,39 @@ class ReportElement {
   String get displayName {
     switch (type) {
       case ReportElementType.text:
-        return 'Testo';
+        return 'Text';
       case ReportElementType.dynamicField:
-        return 'Campo Dinamico';
+        return 'Dynamic field';
       case ReportElementType.barcode:
         return 'Barcode';
       case ReportElementType.qrCode:
         return 'QR Code';
       case ReportElementType.image:
-        return 'Immagine';
+        return 'Image';
       case ReportElementType.line:
-        return 'Linea';
+        return 'Line';
       case ReportElementType.rectangle:
-        return 'Rettangolo';
+        return 'Rectangle';
       case ReportElementType.circle:
-        return 'Cerchio';
+        return 'Circle';
       case ReportElementType.table:
-        return 'Tabella';
+        return 'Table';
       case ReportElementType.pieChart:
-        return 'Grafico Torta';
+        return 'Pie chart';
       case ReportElementType.barChart:
-        return 'Grafico Barre';
+        return 'Bar chart';
       case ReportElementType.lineChart:
-        return 'Grafico Linee';
+        return 'Line chart';
       case ReportElementType.pageNumber:
-        return 'Numero Pagina';
+        return 'Page number';
       case ReportElementType.date:
-        return 'Data';
+        return 'Date';
       case ReportElementType.logo:
         return 'Logo';
       case ReportElementType.checkbox:
         return 'Checkbox';
       case ReportElementType.textbox:
-        return 'Casella Testo';
+        return 'Text box';
       case ReportElementType.formula:
         return 'Formula';
       case ReportElementType.markdown:

@@ -309,7 +309,7 @@ class ReportRenderer extends StatelessWidget {
   }
 
   Widget _renderText(ReportElement element, double scale) {
-    final text = element.properties['text'] ?? 'Testo';
+    final text = element.properties['text'] ?? 'Text';
     final fontSize =
         (element.properties['fontSize'] as num?)?.toDouble() ?? 5.0;
     final fontWeight = _getFontWeight(element.properties['fontWeight']);
@@ -624,7 +624,7 @@ class ReportRenderer extends StatelessWidget {
   }
 
   Widget _renderPageNumber(ReportElement element, double scale) {
-    final format = element.properties['format'] ?? 'Pagina {current}';
+    final format = element.properties['format'] ?? 'Page {current}';
     final fontSize = (element.properties['fontSize'] as num?)?.toDouble() ?? 8;
     final color = _parseColor(element.properties['color'] ?? '#666666');
 
@@ -698,7 +698,7 @@ class ReportRenderer extends StatelessWidget {
               ),
               SizedBox(height: 8 * scale),
               Text(
-                'Nessun dato tabella',
+                'No table data',
                 style: TextStyle(
                   fontSize: 8 * scale,
                   color: Colors.grey.shade600,
@@ -861,23 +861,23 @@ class ReportRenderer extends StatelessWidget {
     switch (chartType) {
       case ChartType.pie:
         icon = Icons.pie_chart;
-        label = 'Grafico Torta';
+        label = 'Pie chart';
         break;
       case ChartType.bar:
         icon = Icons.bar_chart;
-        label = 'Grafico Barre';
+        label = 'Bar chart';
         break;
       case ChartType.line:
         icon = Icons.show_chart;
-        label = 'Grafico Linee';
+        label = 'Line chart';
         break;
       case ChartType.area:
         icon = Icons.area_chart;
-        label = 'Grafico Area';
+        label = 'Area chart';
         break;
       case ChartType.scatter:
         icon = Icons.scatter_plot;
-        label = 'Grafico Dispersione';
+        label = 'Scatter chart';
         break;
     }
 

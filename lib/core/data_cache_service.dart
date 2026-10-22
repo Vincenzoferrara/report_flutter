@@ -310,7 +310,8 @@ class DataRefreshService {
             timestamp: cachedData.timestamp,
             metadata: {
               ...cachedData.metadata,
-              'warning': 'Dati dalla cache scaduta a causa di errore refresh',
+              'warning':
+                  'Data from the expired cache, because the refresh failed',
               'error': e.toString(),
             },
           );
