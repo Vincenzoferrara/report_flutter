@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 import 'package:path/path.dart' as path;
@@ -10,7 +12,9 @@ import '../viewer/renderers/report_renderer.dart';
 
 /// Service for advanced report export
 class ReportExportService {
-  /// Exports the data as CSV
+  /// Exports the data as CSV into the app documents folder.
+  ///
+  /// To let the user choose where to save, use [csvBytes] with a save dialog.
   static Future<String> exportToCSV(
     List<dynamic> data,
     ReportTemplate template, {
@@ -18,30 +22,11 @@ class ReportExportService {
     Map<String, String>? fieldHeaders,
   }) async {
     try {
-      if (data.isEmpty) {
-        throw Exception('No data to export');
-      }
-
-      final fields = selectedFields ?? _extractFieldsFromData(data);
-
-      // Create the headers
-      final headers = fields
-          .map((field) => fieldHeaders?[field] ?? field)
-          .toList();
-
-      final rows = <List<String>>[];
-      rows.add(headers);
-
-      for (final item in data) {
-        final row = fields.map((field) {
-          final value = DataExtractor.getValue(item, field);
-          return value?.toString() ?? '';
-        }).toList();
-        rows.add(row);
-      }
-
-      // Converti in CSV
-      final csvData = CsvEncoder().convert(rows);
+      final csvData = csvText(
+        data,
+        selectedFields: selectedFields,
+        fieldHeaders: fieldHeaders,
+      );
 
       final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -57,7 +42,59 @@ class ReportExportService {
     }
   }
 
-  /// Exports the data as Excel
+  /// The data as CSV bytes (UTF-8), ready for a save dialog.
+  static Uint8List csvBytes(
+    List<dynamic> data, {
+    List<String>? selectedFields,
+    Map<String, String>? fieldHeaders,
+  }) {
+    return Uint8List.fromList(
+      utf8.encode(
+        csvText(
+          data,
+          selectedFields: selectedFields,
+          fieldHeaders: fieldHeaders,
+        ),
+      ),
+    );
+  }
+
+  /// The data as CSV text.
+  static String csvText(
+    List<dynamic> data, {
+    List<String>? selectedFields,
+    Map<String, String>? fieldHeaders,
+  }) {
+    if (data.isEmpty) {
+      throw Exception('No data to export');
+    }
+
+    final fields = selectedFields ?? _extractFieldsFromData(data);
+
+    // Create the headers
+    final headers = fields
+        .map((field) => fieldHeaders?[field] ?? field)
+        .toList();
+
+    final rows = <List<String>>[];
+    rows.add(headers);
+
+    for (final item in data) {
+      final row = fields.map((field) {
+        final value = DataExtractor.getValue(item, field);
+        return value?.toString() ?? '';
+      }).toList();
+      rows.add(row);
+    }
+
+    // Converti in CSV
+    return CsvEncoder().convert(rows);
+  }
+
+  /// Exports the data as Excel into the app documents folder.
+  ///
+  /// To let the user choose where to save, use [excelBytes] with a save
+  /// dialog.
   static Future<String> exportToExcel(
     List<dynamic> data,
     ReportTemplate template, {
@@ -67,57 +104,13 @@ class ReportExportService {
     bool includeSummary = true,
   }) async {
     try {
-      if (data.isEmpty) {
-        throw Exception('No data to export');
-      }
-
-      final excel = Excel.createExcel();
-      final sheet = excel['Data'];
-
-      final fields = selectedFields ?? _extractFieldsFromData(data);
-
-      // Add the headers
-      for (int i = 0; i < fields.length; i++) {
-        final field = fields[i];
-        final header = fieldHeaders?[field] ?? field;
-        sheet
-            .cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0))
-            .value = TextCellValue(
-          header,
-        );
-
-        // Formatta intestazioni in grassetto
-        final cell = sheet.cell(
-          CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0),
-        );
-        cell.cellStyle = CellStyle(bold: true);
-      }
-
-      for (int rowIndex = 0; rowIndex < data.length; rowIndex++) {
-        final item = data[rowIndex];
-
-        for (int colIndex = 0; colIndex < fields.length; colIndex++) {
-          final field = fields[colIndex];
-          final value = DataExtractor.getValue(item, field);
-
-          final cellValue = value?.toString() ?? '';
-          sheet
-              .cell(
-                CellIndex.indexByColumnRow(
-                  columnIndex: colIndex,
-                  rowIndex: rowIndex + 1,
-                ),
-              )
-              .value = TextCellValue(
-            cellValue,
-          );
-        }
-      }
-
-      // Add a summary sheet when requested
-      if (includeSummary) {
-        _addSummarySheet(excel, data, template, fields);
-      }
+      final bytes = excelBytes(
+        data,
+        template,
+        selectedFields: selectedFields,
+        fieldHeaders: fieldHeaders,
+        includeSummary: includeSummary,
+      );
 
       final directory = await getApplicationDocumentsDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -125,13 +118,75 @@ class ReportExportService {
       final filePath = path.join(directory.path, fileName);
 
       final file = File(filePath);
-      final bytes = excel.save()!;
       await file.writeAsBytes(bytes);
 
       return filePath;
     } catch (e) {
       throw Exception('Error during the Excel export: $e');
     }
+  }
+
+  /// The data as an Excel workbook, ready for a save dialog.
+  static Uint8List excelBytes(
+    List<dynamic> data,
+    ReportTemplate template, {
+    List<String>? selectedFields,
+    Map<String, String>? fieldHeaders,
+    bool includeSummary = true,
+  }) {
+    if (data.isEmpty) {
+      throw Exception('No data to export');
+    }
+
+    final excel = Excel.createExcel();
+    final sheet = excel['Data'];
+
+    final fields = selectedFields ?? _extractFieldsFromData(data);
+
+    // Add the headers
+    for (int i = 0; i < fields.length; i++) {
+      final field = fields[i];
+      final header = fieldHeaders?[field] ?? field;
+      sheet
+          .cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0))
+          .value = TextCellValue(
+        header,
+      );
+
+      // Formatta intestazioni in grassetto
+      final cell = sheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0),
+      );
+      cell.cellStyle = CellStyle(bold: true);
+    }
+
+    for (int rowIndex = 0; rowIndex < data.length; rowIndex++) {
+      final item = data[rowIndex];
+
+      for (int colIndex = 0; colIndex < fields.length; colIndex++) {
+        final field = fields[colIndex];
+        final value = DataExtractor.getValue(item, field);
+
+        final cellValue = value?.toString() ?? '';
+        sheet
+            .cell(
+              CellIndex.indexByColumnRow(
+                columnIndex: colIndex,
+                rowIndex: rowIndex + 1,
+              ),
+            )
+            .value = TextCellValue(
+          cellValue,
+        );
+      }
+    }
+
+    // Add a summary sheet when requested
+    if (includeSummary) {
+      _addSummarySheet(excel, data, template, fields);
+    }
+
+    return Uint8List.fromList(excel.save()!);
   }
 
   /// Exports the selected data (after filters)

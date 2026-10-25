@@ -6,6 +6,7 @@ import '../formats/template_loader.dart';
 import 'renderers/report_renderer.dart';
 import 'widgets/report_sidebar.dart';
 import '../export/report_export_service.dart';
+import '../export/save_file_dialog.dart';
 import '../core/data_cache_service.dart';
 import '../core/annotation_service.dart';
 import '../l10n/report_l10n.dart';
@@ -1063,13 +1064,17 @@ class _ReportViewerState extends State<ReportViewer> {
 
   void _exportToExcel() async {
     try {
-      final filePath = await ReportExportService.exportToExcel(
-        widget.data,
-        _template!,
-        includeSummary: true,
+      final saved = await saveFileWithDialog(
+        fileName: '${_template!.name}.xlsx',
+        bytes: ReportExportService.excelBytes(
+          widget.data,
+          _template!,
+          includeSummary: true,
+        ),
+        mimeType:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       );
-
-      _showExportSuccess('Excel', filePath);
+      if (saved != null) _showExportSuccess('Excel', saved);
     } catch (e) {
       _showExportError('Excel', e);
     }
@@ -1077,33 +1082,29 @@ class _ReportViewerState extends State<ReportViewer> {
 
   void _exportToCSV() async {
     try {
-      final filePath = await ReportExportService.exportToCSV(
-        widget.data,
-        _template!,
+      final saved = await saveFileWithDialog(
+        fileName: '${_template!.name}.csv',
+        bytes: ReportExportService.csvBytes(widget.data),
+        mimeType: 'text/csv',
       );
-
-      _showExportSuccess('CSV', filePath);
+      if (saved != null) _showExportSuccess('CSV', saved);
     } catch (e) {
       _showExportError('CSV', e);
     }
   }
 
-  void _showExportSuccess(String format, String filePath) {
+  void _showExportSuccess(String format, String file) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(context.reportL10n.viewerExportDone(format)),
-        action: SnackBarAction(
-          label: context.reportL10n.viewerOpen,
-          onPressed: () {
-            // TODO: Implementare apertura file
-          },
-        ),
+        content: Text(context.reportL10n.viewerExportDone(format, file)),
         duration: const Duration(seconds: 5),
       ),
     );
   }
 
   void _showExportError(String format, dynamic error) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(context.reportL10n.viewerExportError(format, '$error')),

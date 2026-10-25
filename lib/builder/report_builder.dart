@@ -11,6 +11,7 @@ import '../models/report_template.dart';
 import '../core/data_extractor.dart';
 import '../theme/theme.dart';
 import '../export/pdf_exporter.dart';
+import '../export/save_file_dialog.dart';
 import '../formats/template_loader.dart';
 import '../viewer/report_viewer.dart';
 import '../viewer/renderers/report_renderer.dart';
@@ -2988,21 +2989,18 @@ extension ReportBuilderMethods on _ReportBuilderState {
         data: dataList,
       );
 
-      final result = await FilePicker.saveFile(
+      final result = await saveFileWithDialog(
         dialogTitle: l10n.builderExportPdf,
-        fileName:
-            '${_template.name}_${DateTime.now().millisecondsSinceEpoch}.pdf',
+        fileName: '${_template.name}.pdf',
         bytes: bytes,
         mimeType: 'application/pdf',
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
       );
 
       if (result != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.builderPdfExported),
+              content: Text(l10n.printPdfSaved(result)),
               backgroundColor: Colors.green,
             ),
           );

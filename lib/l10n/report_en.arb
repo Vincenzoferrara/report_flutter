@@ -44,7 +44,16 @@
   },
   "printSavePdf": "Save PDF",
   "@printSavePdf": {
-    "description": "Button saving or sharing the PDF"
+    "description": "Button saving the PDF where the user chooses; also the title of the save dialog"
+  },
+  "printPdfSaved": "PDF saved: {file}",
+  "@printPdfSaved": {
+    "description": "Shown after the PDF was saved through the save dialog",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
   },
   "printPrintError": "Printing failed: {error}",
   "@printPrintError": {
@@ -1179,11 +1188,14 @@
   "@viewerPdfExportNotReady": {
     "description": "viewerPdfExportNotReady (report_viewer.dart)"
   },
-  "viewerExportDone": "{format} export completed",
+  "viewerExportDone": "{format} saved: {file}",
   "@viewerExportDone": {
     "description": "viewerExportDone (report_viewer.dart)",
     "placeholders": {
       "format": {
+        "type": "String"
+      },
+      "file": {
         "type": "String"
       }
     }

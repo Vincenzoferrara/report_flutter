@@ -146,11 +146,17 @@ abstract class ReportLocalizations {
   /// **'Template \"{name}\" saved'**
   String printTemplateSaved(String name);
 
-  /// Button saving or sharing the PDF
+  /// Button saving the PDF where the user chooses; also the title of the save dialog
   ///
   /// In en, this message translates to:
   /// **'Save PDF'**
   String get printSavePdf;
+
+  /// Shown after the PDF was saved through the save dialog
+  ///
+  /// In en, this message translates to:
+  /// **'PDF saved: {file}'**
+  String printPdfSaved(String file);
 
   /// Error shown when printing or saving fails
   ///
@@ -1607,8 +1613,8 @@ abstract class ReportLocalizations {
   /// viewerExportDone (report_viewer.dart)
   ///
   /// In en, this message translates to:
-  /// **'{format} export completed'**
-  String viewerExportDone(String format);
+  /// **'{format} saved: {file}'**
+  String viewerExportDone(String format, String file);
 
   /// viewerOpen (report_viewer.dart)
   ///

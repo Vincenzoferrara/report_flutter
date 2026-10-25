@@ -197,11 +197,21 @@ class _PrintSettingsViewState extends State<_PrintSettingsView> {
               busy: _busy,
               canPrint: _controller.canPrint,
               onPrint: () => _run(_controller.printSelected),
-              onShare: () => _run(_controller.shareSelected),
+              onSave: () => _run(_saveSelected),
             ),
           ],
         );
       },
+    );
+  }
+
+  Future<void> _saveSelected(BuildContext context) async {
+    final saved = await _controller.saveSelected(context);
+    // Cancelling the dialog is not an error: nothing to show.
+    if (saved == null || !context.mounted) return;
+    context.showPrintMessage(
+      context.reportL10n.printPdfSaved(saved),
+      kind: PrintMessageKind.success,
     );
   }
 
@@ -621,13 +631,13 @@ class _PrintActionBar extends StatelessWidget {
     required this.busy,
     required this.canPrint,
     required this.onPrint,
-    required this.onShare,
+    required this.onSave,
   });
 
   final bool busy;
   final bool canPrint;
   final VoidCallback onPrint;
-  final VoidCallback onShare;
+  final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -648,7 +658,7 @@ class _PrintActionBar extends StatelessWidget {
             children: [
               Flexible(
                 child: OutlinedButton.icon(
-                  onPressed: enabled ? onShare : null,
+                  onPressed: enabled ? onSave : null,
                   icon: const Icon(Icons.picture_as_pdf_outlined),
                   label: Text(l10n.printSavePdf),
                 ),

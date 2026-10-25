@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
+import '../export/save_file_dialog.dart';
+import '../l10n/report_l10n.dart';
 import 'paper_format.dart';
 import 'print_data_provider.dart';
 import 'print_job.dart';
@@ -186,10 +188,18 @@ class PrintController extends ChangeNotifier {
     );
   }
 
-  /// Saves or shares the PDF.
-  Future<void> shareSelected(BuildContext context) async {
+  /// Saves the PDF where the user chooses, through the system save dialog.
+  ///
+  /// Returns the saved file's name or path, or null when the user cancels.
+  Future<String?> saveSelected(BuildContext context) async {
+    final dialogTitle = context.reportL10n.printSavePdf;
     final bytes = await PrintPdfRenderer.render(request(context));
-    await Printing.sharePdf(bytes: bytes, filename: '$_fileName.pdf');
+    return saveFileWithDialog(
+      dialogTitle: dialogTitle,
+      fileName: '$_fileName.pdf',
+      bytes: bytes,
+      mimeType: 'application/pdf',
+    );
   }
 
   String get _fileName {

@@ -40,6 +40,11 @@ class ReportLocalizationsEn extends ReportLocalizations {
   String get printSavePdf => 'Save PDF';
 
   @override
+  String printPdfSaved(String file) {
+    return 'PDF saved: $file';
+  }
+
+  @override
   String printPrintError(String error) {
     return 'Printing failed: $error';
   }
@@ -887,8 +892,8 @@ class ReportLocalizationsEn extends ReportLocalizations {
   String get viewerPdfExportNotReady => 'PDF export is not available yet';
 
   @override
-  String viewerExportDone(String format) {
-    return '$format export completed';
+  String viewerExportDone(String format, String file) {
+    return '$format saved: $file';
   }
 
   @override
