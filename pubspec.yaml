@@ -6,6 +6,8 @@ version: 1.0.0
 homepage: https://github.com/Vincenzoferrara/report_flutter
 repository: https://github.com/Vincenzoferrara/report_flutter
 issue_tracker: https://github.com/Vincenzoferrara/report_flutter/issues
+funding:
+  - https://ko-fi.com/vinc0101
 topics:
   - pdf
   - printing

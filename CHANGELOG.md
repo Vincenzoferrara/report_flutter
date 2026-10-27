@@ -1,3 +1,7 @@
+## Unreleased
+
+- Ko-fi donation link on pub.dev, GitHub and in the README.
+
 ## 1.0.0
 
 - First public release on pub.dev, licensed under GPL-3.0.

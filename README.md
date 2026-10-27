@@ -1,5 +1,6 @@
 [![pub package](https://img.shields.io/pub/v/report_flutter.svg)](https://pub.dev/packages/report_flutter)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](https://github.com/Vincenzoferrara/report_flutter/blob/main/LICENSE)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-support-ff5e5b?logo=kofi&logoColor=white)](https://ko-fi.com/vinc0101)
 
 Design, preview and print labels and reports in Flutter: a drag-and-drop
 designer, ready-made paper formats, barcodes, QR codes and PDF printing.
@@ -23,6 +24,7 @@ designer, ready-made paper formats, barcodes, QR codes and PDF printing.
 - [Usage](#usage)
 - [Supported elements](#supported-elements)
 - [Additional information](#additional-information)
+- [Support the project](#support-the-project)
 
 ## Features
 
@@ -297,7 +299,12 @@ SchemaRegistry.register('Product', () => ProductSchema());
 - **Changelog:**
   [CHANGELOG.md](https://github.com/Vincenzoferrara/report_flutter/blob/main/CHANGELOG.md).
 
-### License
+## Support the project
+
+report_flutter is free. If it helps your app, you can support its
+development on [Ko-fi](https://ko-fi.com/vinc0101).
+
+## License
 
 Copyright © 2025-2026 Vincenzo Ferrara.
 
