@@ -1,0 +1,90 @@
+name: Release
+
+# Every push to main becomes a new pub.dev version. The job writes the release
+# commit itself: pubspec version, CHANGELOG section, "Release vX.Y.Z" commit
+# and tag. A tag pushed with GITHUB_TOKEN never starts another workflow, so the
+# job then starts publish.yml on that tag with a workflow_dispatch event, which
+# GITHUB_TOKEN is allowed to do.
+#
+# Version: the patch number goes up by one. To release a new minor or major
+# version, write it in pubspec.yaml before pushing: a version newer than the
+# last tag is released as it is.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Prepare release commit and tag
+    # The release commit pushed by this job does not start a run, but a
+    # release commit pushed by hand is already tagged.
+    if: ${{ !startsWith(github.event.head_commit.message, 'Release v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Resolve version
+        id: version
+        run: |
+          current=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml)
+          last_tag=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+          last=${last_tag#v}
+          if ! [[ "$current" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid pubspec version '$current'. Expected MAJOR.MINOR.PATCH."
+            exit 1
+          fi
+          newest=$(printf '%s\n%s\n' "$current" "$last" | sort -V | tail -n1)
+          if [ -n "$last" ] && [ "$newest" = "$last" ]; then
+            IFS=. read -r major minor patch <<< "$last"
+            version="$major.$minor.$((patch + 1))"
+          else
+            version="$current"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "last_tag=$last_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version and changelog, then tag
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          LAST_TAG: ${{ steps.version.outputs.last_tag }}
+        run: |
+          sed -i "s/^version:.*/version: $VERSION/" pubspec.yaml
+
+          # The "## Unreleased" section becomes this version. Without one, the
+          # commit subjects since the last tag are the changelog.
+          if grep -qx '## Unreleased' CHANGELOG.md; then
+            sed -i "0,/^## Unreleased\$/s//## $VERSION/" CHANGELOG.md
+          else
+            range=${LAST_TAG:+$LAST_TAG..}HEAD
+            notes=$(git log --no-merges --format='- %s' "$range")
+            {
+              printf '## %s\n\n%s\n\n' "$VERSION" "${notes:-- Maintenance release.}"
+              cat CHANGELOG.md
+            } > CHANGELOG.new
+            mv CHANGELOG.new CHANGELOG.md
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release v$VERSION"
+          git tag -a "v$VERSION" -m "report_flutter $VERSION"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "v$VERSION"
+
+      - name: Publish the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh workflow run publish.yml --ref "v$VERSION"
