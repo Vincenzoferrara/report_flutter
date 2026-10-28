@@ -1,4 +1,4 @@
-## Unreleased
+## 1.0.1
 
 - Ko-fi donation link on pub.dev, GitHub and in the README.
 

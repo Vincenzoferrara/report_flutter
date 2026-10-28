@@ -2,7 +2,7 @@ name: report_flutter
 description: >-
   Flutter library to design, preview and print labels and reports: drag-and-drop
   designer, paper formats, barcodes, QR codes and PDF export.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/Vincenzoferrara/report_flutter
 repository: https://github.com/Vincenzoferrara/report_flutter
 issue_tracker: https://github.com/Vincenzoferrara/report_flutter/issues
