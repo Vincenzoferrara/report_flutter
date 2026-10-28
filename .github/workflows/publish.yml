@@ -1,18 +1,26 @@
 name: Publish to pub.dev
 
-# pub.dev automated publishing: the job proves with a GitHub OIDC token that it
+# A vX.Y.Z tag publishes the package: pub.dev reads the version from
+# pubspec.yaml, so the tag must match it exactly. Bump the version and the
+# CHANGELOG entry, commit, then push the tag. Nothing is published on a push to
+# main, so a release is always the result of an explicit decision.
+#
+# pub.dev automated publishing proves with a GitHub OIDC token that this job
 # runs in this repository on a matching tag, so no pub.dev secret is stored.
-# pub.dev accepts it only after "Automated publishing" is enabled on the
-# package admin page with the tag pattern v{{version}}. The first version of a
-# package must be published by hand. release.yml starts this workflow on the
-# tag it creates with a workflow_dispatch event, which pub.dev accepts only
-# with "Enable publishing from workflow_dispatch events" ticked there too.
+# It has to be enabled on the package admin page with the tag pattern
+# v{{version}}. The first version of a package must be published by hand.
 
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+*'
-  workflow_dispatch:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -26,10 +34,6 @@ jobs:
 
       - name: Check the tag matches pubspec.yaml
         run: |
-          if [ "$GITHUB_REF_TYPE" != tag ]; then
-            echo "::error::Run this workflow on a version tag, not on $GITHUB_REF_NAME."
-            exit 1
-          fi
           version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml)
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match pubspec.yaml version $version."
